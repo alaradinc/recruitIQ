@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RecruitIQ — My Team</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font: 'Instrument Sans', -apple-system, sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+    --bg: #3C5A3A; --bg-deep: #2D4529; --bg-mid: #4A6B48;
+    --card: #F6F1E7; --card2: #EDE7D9; --card-border: #DDD6C4; --card-hover: #FFFDF5;
+    --text-muted: #727a72; --text-strong: #565e56; --text: #727a72; --text2: #727a72; --text3: #727a72;
+    --head-text: #b8bdb6; --head-text2: #cdd1cb; --head-text3: #979d95; --head-faint: rgba(190,196,188,0.52);
+    --head-border: rgba(159,163,154,0.14); --on-deep: #F2EDE4; --head-wash: rgba(255,255,255,0.07); --head-wash2: rgba(255,255,255,0.12);
+    --accent: #2D7A4F; --accent-soft: rgba(45,122,79,0.1); --mint: #3DA06A; --mint-soft: rgba(61,160,106,0.1);
+    --gold: #B8892A; --gold-soft: rgba(184,137,42,0.1); --rose: #C24B44; --rose-soft: rgba(194,75,68,0.1);
+    --blue: #5A8BBF; --blue-soft: rgba(90,139,191,0.1); --orange: #C47A3A; --orange-soft: rgba(196,122,58,0.1);
+    --radius: 10px;
+  }
+  .card, .detail-panel, .msg-panel, .notes-panel {
+    --text-strong: #0b0d0b;
+    --text: #141814;
+    --text2: #2d322d;
+    --text3: #3a413a;
+    --text-muted: #3a413a;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:var(--font); font-size:13px; line-height:1.5; min-height:100vh; display:flex; -webkit-font-smoothing:antialiased; }
+
+  /* ═══ SIDEBAR ═══ */
+  .sidebar { width:224px; background:var(--bg-deep); border-right:1px solid var(--head-border); display:flex; flex-direction:column; padding:28px 14px; position:fixed; top:0; left:0; bottom:0; z-index:100; }
+  .logo { font-size:18px; font-weight:700; color:var(--head-text); margin-bottom:40px; padding:0 10px; }
+  .logo span { color:var(--mint); }
+  .nav-label { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:2px; color:var(--head-faint); padding:0 10px; margin:24px 0 10px; }
+  .nav-label:first-of-type { margin-top:0; }
+  .nav-item { display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:500; color:var(--head-text3); transition:all 0.15s; }
+  .nav-item:hover { background:var(--head-wash); color:var(--head-text2); }
+  .nav-item.active { background:var(--head-wash2); color:var(--head-text); font-weight:600; border:1px solid var(--head-border); }
+  a.nav-item, a.logo { text-decoration:none; }
+  .ni { width:20px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .nav-badge { margin-left:auto; font-family:var(--mono); background:var(--rose); color:#fff; font-size:10px; font-weight:500; padding:1px 7px; border-radius:10px; }
+  .nav-criteria { color:var(--mint) !important; font-weight:600 !important; }
+  .sidebar-bottom { margin-top:auto; border-top:1px solid var(--head-border); padding-top:16px; }
+  .user-block { display:flex; align-items:center; gap:10px; padding:10px; border-radius:8px; cursor:pointer; }
+  .user-block:hover { background:var(--head-wash); }
+  .user-av { width:34px; height:34px; border-radius:50%; background:var(--mint); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:var(--bg-deep); }
+  .user-name { font-size:13px; font-weight:600; color:var(--head-text); }
+  .user-role { font-size:11px; color:var(--head-text3); }
+
+  /* ═══ MAIN ═══ */
+  .main { margin-left:224px; flex:1; min-height:100vh; display:flex; flex-direction:column; }
+  .topbar { height:56px; border-bottom:1px solid var(--head-border); display:flex; align-items:center; padding:0 32px; background:var(--bg-deep); position:sticky; top:0; z-index:50; }
+  .topbar-title { font-size:15px; font-weight:700; color:var(--head-text); flex-shrink:0; }
+  .topbar-search { flex:1; max-width:440px; margin:0 24px; display:flex; align-items:center; gap:8px; background:var(--head-wash); border:1px solid var(--head-border); border-radius:8px; padding:6px 12px; transition:all 0.15s; color:var(--head-text3); }
+  .topbar-search:focus-within { border-color:var(--head-text2); background:var(--head-wash2); }
+  .topbar-search svg { flex-shrink:0; }
+  .topbar-search input { flex:1; border:none; outline:none; background:none; font-family:var(--font); font-size:12.5px; color:var(--head-text); }
+  .topbar-search input::placeholder { color:var(--head-faint); }
+  .topbar-search-shortcut { font-family:var(--mono); font-size:10px; font-weight:500; color:var(--head-text3); background:var(--head-wash); border:1px solid var(--head-border); padding:1px 6px; border-radius:4px; flex-shrink:0; }
+  .topbar-right { margin-left:auto; display:flex; align-items:center; gap:10px; flex-shrink:0; }
+  .htag { display:inline-flex; align-items:center; padding:4px 11px; border-radius:20px; font-size:10.5px; font-weight:600; }
+  .htag-mint { background:rgba(61,160,106,0.15); color:var(--mint); }
+  .icon-btn { width:34px; height:34px; border-radius:50%; border:1px solid var(--head-border); background:transparent; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:14px; color:var(--head-text3); transition:all 0.15s; }
+  .icon-btn:hover { border-color:var(--head-text3); color:var(--head-text2); }
+
+  .team-tabs { display:flex; align-items:center; gap:0; padding:0 32px; background:var(--bg-deep); border-bottom:1px solid var(--head-border); }
+  .team-tab { padding:10px 16px; font-size:12px; font-weight:500; color:var(--head-text3); cursor:pointer; border-bottom:2px solid transparent; transition:all 0.15s; white-space:nowrap; }
+  .team-tab:hover { color:var(--head-text2); }
+  .team-tab.active { color:var(--head-text); font-weight:600; border-bottom-color:var(--mint); }
+  .gender-badge {
+    font-size:9px; font-weight:700; padding:1px 5px;
+    border-radius:4px; margin-left:3px; letter-spacing:0.3px;
+    vertical-align:middle;
+  }
+  .gender-m { background:rgba(130,170,220,0.2); color:rgba(150,185,230,0.9); }
+  .gender-w { background:rgba(220,150,170,0.2); color:rgba(230,160,180,0.9); }
+
+  .add-sport-wrap { position:relative; display:flex; align-items:stretch; margin-left:2px; }
+  .add-sport-trigger {
+    display:flex; align-items:center; gap:6px;
+    padding:10px 14px; font-family:var(--font); font-size:12px; font-weight:600;
+    color:var(--head-text3); background:transparent; border:none;
+    border-bottom:2px solid transparent; cursor:pointer; transition:all 0.15s; white-space:nowrap;
+  }
+  .add-sport-trigger:hover { color:var(--head-text2); }
+  .add-sport-wrap.open .add-sport-trigger { color:var(--head-text); border-bottom-color:var(--mint); }
+  .add-sport-chev { flex-shrink:0; opacity:0.85; }
+  .add-sport-panel {
+    position:absolute; top:100%; right:0; margin-top:6px; min-width:248px;
+    padding:14px 16px; background:var(--bg-deep); border:1px solid var(--head-border);
+    border-radius:8px; box-shadow:0 14px 40px rgba(0,0,0,0.28);
+    z-index:120; display:none; flex-direction:column; gap:14px;
+  }
+  .add-sport-wrap.open .add-sport-panel { display:flex; }
+  .add-sport-label {
+    font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.9px;
+    color:var(--head-faint);
+  }
+  .add-sport-select {
+    margin-top:6px; width:100%; padding:8px 10px; border-radius:6px;
+    border:1px solid var(--head-border); background:var(--head-wash); color:var(--head-text);
+    font-family:var(--font); font-size:12px; outline:none; cursor:pointer; box-sizing:border-box;
+  }
+  .add-sport-select:focus { border-color:var(--mint); }
+  .add-sport-genders { display:flex; gap:8px; margin-top:6px; }
+  .add-sport-gbtn {
+    flex:1; padding:8px 10px; border-radius:6px; border:1px solid var(--head-border);
+    background:var(--head-wash); color:var(--head-text3); font-family:var(--font);
+    font-size:11px; font-weight:600; cursor:pointer; transition:all 0.15s;
+  }
+  .add-sport-gbtn:hover { color:var(--head-text2); }
+  .add-sport-gbtn.active { background:var(--mint); color:var(--bg-deep); border-color:var(--mint); }
+  .add-sport-add {
+    padding:9px 12px; border:none; border-radius:6px; background:var(--mint);
+    color:var(--bg-deep); font-family:var(--font); font-size:12px; font-weight:700;
+    cursor:pointer; transition:opacity 0.15s;
+  }
+  .add-sport-add:hover { opacity:0.9; }
+
+  .tag { display:inline-flex; align-items:center; padding:3px 10px; border-radius:20px; font-size:10.5px; font-weight:600; }
+  .tag-mint { background:var(--mint-soft); color:var(--accent); }
+  .tag-gold { background:var(--gold-soft); color:var(--gold); }
+  .tag-blue { background:var(--blue-soft); color:var(--blue); }
+  .tag-rose { background:var(--rose-soft); color:var(--rose); }
+  .tag-orange { background:var(--orange-soft); color:var(--orange); }
+
+  /* ═══ CONTENT ═══ */
+  .content { padding:28px 32px; display:flex; flex-direction:column; gap:20px; }
+
+  .page-header { display:flex; align-items:center; gap:16px; }
+  .page-title { font-size:18px; font-weight:700; color:var(--head-text); }
+  .page-count { font-family:var(--mono); font-size:13px; font-weight:500; color:var(--head-text3); }
+  .page-actions { margin-left:auto; display:flex; gap:8px; }
+  .btn-page { padding:8px 16px; border-radius:7px; font-family:var(--font); font-size:12px; font-weight:600; cursor:pointer; border:1px solid var(--head-border); background:var(--head-wash); color:var(--head-text2); transition:all 0.15s; }
+  .btn-page:hover { border-color:var(--head-text3); color:var(--head-text); }
+  .btn-page-primary { background:var(--mint); color:var(--bg-deep); border:none; }
+  .btn-page-primary:hover { opacity:0.9; }
+
+  .card { background:var(--card); border:1px solid var(--card-border); border-radius:var(--radius); overflow:hidden; }
+  .card-header { padding:14px 20px; border-bottom:1px solid var(--card-border); display:flex; align-items:center; gap:10px; }
+  .card-title { font-size:14px; font-weight:700; color:var(--text-strong); }
+  .card-actions { margin-left:auto; display:flex; gap:6px; }
+  .btn-sm { padding:5px 12px; border-radius:6px; font-family:var(--font); font-size:11px; font-weight:500; cursor:pointer; border:1px solid var(--card-border); background:var(--card2); color:var(--text2); transition:all 0.15s; }
+  .btn-sm:hover { border-color:var(--accent); color:var(--accent); }
+
+  /* ═══ TEAM COMPOSITION ANALYTICS ═══ */
+  .comp-grid { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:12px; }
+
+  .comp-card { background:var(--card); border:1px solid var(--card-border); border-radius:var(--radius); padding:20px; }
+  .comp-label { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:1.2px; color:var(--text3); margin-bottom:10px; }
+  .comp-value { font-family:var(--mono); font-size:28px; font-weight:600; line-height:1; }
+  .comp-sub { font-size:11px; color:var(--text3); margin-top:6px; }
+  .comp-sub .up { color:var(--accent); font-weight:600; }
+
+  /* Position summary */
+  .pos-summary { padding:16px 20px; display:flex; gap:10px; }
+  .pos-pill {
+    flex:1; background:var(--card2); border:1px solid var(--card-border);
+    border-radius:8px; padding:12px 14px; display:flex; align-items:center; gap:10px;
+  }
+  .pos-pill.has-gap { border-color:var(--orange); border-style:dashed; }
+  .pos-pill-label { font-size:12px; font-weight:700; color:var(--text-strong); }
+  .pos-pill-count { font-family:var(--mono); font-size:14px; font-weight:600; margin-left:auto; }
+  .pos-pill-bar { width:40px; height:5px; background:var(--card-border); border-radius:3px; margin-left:auto; }
+  .pos-pill-fill { height:100%; border-radius:3px; }
+
+  /* Role tags */
+  .role-tags { display:flex; flex-wrap:wrap; gap:4px; align-items:center; }
+  .role-tag {
+    display:inline-flex; align-items:center; gap:4px;
+    padding:3px 8px; border-radius:12px;
+    font-size:10.5px; font-weight:600;
+    animation:chipIn 0.15s ease;
+  }
+  @keyframes chipIn { from { opacity:0; transform:scale(0.9); } to { opacity:1; transform:scale(1); } }
+  .role-tag-x {
+    width:14px; height:14px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:9px; cursor:pointer; border:none;
+    background:rgba(0,0,0,0.08); color:inherit;
+    font-family:var(--font); transition:background 0.15s;
+  }
+  .role-tag-x:hover { background:rgba(0,0,0,0.18); }
+  .role-starter { background:var(--mint-soft); color:var(--accent); }
+  .role-captain { background:var(--gold-soft); color:var(--gold); }
+  .role-6th { background:var(--blue-soft); color:var(--blue); }
+  .role-reserve { background:var(--card-border); color:var(--text2); }
+  .role-redshirt { background:var(--orange-soft); color:var(--orange); }
+  .role-practice { background:var(--card2); color:var(--text3); border:1px dashed var(--card-border); }
+
+  .role-add {
+    width:22px; height:22px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    border:1px dashed var(--card-border); background:none;
+    font-size:12px; color:var(--text3); cursor:pointer;
+    font-family:var(--font); transition:all 0.15s;
+    position:relative;
+  }
+  .role-add:hover { border-color:var(--accent); color:var(--accent); }
+
+  .role-menu {
+    position:absolute; top:calc(100% + 4px); left:0;
+    background:var(--card); border:1px solid var(--card-border);
+    border-radius:8px; padding:4px; box-shadow:0 4px 16px rgba(0,0,0,0.1);
+    z-index:10; display:none; flex-direction:column; min-width:120px;
+  }
+  .role-menu.open { display:flex; }
+  .role-menu-item {
+    padding:6px 10px; border-radius:5px;
+    font-size:11px; font-weight:500; color:var(--text2);
+    cursor:pointer; transition:all 0.1s; border:none;
+    background:none; text-align:left; font-family:var(--font);
+  }
+  .role-menu-item:hover { background:var(--mint-soft); color:var(--accent); }
+
+  /* ═══ ROSTER TABLE ═══ */
+  .roster-table { width:100%; border-collapse:collapse; }
+  .roster-table th { padding:11px 14px; font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:1.2px; color:var(--text-muted); text-align:left; border-bottom:1px solid var(--card-border); }
+  .roster-table td { padding:12px 14px; font-size:13px; border-bottom:1px solid var(--card-border); color:var(--text); }
+  .roster-table tbody tr { transition:background 0.1s; cursor:pointer; }
+  .roster-table tbody tr:hover { background:var(--card-hover); }
+  .roster-table tbody tr:last-child td { border-bottom:none; }
+
+  .at-name { font-weight:700; color:var(--text-strong); letter-spacing:-0.02em; }
+  .at-sub { font-size:11px; color:var(--text2); margin-top:2px; line-height:1.35; }
+  .at-org { font-size:10.5px; color:var(--text-muted); margin-top:3px; line-height:1.35; }
+  .jersey { font-family:var(--mono); font-size:14px; font-weight:600; color:var(--text-strong); }
+
+  /* (role-select replaced by role-tags above) */
+
+  /* ═══ PLAYER DETAIL PANEL ═══ */
+  .detail-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.35); z-index:200; opacity:0; pointer-events:none; transition:opacity 0.25s; }
+  .detail-overlay.open { opacity:1; pointer-events:all; }
+  .detail-panel { position:fixed; top:0; right:0; bottom:0; width:540px; background:var(--card); border-left:1px solid var(--card-border); z-index:201; display:flex; flex-direction:column; transform:translateX(100%); transition:transform 0.3s ease; box-shadow:-8px 0 32px rgba(0,0,0,0.15); overflow-y:auto; }
+  .detail-panel.open { transform:translateX(0); }
+
+  .dp-header { padding:20px 24px; border-bottom:1px solid var(--card-border); display:flex; align-items:flex-start; gap:16px; position:sticky; top:0; background:var(--card); z-index:1; }
+  .dp-avatar { width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:700; flex-shrink:0; }
+  .dp-info { flex:1; }
+  .dp-name { font-size:18px; font-weight:700; color:var(--text-strong); }
+  .dp-meta { font-size:12px; color:var(--text3); margin-top:2px; }
+  .dp-tags { display:flex; gap:6px; margin-top:8px; flex-wrap:wrap; }
+  .dp-close { width:32px; height:32px; display:flex; align-items:center; justify-content:center; border:1px solid var(--card-border); background:var(--card2); border-radius:8px; cursor:pointer; color:var(--text3); transition:all 0.15s; flex-shrink:0; }
+  .dp-close:hover { border-color:var(--accent); color:var(--accent); }
+
+  .dp-actions { padding:16px 24px; border-bottom:1px solid var(--card-border); display:flex; gap:8px; }
+  .dp-btn { padding:8px 16px; border-radius:7px; font-family:var(--font); font-size:12px; font-weight:600; cursor:pointer; transition:all 0.15s; }
+  .dp-btn-primary { background:var(--bg-deep); color:var(--on-deep); border:none; }
+  .dp-btn-primary:hover { opacity:0.9; }
+  .dp-btn-secondary { background:var(--card2); color:var(--text2); border:1px solid var(--card-border); }
+  .dp-btn-secondary:hover { border-color:var(--accent); color:var(--accent); }
+
+  .dp-section { padding:20px 24px; border-bottom:1px solid var(--card-border); }
+  .dp-section:last-child { border-bottom:none; }
+  .dp-section-title { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; color:var(--text3); margin-bottom:14px; }
+
+  .dp-stats { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
+  .dp-stat { background:var(--card2); border-radius:8px; padding:12px; text-align:center; }
+  .dp-stat-val { font-family:var(--mono); font-size:20px; font-weight:600; }
+  .dp-stat-label { font-size:10px; font-weight:500; color:var(--text3); margin-top:2px; text-transform:uppercase; letter-spacing:0.5px; }
+
+  .dp-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--card-border); }
+  .dp-row:last-child { border-bottom:none; }
+  .dp-row-label { font-size:12px; font-weight:500; color:var(--text3); }
+  .dp-row-value { font-size:12.5px; font-weight:600; color:var(--text-strong); }
+
+  .dp-metric-row { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+  .dp-metric-label { font-size:12px; font-weight:500; color:var(--text2); width:100px; flex-shrink:0; }
+  .dp-metric-track { flex:1; height:5px; background:var(--card-border); border-radius:3px; }
+  .dp-metric-fill { height:100%; border-radius:3px; }
+  .dp-metric-val { font-family:var(--mono); font-size:11px; font-weight:600; width:28px; text-align:right; }
+
+  /* Roster filter */
+  .roster-filter {
+    display:flex; align-items:center; gap:5px;
+    padding:5px 10px; border-radius:6px;
+    border:none; background:transparent;
+    font-family:var(--font); font-size:11.5px; font-weight:500;
+    color:var(--text3); cursor:pointer; transition:all 0.15s;
+    position:relative;
+  }
+  .roster-filter:hover { color:var(--text2); }
+  .roster-filter.has-filters { color:var(--accent); }
+  .rf-count {
+    font-family:var(--mono); font-size:9px; font-weight:600;
+    background:var(--accent); color:white;
+    width:16px; height:16px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .rf-dropdown {
+    position:absolute; top:calc(100% + 6px); right:0;
+    background:var(--card); border:1px solid var(--card-border);
+    border-radius:10px; padding:14px 16px;
+    box-shadow:0 8px 32px rgba(0,0,0,0.12);
+    z-index:100; width:280px;
+    display:none; flex-direction:column; gap:12px;
+  }
+  .rf-dropdown.open { display:flex; }
+  .rf-label { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:1.2px; color:var(--text3); margin-bottom:5px; }
+  .rf-chips { display:flex; flex-wrap:wrap; gap:4px; }
+  .rf-chip {
+    padding:4px 10px; border-radius:16px;
+    border:1px solid var(--card-border); background:var(--card2);
+    font-family:var(--font); font-size:10.5px; font-weight:500;
+    color:var(--text2); cursor:pointer; transition:all 0.15s;
+  }
+  .rf-chip:hover { border-color:var(--accent); color:var(--accent); }
+  .rf-chip.selected { border-color:var(--accent); background:var(--mint-soft); color:var(--accent); font-weight:600; }
+  .rf-sep { height:1px; background:var(--card-border); }
+  .rf-apply {
+    padding:7px; background:var(--bg-deep); color:var(--on-deep);
+    border:none; border-radius:6px; font-family:var(--font);
+    font-size:11px; font-weight:700; cursor:pointer; text-align:center;
+  }
+
+  /* ═══ MESSAGE PANEL ═══ */
+  .msg-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.3); z-index:210; opacity:0; pointer-events:none; transition:opacity 0.25s; }
+  .msg-overlay.open { opacity:1; pointer-events:all; }
+  .msg-panel { position:fixed; top:0; right:0; bottom:0; width:420px; background:var(--card); border-left:1px solid var(--card-border); z-index:211; display:flex; flex-direction:column; transform:translateX(100%); transition:transform 0.3s ease; box-shadow:-8px 0 32px rgba(0,0,0,0.12); }
+  .msg-panel.open { transform:translateX(0); }
+  .msg-header { padding:18px 24px; border-bottom:1px solid var(--card-border); display:flex; align-items:center; gap:10px; }
+  .msg-title { font-size:15px; font-weight:700; color:var(--text-strong); flex:1; }
+  .msg-close { width:28px; height:28px; display:flex; align-items:center; justify-content:center; border:1px solid var(--card-border); background:var(--card2); border-radius:6px; cursor:pointer; color:var(--text3); transition:all 0.15s; }
+  .msg-close:hover { border-color:var(--accent); color:var(--accent); }
+  .msg-body { flex:1; overflow-y:auto; padding:20px 24px; display:flex; flex-direction:column; gap:16px; }
+  .msg-field { display:flex; flex-direction:column; gap:6px; }
+  .msg-label { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:1.2px; color:var(--text3); }
+  .msg-input { padding:9px 12px; border-radius:7px; border:1px solid var(--card-border); background:var(--card2); color:var(--text-strong); font-family:var(--font); font-size:12.5px; outline:none; transition:border-color 0.15s; }
+  .msg-input:focus { border-color:var(--accent); }
+  .msg-textarea { padding:12px; border-radius:7px; border:1px solid var(--card-border); background:var(--card2); color:var(--text-strong); font-family:var(--font); font-size:12.5px; outline:none; min-height:140px; resize:vertical; transition:border-color 0.15s; line-height:1.6; }
+  .msg-textarea:focus { border-color:var(--accent); }
+  .msg-textarea::placeholder { color:var(--text3); }
+  .msg-channel { display:flex; gap:6px; }
+  .msg-ch { padding:6px 14px; border-radius:20px; border:1px solid var(--card-border); background:var(--card2); font-family:var(--font); font-size:11px; font-weight:500; color:var(--text2); cursor:pointer; transition:all 0.15s; }
+  .msg-ch:hover { border-color:var(--accent); color:var(--accent); }
+  .msg-ch.active { border-color:var(--accent); background:var(--mint-soft); color:var(--accent); font-weight:600; }
+  .msg-template { padding:9px 12px; border-radius:7px; border:1px solid var(--card-border); background:var(--card2); color:var(--text-strong); font-family:var(--font); font-size:12px; outline:none; cursor:pointer; }
+  .msg-footer { padding:16px 24px; border-top:1px solid var(--card-border); display:flex; gap:8px; }
+  .msg-send { flex:1; padding:10px; background:var(--bg-deep); color:var(--on-deep); border:none; border-radius:7px; font-family:var(--font); font-size:12px; font-weight:700; cursor:pointer; }
+  .msg-send:hover { opacity:0.9; }
+  .msg-draft { padding:10px 16px; background:transparent; color:var(--text3); border:1px solid var(--card-border); border-radius:7px; font-family:var(--font); font-size:12px; font-weight:500; cursor:pointer; }
+  .msg-draft:hover { border-color:var(--accent); color:var(--accent); }
+  .msg-sent { text-align:center; padding:20px; }
+  .msg-sent-icon { font-size:32px; margin-bottom:8px; }
+  .msg-sent-text { font-size:13px; font-weight:600; color:var(--accent); }
+  .msg-sent-sub { font-size:11px; color:var(--text3); margin-top:4px; }
+
+  /* Notes button in table */
+  .notes-btn {
+    display:flex; align-items:center; gap:4px;
+    padding:4px 10px; border-radius:5px;
+    border:1px solid var(--card-border); background:var(--card2);
+    font-family:var(--font); font-size:10.5px; font-weight:500;
+    color:var(--text3); cursor:pointer; transition:all 0.15s;
+    white-space:nowrap;
+  }
+  .notes-btn:hover { border-color:var(--accent); color:var(--accent); }
+  .notes-btn.has-notes { color:var(--accent); border-color:var(--accent); }
+  .notes-count {
+    font-family:var(--mono); font-size:9px; font-weight:600;
+    background:var(--accent); color:white;
+    width:14px; height:14px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  /* Notes panel */
+  .notes-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.3); z-index:200; opacity:0; pointer-events:none; transition:opacity 0.25s; }
+  .notes-overlay.open { opacity:1; pointer-events:all; }
+  .notes-panel {
+    position:fixed; top:0; right:0; bottom:0; width:400px;
+    background:var(--card); border-left:1px solid var(--card-border);
+    z-index:201; display:flex; flex-direction:column;
+    transform:translateX(100%); transition:transform 0.3s ease;
+    box-shadow:-8px 0 32px rgba(0,0,0,0.12);
+  }
+  .notes-panel.open { transform:translateX(0); }
+
+  .np-header {
+    padding:18px 24px; border-bottom:1px solid var(--card-border);
+    display:flex; align-items:center; gap:10px;
+  }
+  .np-title { font-size:15px; font-weight:700; color:var(--text-strong); flex:1; }
+  .np-sub { font-size:11px; color:var(--text3); }
+  .np-close {
+    width:28px; height:28px; display:flex; align-items:center; justify-content:center;
+    border:1px solid var(--card-border); background:var(--card2);
+    border-radius:6px; cursor:pointer; color:var(--text3); transition:all 0.15s;
+  }
+  .np-close:hover { border-color:var(--accent); color:var(--accent); }
+
+  .np-body { flex:1; overflow-y:auto; padding:16px 24px; display:flex; flex-direction:column; gap:12px; }
+
+  .np-note {
+    background:var(--card2); border:1px solid var(--card-border);
+    border-radius:8px; padding:12px 14px;
+  }
+  .np-note-head { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:6px; }
+  .np-note-author { font-size:11px; font-weight:600; color:var(--text-strong); }
+  .np-note-date { font-family:var(--mono); font-size:10px; color:var(--text3); flex-shrink:0; }
+  .np-note-actions { display:flex; gap:4px; flex-shrink:0; }
+  .np-note-action {
+    width:24px; height:24px; border-radius:5px; border:1px solid var(--card-border);
+    background:var(--card); display:flex; align-items:center; justify-content:center;
+    cursor:pointer; color:var(--text3); transition:all 0.15s; padding:0;
+  }
+  .np-note-action:hover { border-color:var(--accent); color:var(--accent); }
+  .np-note-action.np-note-del:hover { border-color:var(--rose); color:var(--rose); background:var(--rose-soft); }
+  .np-note-text { font-size:12px; color:var(--text2); line-height:1.6; }
+  .np-note-meta { margin-bottom:2px; }
+  .np-note-tag {
+    display:inline-block; margin-top:6px;
+    font-size:9.5px; font-weight:600; padding:2px 7px;
+    border-radius:4px;
+  }
+
+  .np-empty { text-align:center; padding:32px 16px; color:var(--text3); font-size:12px; }
+
+  .np-compose {
+    padding:16px 24px; border-top:1px solid var(--card-border);
+    display:flex; flex-direction:column; gap:8px;
+  }
+  .np-compose-label { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:var(--text3); }
+  .np-textarea {
+    padding:10px 12px; border-radius:8px;
+    border:1px solid var(--card-border); background:var(--card2);
+    color:var(--text-strong); font-family:var(--font); font-size:12px;
+    outline:none; resize:vertical; min-height:60px; transition:border-color 0.15s;
+  }
+  .np-textarea:focus { border-color:var(--accent); }
+  .np-textarea::placeholder { color:var(--text3); }
+  .np-compose-row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .np-cancel-edit {
+    padding:8px 14px; background:transparent; color:var(--text3);
+    border:1px solid var(--card-border); border-radius:6px;
+    font-family:var(--font); font-size:11px; font-weight:600; cursor:pointer;
+  }
+  .np-cancel-edit:hover { border-color:var(--text2); color:var(--text-strong); }
+  .np-tag-select {
+    padding:6px 10px; border-radius:6px;
+    border:1px solid var(--card-border); background:var(--card2);
+    font-family:var(--font); font-size:11px; color:var(--text2);
+    outline:none; cursor:pointer;
+  }
+  .np-save {
+    padding:8px 16px; background:var(--bg-deep); color:var(--on-deep);
+    border:none; border-radius:6px; font-family:var(--font);
+    font-size:11px; font-weight:700; cursor:pointer; margin-left:auto;
+  }
+  .np-save:hover { opacity:0.9; }
+
+  .status-dot { width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:4px; }
+  .status-active { background:var(--mint); }
+  .status-injured { background:var(--rose); }
+  .status-redshirt { background:var(--gold); }
+
+  .stars { color:var(--gold); font-size:12px; letter-spacing:1px; }
+  .star-dim { color:var(--card-border); }
+
+  .gpa-inline { display:flex; align-items:center; gap:6px; }
+  .gpa-num { font-family:var(--mono); font-size:12px; font-weight:500; color:var(--text); }
+  .gpa-track { width:44px; height:3px; background:var(--card-border); border-radius:2px; }
+  .gpa-fill { height:100%; border-radius:2px; background:var(--accent); }
+
+  .metric-mini { display:flex; align-items:center; gap:4px; }
+  .metric-mini-bar { width:40px; height:4px; background:var(--card-border); border-radius:2px; }
+  .metric-mini-fill { height:100%; border-radius:2px; }
+  .metric-mini-val { font-family:var(--mono); font-size:10px; font-weight:600; }
+
+  ::-webkit-scrollbar { width:4px; }
+  ::-webkit-scrollbar-thumb { background:var(--card-border); border-radius:2px; }
+</style>
+</head>
+<body>
+
+<!-- ═══ SIDEBAR ═══ -->
+<nav class="sidebar">
+  <a href="index.html" class="logo">Recruit<span>IQ</span></a>
+  <div class="nav-label">Main</div>
+  <a href="index.html" class="nav-item"><span class="ni"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="1.5" width="5" height="5" rx="1"/><rect x="9.5" y="1.5" width="5" height="5" rx="1"/><rect x="1.5" y="9.5" width="5" height="5" rx="1"/><rect x="9.5" y="9.5" width="5" height="5" rx="1"/></svg></span> Dashboard</a>
+  <a href="all-players.html" class="nav-item"><span class="ni"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="5" r="2.5"/><circle cx="11" cy="5.5" r="2"/><path d="M1 14c0-2.8 2-4.5 4.5-4.5 1.2 0 2.3.4 3 1.1"/><path d="M9 14c0-2.2 1.5-3.5 3-3.5s3 1.3 3 3.5"/></svg></span> All Players</a>
+  <a href="team.html" class="nav-item active"><span class="ni"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8.5a3.5 3.5 0 107 0 3.5 3.5 0 10-7 0z"/><path d="M1.5 14c0-2.5 2.5-4 6.5-4s6.5 1.5 6.5 4"/></svg></span> My Team</a>
+  <a href="film-search.html" class="nav-item"><span class="ni"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="12" height="10" rx="1.5"/><polygon points="6.5,6 6.5,11 11,8.5" fill="currentColor" stroke="none"/></svg></span> Film Search</a>
+  <a href="pipeline.html" class="nav-item"><span class="ni"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="12" height="12" rx="1.5"/><line x1="2" y1="6" x2="14" y2="6"/><line x1="6" y1="6" x2="6" y2="14"/><line x1="10" y1="6" x2="10" y2="14"/></svg></span> Pipeline</a>
+  <div class="nav-label">AI</div>
+  <a href="index.html#criteria" class="nav-item nav-criteria"><span class="ni"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="2" y1="4" x2="14" y2="4"/><line x1="2" y1="8" x2="14" y2="8"/><line x1="2" y1="12" x2="14" y2="12"/><circle cx="5" cy="4" r="1.5" fill="currentColor"/><circle cx="10" cy="8" r="1.5" fill="currentColor"/><circle cx="7" cy="12" r="1.5" fill="currentColor"/></svg></span> Recruiting Criteria</a>
+  <div class="nav-label">Communicate</div>
+  <a href="messages.html" class="nav-item"><span class="ni"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 3h11a1 1 0 011 1v7a1 1 0 01-1 1h-3l-3 2.5V12h-5a1 1 0 01-1-1V4a1 1 0 011-1z"/></svg></span> Messages <span class="nav-badge">5</span></a>
+  <div class="nav-label">Insights</div>
+  <div class="nav-item"><span class="ni"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="13" x2="3" y2="7"/><line x1="6.5" y1="13" x2="6.5" y2="4"/><line x1="10" y1="13" x2="10" y2="9"/><line x1="13.5" y1="13" x2="13.5" y2="2"/></svg></span> Analytics</div>
+  <div class="nav-item"><span class="ni"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.5l1.5 3.2 3.5.5-2.5 2.5.6 3.5L8 9.5l-3.1 1.7.6-3.5L3 5.2l3.5-.5z"/></svg></span> Film Integrity</div>
+  <div class="sidebar-bottom">
+    <div class="nav-item"><span class="ni"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="2"/><path d="M13.5 8a5.5 5.5 0 00-.4-1.4l1.2-1.2-1.1-1.1-1.2 1.2A5.5 5.5 0 008 4.5V3H6.8v1.5a5.5 5.5 0 00-1.4.4L4.2 3.7 3.1 4.8l1.2 1.2A5.5 5.5 0 003.5 8H2v1.2h1.5c.1.5.2 1 .4 1.4l-1.2 1.2 1.1 1.1 1.2-1.2c.4.2.9.3 1.4.4V14H8v-1.5c.5-.1 1-.2 1.4-.4l1.2 1.2 1.1-1.1-1.2-1.2c.2-.4.3-.9.4-1.4H14V8z"/></svg></span> Settings</div>
+    <div class="user-block">
+      <div class="user-av">MW</div>
+      <div>
+        <div class="user-name">Coach Williams</div>
+        <div class="user-role">Head Coach · Basketball</div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══ MAIN ═══ -->
+<div class="main">
+  <header class="topbar">
+    <div class="topbar-title">My Team</div>
+    <div class="topbar-search">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"/><line x1="10.5" y1="10.5" x2="14" y2="14"/></svg>
+      <input type="text" placeholder="Search players by move, play, or skill..." />
+      <span class="topbar-search-shortcut">⌘K</span>
+    </div>
+    <div class="topbar-right">
+      <span class="htag htag-mint">✓ Verified Coach</span>
+      <div class="icon-btn"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5a4 4 0 018 0c0 4 1.5 5 1.5 5H2.5S4 10.5 4 6.5z"/><path d="M6.5 13a1.5 1.5 0 003 0"/></svg></div>
+    </div>
+  </header>
+
+  <!-- ═══ TEAM TABS ═══ -->
+    <div class="team-tabs">
+    <div class="team-tab" onclick="switchTeamTab(this)">Basketball <span class="gender-badge gender-m">M</span></div>
+    <div class="team-tab active" onclick="switchTeamTab(this)">Basketball <span class="gender-badge gender-w">W</span></div>
+    <div class="team-tab" onclick="switchTeamTab(this)">Swimming <span class="gender-badge gender-m">M</span></div>
+    <div class="team-tab" onclick="switchTeamTab(this)">Ice Hockey <span class="gender-badge gender-m">M</span></div>
+    <div class="team-tab" onclick="switchTeamTab(this)">Track & Field <span class="gender-badge gender-w">W</span></div>
+    <div class="team-tab" onclick="switchTeamTab(this)">Soccer <span class="gender-badge gender-w">W</span></div>
+    <div class="add-sport-wrap" data-tab-handler="switchTeamTab">
+      <button type="button" class="add-sport-trigger" aria-expanded="false" aria-haspopup="true">
+        <span>Add sport</span>
+        <svg class="add-sport-chev" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 4.5l3 3 3-3"/></svg>
+      </button>
+      <div class="add-sport-panel" role="dialog" aria-label="Add sport program">
+        <div>
+          <div class="add-sport-label">Sport</div>
+          <select class="add-sport-select">
+            <option value="">Choose sport…</option>
+            <option value="Baseball">Baseball</option>
+            <option value="Softball">Softball</option>
+            <option value="Volleyball">Volleyball</option>
+            <option value="Football">Football</option>
+            <option value="Lacrosse">Lacrosse</option>
+            <option value="Tennis">Tennis</option>
+            <option value="Golf">Golf</option>
+            <option value="Wrestling">Wrestling</option>
+            <option value="Field Hockey">Field Hockey</option>
+            <option value="Water Polo">Water Polo</option>
+            <option value="Rowing">Rowing</option>
+            <option value="Gymnastics">Gymnastics</option>
+            <option value="Bowling">Bowling</option>
+            <option value="Esports">Esports</option>
+          </select>
+        </div>
+        <div>
+          <div class="add-sport-label">Gender</div>
+          <div class="add-sport-genders">
+            <button type="button" class="add-sport-gbtn active" data-gender="M">Man's</button>
+            <button type="button" class="add-sport-gbtn" data-gender="W">Woman's</button>
+          </div>
+        </div>
+        <button type="button" class="add-sport-add">Add program</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="page-title">Woman's Basketball 2025–26</div>
+      <div class="page-count">13 players · 11/13 scholarships</div>
+      <div class="page-actions">
+        <button class="btn-page">Export Roster</button>
+        <button class="btn-page btn-page-primary">+ Add from Prospects</button>
+      </div>
+    </div>
+
+    <!-- Team Composition Analytics -->
+    <div class="comp-grid">
+      <div class="comp-card">
+        <div class="comp-label">Roster Size</div>
+        <div class="comp-value" style="color:var(--accent)">13</div>
+        <div class="comp-sub">Max 15 · <span class="up">2 open</span></div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-label">Avg Height</div>
+        <div class="comp-value" style="color:var(--blue)">6'4"</div>
+        <div class="comp-sub">Range: 5'11" – 6'10"</div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-label">Avg GPA</div>
+        <div class="comp-value" style="color:var(--accent)">3.4</div>
+        <div class="comp-sub">12 above 3.0</div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-label">Scholarships</div>
+        <div class="comp-value" style="color:var(--gold)">11</div>
+        <div class="comp-sub">of 13 used · <span style="color:var(--orange);font-weight:600">2 remaining</span></div>
+      </div>
+    </div>
+
+    <!-- Position Summary -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Position Coverage</span>
+      </div>
+      <div class="pos-summary">
+        <div class="pos-pill has-gap">
+          <span class="pos-pill-label">PG</span>
+          <div class="pos-pill-bar"><div class="pos-pill-fill" style="width:66%;background:var(--orange)"></div></div>
+          <span class="pos-pill-count" style="color:var(--orange)">2/3</span>
+        </div>
+        <div class="pos-pill">
+          <span class="pos-pill-label">SG</span>
+          <div class="pos-pill-bar"><div class="pos-pill-fill" style="width:100%;background:var(--accent)"></div></div>
+          <span class="pos-pill-count" style="color:var(--accent)">3/3</span>
+        </div>
+        <div class="pos-pill has-gap">
+          <span class="pos-pill-label">SF</span>
+          <div class="pos-pill-bar"><div class="pos-pill-fill" style="width:66%;background:var(--orange)"></div></div>
+          <span class="pos-pill-count" style="color:var(--orange)">2/3</span>
+        </div>
+        <div class="pos-pill">
+          <span class="pos-pill-label">PF</span>
+          <div class="pos-pill-bar"><div class="pos-pill-fill" style="width:100%;background:var(--accent)"></div></div>
+          <span class="pos-pill-count" style="color:var(--accent)">3/3</span>
+        </div>
+        <div class="pos-pill has-gap">
+          <span class="pos-pill-label">C</span>
+          <div class="pos-pill-bar"><div class="pos-pill-fill" style="width:66%;background:var(--orange)"></div></div>
+          <span class="pos-pill-count" style="color:var(--orange)">2/3</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Team Roster -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Current Roster</span>
+        <div class="card-actions">
+          <div class="roster-filter" id="rosterFilterBtn" onclick="toggleRosterFilter(event)">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M1.5 2h13l-5 6v5l-3 1.5V8z"/></svg>
+            Filters
+            <span class="rf-count" id="rfCount" style="display:none">0</span>
+            <div class="rf-dropdown" id="rfDropdown" onclick="event.stopPropagation()">
+              <div>
+                <div class="rf-label">Position</div>
+                <div class="rf-chips">
+                  <span class="rf-chip" onclick="this.classList.toggle('selected')">PG</span>
+                  <span class="rf-chip" onclick="this.classList.toggle('selected')">SG</span>
+                  <span class="rf-chip" onclick="this.classList.toggle('selected')">SF</span>
+                  <span class="rf-chip" onclick="this.classList.toggle('selected')">PF</span>
+                  <span class="rf-chip" onclick="this.classList.toggle('selected')">C</span>
+                </div>
+              </div>
+              <div class="rf-sep"></div>
+              <div>
+                <div class="rf-label">Role</div>
+                <div class="rf-chips">
+                  <span class="rf-chip" onclick="this.classList.toggle('selected')">Starter</span>
+                  <span class="rf-chip" onclick="this.classList.toggle('selected')">Captain</span>
+                  <span class="rf-chip" onclick="this.classList.toggle('selected')">6th Man</span>
+                  <span class="rf-chip" onclick="this.classList.toggle('selected')">Reserve</span>
+                  <span class="rf-chip" onclick="this.classList.toggle('selected')">Redshirt</span>
+                </div>
+              </div>
+              <div class="rf-sep"></div>
+              <div>
+                <div class="rf-label">Status</div>
+                <div class="rf-chips">
+                  <span class="rf-chip" onclick="this.classList.toggle('selected')">Active</span>
+                  <span class="rf-chip" onclick="this.classList.toggle('selected')">Injured</span>
+                  <span class="rf-chip" onclick="this.classList.toggle('selected')">Redshirt</span>
+                </div>
+              </div>
+              <div class="rf-sep"></div>
+              <div>
+                <div class="rf-label">Class</div>
+                <div class="rf-chips">
+                  <span class="rf-chip" onclick="this.classList.toggle('selected')">Fr</span>
+                  <span class="rf-chip" onclick="this.classList.toggle('selected')">So</span>
+                  <span class="rf-chip" onclick="this.classList.toggle('selected')">Jr</span>
+                  <span class="rf-chip" onclick="this.classList.toggle('selected')">Sr</span>
+                </div>
+              </div>
+              <div class="rf-sep"></div>
+              <button class="rf-apply" onclick="toggleRosterFilter(event)">Apply</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <table class="roster-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Player</th>
+            <th>Ht / Wt</th>
+            <th>Class</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>GPA</th>
+            <th>PPG</th>
+            <th>APG</th>
+            <th>RPG</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr onclick="openPlayer('rivera')" style="cursor:pointer">
+            <td><span class="jersey">#3</span></td>
+            <td><div class="at-name">Jalen Rivera</div><div class="at-sub"><span class="tag tag-blue" style="font-size:9px;margin-right:4px">PG</span>Atlanta, GA</div><div class="at-org">Nike EYBL</div></td>
+            <td>6'1" / 175</td>
+            <td><span style="font-family:var(--mono);font-size:11px;color:var(--text2)">Jr</span></td>
+            <td>
+              <div class="role-tags">
+                <span class="role-tag role-starter">Starter <button class="role-tag-x" onclick="event.stopPropagation(); this.parentElement.remove()">×</button></span>
+                <button class="role-add" onclick="event.stopPropagation(); toggleRoleMenu(this)">+<div class="role-menu"></div></button>
+              </div>
+            </td>
+            <td><span class="status-dot status-active"></span>Active</td>
+            <td><div class="gpa-inline"><span class="gpa-num">3.8</span><div class="gpa-track"><div class="gpa-fill" style="width:95%"></div></div></div></td>
+            <td><span style="font-family:var(--mono);font-size:12px;font-weight:600">18.4</span></td>
+            <td><span style="font-family:var(--mono);font-size:12px;font-weight:600;color:var(--accent)">7.2</span></td>
+            <td><span style="font-family:var(--mono);font-size:12px">3.1</span></td>
+          
+            <td><button class="notes-btn has-notes" onclick="openNotes(event,'Rivera')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M7 1.5h3.5v9h-9V1.5H5"/><line x1="4" y1="5" x2="8" y2="5"/><line x1="4" y1="7.5" x2="7" y2="7.5"/></svg> 3</button></td>
+          </tr>
+          <tr onclick="openPlayer('dwilliams')" style="cursor:pointer">
+            <td><span class="jersey">#11</span></td>
+            <td><div class="at-name">DeAndre Williams</div><div class="at-sub"><span class="tag tag-blue" style="font-size:9px;margin-right:4px">SG</span>Chicago, IL</div><div class="at-org">UAA Circuit</div></td>
+            <td>6'3" / 190</td>
+            <td><span style="font-family:var(--mono);font-size:11px;color:var(--text2)">Sr</span></td>
+            <td>
+              <div class="role-tags">
+                <span class="role-tag role-starter">Starter <button class="role-tag-x" onclick="event.stopPropagation(); this.parentElement.remove()">×</button></span>
+                <span class="role-tag role-captain">Captain <button class="role-tag-x" onclick="event.stopPropagation(); this.parentElement.remove()">×</button></span>
+                <button class="role-add" onclick="event.stopPropagation(); toggleRoleMenu(this)">+<div class="role-menu"></div></button>
+              </div>
+            </td>
+            <td><span class="status-dot status-active"></span>Active</td>
+            <td><div class="gpa-inline"><span class="gpa-num">3.2</span><div class="gpa-track"><div class="gpa-fill" style="width:80%"></div></div></div></td>
+            <td><span style="font-family:var(--mono);font-size:12px;font-weight:600">15.8</span></td>
+            <td><span style="font-family:var(--mono);font-size:12px">3.4</span></td>
+            <td><span style="font-family:var(--mono);font-size:12px">4.2</span></td>
+          
+            <td><button class="notes-btn has-notes" onclick="openNotes(event,'Williams')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M7 1.5h3.5v9h-9V1.5H5"/><line x1="4" y1="5" x2="8" y2="5"/><line x1="4" y1="7.5" x2="7" y2="7.5"/></svg> 2</button></td>
+          </tr>
+          <tr onclick="openPlayer('foster')" style="cursor:pointer">
+            <td><span class="jersey">#24</span></td>
+            <td><div class="at-name">Noah Foster</div><div class="at-sub"><span class="tag tag-orange" style="font-size:9px;margin-right:4px">SF</span>Houston, TX</div><div class="at-org">Adidas 3SSB</div></td>
+            <td>6'5" / 205</td>
+            <td><span style="font-family:var(--mono);font-size:11px;color:var(--text2)">Jr</span></td>
+            <td>
+              <div class="role-tags">
+                <span class="role-tag role-starter">Starter <button class="role-tag-x" onclick="event.stopPropagation(); this.parentElement.remove()">×</button></span>
+                <button class="role-add" onclick="event.stopPropagation(); toggleRoleMenu(this)">+<div class="role-menu"></div></button>
+              </div>
+            </td>
+            <td><span class="status-dot status-active"></span>Active</td>
+            <td><div class="gpa-inline"><span class="gpa-num">3.5</span><div class="gpa-track"><div class="gpa-fill" style="width:88%"></div></div></div></td>
+            <td><span style="font-family:var(--mono);font-size:12px;font-weight:600">14.1</span></td>
+            <td><span style="font-family:var(--mono);font-size:12px">2.8</span></td>
+            <td><span style="font-family:var(--mono);font-size:12px;font-weight:600;color:var(--accent)">6.4</span></td>
+          
+            <td><button class="notes-btn has-notes" onclick="openNotes(event,'Foster')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M7 1.5h3.5v9h-9V1.5H5"/><line x1="4" y1="5" x2="8" y2="5"/><line x1="4" y1="7.5" x2="7" y2="7.5"/></svg> 1</button></td>
+          </tr>
+          <tr onclick="openPlayer('lewis')" style="cursor:pointer">
+            <td><span class="jersey">#32</span></td>
+            <td><div class="at-name">Elijah Lewis</div><div class="at-sub"><span class="tag tag-orange" style="font-size:9px;margin-right:4px">PF</span>Houston, TX</div><div class="at-org">UAA Circuit</div></td>
+            <td>6'7" / 220</td>
+            <td><span style="font-family:var(--mono);font-size:11px;color:var(--text2)">So</span></td>
+            <td>
+              <div class="role-tags">
+                <span class="role-tag role-starter">Starter <button class="role-tag-x" onclick="event.stopPropagation(); this.parentElement.remove()">×</button></span>
+                <button class="role-add" onclick="event.stopPropagation(); toggleRoleMenu(this)">+<div class="role-menu"></div></button>
+              </div>
+            </td>
+            <td><span class="status-dot status-active"></span>Active</td>
+            <td><div class="gpa-inline"><span class="gpa-num">3.3</span><div class="gpa-track"><div class="gpa-fill" style="width:83%"></div></div></div></td>
+            <td><span style="font-family:var(--mono);font-size:12px;font-weight:600">12.6</span></td>
+            <td><span style="font-family:var(--mono);font-size:12px">1.9</span></td>
+            <td><span style="font-family:var(--mono);font-size:12px;font-weight:600;color:var(--accent)">8.1</span></td>
+          
+            <td><button class="notes-btn" onclick="openNotes(event,'Lewis')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M7 1.5h3.5v9h-9V1.5H5"/><line x1="4" y1="5" x2="8" y2="5"/><line x1="4" y1="7.5" x2="7" y2="7.5"/></svg></button></td>
+          </tr>
+          <tr onclick="openPlayer('powell')" style="cursor:pointer">
+            <td><span class="jersey">#50</span></td>
+            <td><div class="at-name">Samuel Powell</div><div class="at-sub"><span class="tag tag-mint" style="font-size:9px;margin-right:4px">C</span>Phoenix, AZ</div><div class="at-org">Adidas 3SSB</div></td>
+            <td>6'10" / 245</td>
+            <td><span style="font-family:var(--mono);font-size:11px;color:var(--text2)">Sr</span></td>
+            <td>
+              <div class="role-tags">
+                <span class="role-tag role-starter">Starter <button class="role-tag-x" onclick="event.stopPropagation(); this.parentElement.remove()">×</button></span>
+                <span class="role-tag role-captain">Captain <button class="role-tag-x" onclick="event.stopPropagation(); this.parentElement.remove()">×</button></span>
+                <button class="role-add" onclick="event.stopPropagation(); toggleRoleMenu(this)">+<div class="role-menu"></div></button>
+              </div>
+            </td>
+            <td><span class="status-dot status-active"></span>Active</td>
+            <td><div class="gpa-inline"><span class="gpa-num">3.6</span><div class="gpa-track"><div class="gpa-fill" style="width:90%"></div></div></div></td>
+            <td><span style="font-family:var(--mono);font-size:12px;font-weight:600">16.2</span></td>
+            <td><span style="font-family:var(--mono);font-size:12px">1.4</span></td>
+            <td><span style="font-family:var(--mono);font-size:12px;font-weight:600;color:var(--accent)">9.8</span></td>
+          
+            <td><button class="notes-btn has-notes" onclick="openNotes(event,'Powell')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M7 1.5h3.5v9h-9V1.5H5"/><line x1="4" y1="5" x2="8" y2="5"/><line x1="4" y1="7.5" x2="7" y2="7.5"/></svg> 2</button></td>
+          </tr>
+          <tr onclick="openPlayer('brooks')" style="cursor:pointer">
+            <td><span class="jersey">#7</span></td>
+            <td><div class="at-name">Anthony Brooks</div><div class="at-sub"><span class="tag tag-blue" style="font-size:9px;margin-right:4px">PG</span>Seattle, WA</div><div class="at-org">UAA</div></td>
+            <td>6'0" / 168</td>
+            <td><span style="font-family:var(--mono);font-size:11px;color:var(--text2)">Fr</span></td>
+            <td>
+              <div class="role-tags">
+                <span class="role-tag role-6th">6th Man <button class="role-tag-x" onclick="event.stopPropagation(); this.parentElement.remove()">×</button></span>
+                <button class="role-add" onclick="event.stopPropagation(); toggleRoleMenu(this)">+<div class="role-menu"></div></button>
+              </div>
+            </td>
+            <td><span class="status-dot status-active"></span>Active</td>
+            <td><div class="gpa-inline"><span class="gpa-num">3.4</span><div class="gpa-track"><div class="gpa-fill" style="width:85%"></div></div></div></td>
+            <td><span style="font-family:var(--mono);font-size:12px">8.4</span></td>
+            <td><span style="font-family:var(--mono);font-size:12px">4.1</span></td>
+            <td><span style="font-family:var(--mono);font-size:12px">2.0</span></td>
+          
+            <td><button class="notes-btn" onclick="openNotes(event,'Brooks')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M7 1.5h3.5v9h-9V1.5H5"/><line x1="4" y1="5" x2="8" y2="5"/><line x1="4" y1="7.5" x2="7" y2="7.5"/></svg></button></td>
+          </tr>
+          <tr onclick="openPlayer('djackson')" style="cursor:pointer">
+            <td><span class="jersey">#15</span></td>
+            <td><div class="at-name">Devon Jackson</div><div class="at-sub"><span class="tag tag-orange" style="font-size:9px;margin-right:4px">PF</span>Miami, FL</div><div class="at-org">Nike EYBL</div></td>
+            <td>6'6" / 215</td>
+            <td><span style="font-family:var(--mono);font-size:11px;color:var(--text2)">Jr</span></td>
+            <td>
+              <div class="role-tags">
+                <span class="role-tag role-6th">6th Man <button class="role-tag-x" onclick="event.stopPropagation(); this.parentElement.remove()">×</button></span>
+                <button class="role-add" onclick="event.stopPropagation(); toggleRoleMenu(this)">+<div class="role-menu"></div></button>
+              </div>
+            </td>
+            <td><span class="status-dot status-active"></span>Active</td>
+            <td><div class="gpa-inline"><span class="gpa-num">3.1</span><div class="gpa-track"><div class="gpa-fill" style="width:78%"></div></div></div></td>
+            <td><span style="font-family:var(--mono);font-size:12px">10.2</span></td>
+            <td><span style="font-family:var(--mono);font-size:12px">2.1</span></td>
+            <td><span style="font-family:var(--mono);font-size:12px">5.5</span></td>
+          
+            <td><button class="notes-btn has-notes" onclick="openNotes(event,'Jackson')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M7 1.5h3.5v9h-9V1.5H5"/><line x1="4" y1="5" x2="8" y2="5"/><line x1="4" y1="7.5" x2="7" y2="7.5"/></svg> 1</button></td>
+          </tr>
+          <tr onclick="openPlayer('washington')" style="cursor:pointer">
+            <td><span class="jersey">#22</span></td>
+            <td><div class="at-name">Terrence Washington</div><div class="at-sub"><span class="tag tag-mint" style="font-size:9px;margin-right:4px">C</span>New York, NY</div><div class="at-org">Nike EYBL</div></td>
+            <td>6'9" / 235</td>
+            <td><span style="font-family:var(--mono);font-size:11px;color:var(--text2)">So</span></td>
+            <td>
+              <div class="role-tags">
+                <span class="role-tag role-reserve">Reserve <button class="role-tag-x" onclick="event.stopPropagation(); this.parentElement.remove()">×</button></span>
+                <button class="role-add" onclick="event.stopPropagation(); toggleRoleMenu(this)">+<div class="role-menu"></div></button>
+              </div>
+            </td>
+            <td><span class="status-dot status-injured"></span><span style="color:var(--rose)">Injured</span></td>
+            <td><div class="gpa-inline"><span class="gpa-num">3.0</span><div class="gpa-track"><div class="gpa-fill" style="width:75%"></div></div></div></td>
+            <td><span style="font-family:var(--mono);font-size:12px;color:var(--text3)">—</span></td>
+            <td><span style="font-family:var(--mono);font-size:12px;color:var(--text3)">—</span></td>
+            <td><span style="font-family:var(--mono);font-size:12px;color:var(--text3)">—</span></td>
+          
+            <td><button class="notes-btn" onclick="openNotes(event,'Washington')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M7 1.5h3.5v9h-9V1.5H5"/><line x1="4" y1="5" x2="8" y2="5"/><line x1="4" y1="7.5" x2="7" y2="7.5"/></svg></button></td>
+          </tr>
+          <tr onclick="openPlayer('mitchell')" style="cursor:pointer">
+            <td><span class="jersey">#5</span></td>
+            <td><div class="at-name">Kyle Mitchell</div><div class="at-sub"><span class="tag tag-blue" style="font-size:9px;margin-right:4px">SG</span>Chicago, IL</div><div class="at-org">Mac Irvin Fire</div></td>
+            <td>6'3" / 185</td>
+            <td><span style="font-family:var(--mono);font-size:11px;color:var(--text2)">Fr</span></td>
+            <td>
+              <div class="role-tags">
+                <span class="role-tag role-reserve">Reserve <button class="role-tag-x" onclick="event.stopPropagation(); this.parentElement.remove()">×</button></span>
+                <button class="role-add" onclick="event.stopPropagation(); toggleRoleMenu(this)">+<div class="role-menu"></div></button>
+              </div>
+            </td>
+            <td><span class="status-dot status-active"></span>Active</td>
+            <td><div class="gpa-inline"><span class="gpa-num">3.4</span><div class="gpa-track"><div class="gpa-fill" style="width:85%"></div></div></div></td>
+            <td><span style="font-family:var(--mono);font-size:12px">6.2</span></td>
+            <td><span style="font-family:var(--mono);font-size:12px">1.8</span></td>
+            <td><span style="font-family:var(--mono);font-size:12px">2.4</span></td>
+          
+            <td><button class="notes-btn" onclick="openNotes(event,'Mitchell')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M7 1.5h3.5v9h-9V1.5H5"/><line x1="4" y1="5" x2="8" y2="5"/><line x1="4" y1="7.5" x2="7" y2="7.5"/></svg></button></td>
+          </tr>
+          <tr onclick="openPlayer('carter')" style="cursor:pointer">
+            <td><span class="jersey">#14</span></td>
+            <td><div class="at-name">Ryan Carter</div><div class="at-sub"><span class="tag tag-orange" style="font-size:9px;margin-right:4px">SF</span>Denver, CO</div><div class="at-org">Colorado Premier</div></td>
+            <td>6'4" / 195</td>
+            <td><span style="font-family:var(--mono);font-size:11px;color:var(--text2)">Fr</span></td>
+            <td>
+              <div class="role-tags">
+                <span class="role-tag role-redshirt">Redshirt <button class="role-tag-x" onclick="event.stopPropagation(); this.parentElement.remove()">×</button></span>
+                <button class="role-add" onclick="event.stopPropagation(); toggleRoleMenu(this)">+<div class="role-menu"></div></button>
+              </div>
+            </td>
+            <td><span class="status-dot status-redshirt"></span><span style="color:var(--gold)">Redshirt</span></td>
+            <td><div class="gpa-inline"><span class="gpa-num">3.7</span><div class="gpa-track"><div class="gpa-fill" style="width:93%"></div></div></div></td>
+            <td><span style="font-family:var(--mono);font-size:12px;color:var(--text3)">—</span></td>
+            <td><span style="font-family:var(--mono);font-size:12px;color:var(--text3)">—</span></td>
+            <td><span style="font-family:var(--mono);font-size:12px;color:var(--text3)">—</span></td>
+          
+            <td><button class="notes-btn" onclick="openNotes(event,'Carter')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M7 1.5h3.5v9h-9V1.5H5"/><line x1="4" y1="5" x2="8" y2="5"/><line x1="4" y1="7.5" x2="7" y2="7.5"/></svg></button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+<!-- ═══ PLAYER DETAIL PANEL ═══ -->
+<div class="detail-overlay" id="detailOverlay" onclick="closePlayer()"></div>
+<div class="detail-panel" id="detailPanel">
+  <div class="dp-header">
+    <div class="dp-avatar" id="dpAvatar" style="background:var(--gold-soft);color:var(--gold)">JR</div>
+    <div class="dp-info">
+      <div class="dp-name" id="dpName">Jalen Rivera</div>
+      <div class="dp-meta" id="dpMeta">PG · 6'1" · 175 lbs · Jr · Active</div>
+      <div class="dp-tags" id="dpTags">
+        <span class="tag tag-blue" style="font-size:10px">PG</span>
+        <span class="role-tag role-starter" style="font-size:10px">Starter</span>
+      </div>
+    </div>
+    <button class="dp-close" onclick="closePlayer()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="3" y1="3" x2="11" y2="11"/><line x1="11" y1="3" x2="3" y2="11"/></svg>
+    </button>
+  </div>
+
+  <div class="dp-actions">
+    <button class="dp-btn dp-btn-primary" onclick="closePlayer(); openNotes(new Event('click'), currentDetailPlayer);">Add Note</button>
+    <button class="dp-btn dp-btn-secondary" onclick="closePlayer(); openMessage(document.getElementById('dpName').textContent);">Send Message</button>
+  </div>
+
+  <div class="dp-section">
+    <div class="dp-section-title">Season Stats</div>
+    <div class="dp-stats" id="dpStats">
+      <div class="dp-stat"><div class="dp-stat-val" style="color:var(--accent)">18.4</div><div class="dp-stat-label">PPG</div></div>
+      <div class="dp-stat"><div class="dp-stat-val" style="color:var(--blue)">7.2</div><div class="dp-stat-label">APG</div></div>
+      <div class="dp-stat"><div class="dp-stat-val" style="color:var(--gold)">3.1</div><div class="dp-stat-label">RPG</div></div>
+    </div>
+  </div>
+
+  <div class="dp-section">
+    <div class="dp-section-title">Personal Information</div>
+    <div id="dpPersonal">
+      <div class="dp-row"><span class="dp-row-label">Full Name</span><span class="dp-row-value">Jalen Michael Rivera</span></div>
+      <div class="dp-row"><span class="dp-row-label">Hometown</span><span class="dp-row-value">Atlanta, GA</span></div>
+      <div class="dp-row"><span class="dp-row-label">Height / Weight</span><span class="dp-row-value">6'1" / 175 lbs</span></div>
+      <div class="dp-row"><span class="dp-row-label">Class</span><span class="dp-row-value">Junior</span></div>
+      <div class="dp-row"><span class="dp-row-label">Jersey</span><span class="dp-row-value">#3</span></div>
+    </div>
+  </div>
+
+  <div class="dp-section">
+    <div class="dp-section-title">Academics</div>
+    <div id="dpAcademics">
+      <div class="dp-row"><span class="dp-row-label">GPA</span><span class="dp-row-value">3.8 / 4.0</span></div>
+      <div class="dp-row"><span class="dp-row-label">NCAA Eligibility</span><span class="dp-row-value" style="color:var(--accent)">Cleared</span></div>
+    </div>
+  </div>
+
+  <div class="dp-section">
+    <div class="dp-section-title">Skill Breakdown</div>
+    <div id="dpSkills">
+      <div class="dp-metric-row"><span class="dp-metric-label">Ball Handling</span><div class="dp-metric-track"><div class="dp-metric-fill" style="width:92%;background:var(--accent)"></div></div><span class="dp-metric-val" style="color:var(--accent)">92</span></div>
+      <div class="dp-metric-row"><span class="dp-metric-label">Court Vision</span><div class="dp-metric-track"><div class="dp-metric-fill" style="width:88%;background:var(--blue)"></div></div><span class="dp-metric-val" style="color:var(--blue)">88</span></div>
+      <div class="dp-metric-row"><span class="dp-metric-label">3PT Shooting</span><div class="dp-metric-track"><div class="dp-metric-fill" style="width:76%;background:var(--gold)"></div></div><span class="dp-metric-val" style="color:var(--gold)">76</span></div>
+      <div class="dp-metric-row"><span class="dp-metric-label">Defense</span><div class="dp-metric-track"><div class="dp-metric-fill" style="width:70%;background:var(--orange)"></div></div><span class="dp-metric-val" style="color:var(--orange)">70</span></div>
+      <div class="dp-metric-row"><span class="dp-metric-label">Leadership</span><div class="dp-metric-track"><div class="dp-metric-fill" style="width:94%;background:var(--accent)"></div></div><span class="dp-metric-val" style="color:var(--accent)">94</span></div>
+    </div>
+  </div>
+
+  <div class="dp-section">
+    <div class="dp-section-title">Athletic Profile</div>
+    <div id="dpAthletic">
+      <div class="dp-row"><span class="dp-row-label">FG %</span><span class="dp-row-value">47.3%</span></div>
+      <div class="dp-row"><span class="dp-row-label">3PT %</span><span class="dp-row-value">38.6%</span></div>
+      <div class="dp-row"><span class="dp-row-label">FT %</span><span class="dp-row-value">84.1%</span></div>
+      <div class="dp-row"><span class="dp-row-label">Steals / Game</span><span class="dp-row-value">1.8</span></div>
+      <div class="dp-row"><span class="dp-row-label">Turnovers / Game</span><span class="dp-row-value">2.4</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MESSAGE PANEL ═══ -->
+<div class="msg-overlay" id="msgOverlay" onclick="closeMessage()"></div>
+<div class="msg-panel" id="msgPanel">
+  <div class="msg-header">
+    <span class="msg-title" id="msgTitle">Send Message</span>
+    <button class="msg-close" onclick="closeMessage()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="3" y1="3" x2="11" y2="11"/><line x1="11" y1="3" x2="3" y2="11"/></svg>
+    </button>
+  </div>
+  <div class="msg-body" id="msgBody">
+    <div class="msg-field">
+      <span class="msg-label">Channel</span>
+      <div class="msg-channel">
+        <span class="msg-ch active" onclick="selectChannel(this)">Email</span>
+        <span class="msg-ch" onclick="selectChannel(this)">Text</span>
+        <span class="msg-ch" onclick="selectChannel(this)">In-App</span>
+      </div>
+    </div>
+    <div class="msg-field">
+      <span class="msg-label">To</span>
+      <input class="msg-input" type="text" id="msgTo" readonly />
+    </div>
+    <div class="msg-field">
+      <span class="msg-label">Subject</span>
+      <input class="msg-input" type="text" placeholder="Team update from Coach Williams" />
+    </div>
+    <div class="msg-field">
+      <span class="msg-label">Template</span>
+      <select class="msg-template" onchange="applyTemplate(this.value)">
+        <option value="">No template — write from scratch</option>
+        <option value="intro">Initial Outreach</option>
+        <option value="visit">Official Visit Invite</option>
+        <option value="film">Film Request</option>
+        <option value="followup">Follow-Up</option>
+      </select>
+    </div>
+    <div class="msg-field">
+      <span class="msg-label">Message</span>
+      <textarea class="msg-textarea" id="msgText" placeholder="Write your message..."></textarea>
+    </div>
+  </div>
+  <div class="msg-footer">
+    <button class="msg-send" onclick="sendMessage()">Send Message</button>
+    <button class="msg-draft" onclick="closeMessage()">Save Draft</button>
+  </div>
+</div>
+
+<!-- ═══ NOTES PANEL ═══ -->
+<div class="notes-overlay" id="notesOverlay" onclick="closeNotes()"></div>
+<div class="notes-panel" id="notesPanel">
+  <div class="np-header">
+    <div style="flex:1">
+      <div class="np-title" id="npTitle">Player Notes</div>
+      <div class="np-sub" id="npSub"></div>
+    </div>
+    <button class="np-close" onclick="closeNotes()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="3" y1="3" x2="11" y2="11"/><line x1="11" y1="3" x2="3" y2="11"/></svg>
+    </button>
+  </div>
+
+  <div class="np-body" id="npBody">
+    <!-- Notes populated by JS -->
+  </div>
+
+  <div class="np-compose">
+    <div class="np-compose-label">Add Note</div>
+    <textarea class="np-textarea" id="npTextarea" placeholder="Write a note about this player..."></textarea>
+    <div class="np-compose-row">
+      <select class="np-tag-select" id="npTagSelect">
+        <option value="general">General</option>
+        <option value="performance">Performance</option>
+        <option value="injury">Injury</option>
+        <option value="academic">Academic</option>
+        <option value="character">Character</option>
+        <option value="film">Film Review</option>
+      </select>
+      <button type="button" class="np-cancel-edit" id="npCancelEdit" style="display:none" onclick="cancelNoteEdit(); renderNotesPanelHtml(currentNotesPlayer);">Cancel</button>
+      <button type="button" class="np-save" id="npSaveBtn" onclick="saveNote()">Save Note</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Player detail data
+const teamPlayers = {
+  rivera: { name:'Jalen Rivera', initials:'JR', color:'var(--gold)', pos:'PG', ht:'6\'1"', wt:'175', cls:'Junior', jersey:'#3', hometown:'Atlanta, GA', gpa:'3.8', ppg:'18.4', apg:'7.2', rpg:'3.1', roles:['Starter'], status:'Active', fg:'47.3%', tp:'38.6%', ft:'84.1%', stl:'1.8', tov:'2.4', skills:[['Ball Handling',92,'accent'],['Court Vision',88,'blue'],['3PT Shooting',76,'gold'],['Defense',70,'orange'],['Leadership',94,'accent']] },
+  dwilliams: { name:'DeAndre Williams', initials:'DW', color:'var(--blue)', pos:'SG', ht:'6\'3"', wt:'190', cls:'Senior', jersey:'#11', hometown:'Chicago, IL', gpa:'3.2', ppg:'15.8', apg:'3.4', rpg:'4.2', roles:['Starter','Captain'], status:'Active', fg:'44.1%', tp:'36.2%', ft:'78.5%', stl:'1.2', tov:'1.8', skills:[['Mid-Range',85,'accent'],['Transition',82,'blue'],['3PT Shooting',72,'gold'],['Defense',78,'accent'],['Leadership',88,'accent']] },
+  foster: { name:'Noah Foster', initials:'NF', color:'var(--accent)', pos:'SF', ht:'6\'5"', wt:'205', cls:'Junior', jersey:'#24', hometown:'Houston, TX', gpa:'3.5', ppg:'14.1', apg:'2.8', rpg:'6.4', roles:['Starter'], status:'Active', fg:'46.8%', tp:'34.5%', ft:'81.2%', stl:'1.5', tov:'1.6', skills:[['Rebounding',86,'accent'],['Transition',84,'blue'],['3PT Shooting',69,'gold'],['Defense',80,'accent'],['Versatility',82,'blue']] },
+  lewis: { name:'Elijah Lewis', initials:'EL', color:'var(--orange)', pos:'PF', ht:'6\'7"', wt:'220', cls:'Sophomore', jersey:'#32', hometown:'Houston, TX', gpa:'3.3', ppg:'12.6', apg:'1.9', rpg:'8.1', roles:['Starter'], status:'Active', fg:'51.2%', tp:'28.4%', ft:'72.8%', stl:'0.8', tov:'1.4', skills:[['Rebounding',90,'accent'],['Post Moves',78,'blue'],['Interior D',84,'accent'],['Athleticism',88,'accent'],['Free Throws',62,'rose']] },
+  powell: { name:'Samuel Powell', initials:'SP', color:'var(--accent)', pos:'C', ht:'6\'10"', wt:'245', cls:'Senior', jersey:'#50', hometown:'Phoenix, AZ', gpa:'3.6', ppg:'16.2', apg:'1.4', rpg:'9.8', roles:['Starter','Captain'], status:'Active', fg:'54.6%', tp:'18.2%', ft:'68.4%', stl:'0.6', tov:'2.1', skills:[['Shot Blocking',94,'accent'],['Rebounding',92,'accent'],['Post Moves',86,'blue'],['Interior D',90,'accent'],['Leadership',88,'gold']] },
+  brooks: { name:'Anthony Brooks', initials:'AB', color:'var(--blue)', pos:'PG', ht:'6\'0"', wt:'168', cls:'Freshman', jersey:'#7', hometown:'Seattle, WA', gpa:'3.4', ppg:'8.4', apg:'4.1', rpg:'2.0', roles:['6th Man'], status:'Active', fg:'41.8%', tp:'35.2%', ft:'86.0%', stl:'1.4', tov:'2.8', skills:[['Speed',84,'accent'],['Ball Handling',78,'blue'],['3PT Shooting',72,'gold'],['Defense',65,'orange'],['Court Vision',76,'blue']] },
+  djackson: { name:'Devon Jackson', initials:'DJ', color:'var(--orange)', pos:'PF', ht:'6\'6"', wt:'215', cls:'Junior', jersey:'#15', hometown:'Miami, FL', gpa:'3.1', ppg:'10.2', apg:'2.1', rpg:'5.5', roles:['6th Man'], status:'Active', fg:'48.2%', tp:'31.6%', ft:'74.5%', stl:'1.0', tov:'1.2', skills:[['Energy',88,'accent'],['Rebounding',80,'blue'],['Athleticism',84,'accent'],['Defense',76,'blue'],['Mid-Range',70,'gold']] },
+  washington: { name:'Terrence Washington', initials:'TW', color:'var(--mint)', pos:'C', ht:'6\'9"', wt:'235', cls:'Sophomore', jersey:'#22', hometown:'New York, NY', gpa:'3.0', ppg:'—', apg:'—', rpg:'—', roles:['Reserve'], status:'Injured', fg:'—', tp:'—', ft:'—', stl:'—', tov:'—', skills:[['Shot Blocking',78,'blue'],['Rebounding',80,'accent'],['Athleticism',74,'gold'],['Interior D',76,'blue'],['Post Moves',68,'orange']] },
+  mitchell: { name:'Kyle Mitchell', initials:'KM', color:'var(--blue)', pos:'SG', ht:'6\'3"', wt:'185', cls:'Freshman', jersey:'#5', hometown:'Chicago, IL', gpa:'3.4', ppg:'6.2', apg:'1.8', rpg:'2.4', roles:['Reserve'], status:'Active', fg:'38.5%', tp:'33.8%', ft:'80.2%', stl:'0.9', tov:'1.6', skills:[['3PT Shooting',74,'gold'],['Speed',72,'blue'],['Defense',66,'orange'],['Ball Handling',68,'blue'],['Court Vision',64,'gold']] },
+  carter: { name:'Ryan Carter', initials:'RC', color:'var(--orange)', pos:'SF', ht:'6\'4"', wt:'195', cls:'Freshman', jersey:'#14', hometown:'Denver, CO', gpa:'3.7', ppg:'—', apg:'—', rpg:'—', roles:['Redshirt'], status:'Redshirt', fg:'—', tp:'—', ft:'—', stl:'—', tov:'—', skills:[['Athleticism',76,'accent'],['3PT Shooting',70,'gold'],['Defense',72,'blue'],['Rebounding',66,'gold'],['Transition',74,'blue']] },
+};
+
+const posColors = { PG:'tag-blue', SG:'tag-blue', SF:'tag-orange', PF:'tag-orange', C:'tag-mint' };
+const roleClasses = { Starter:'role-starter', Captain:'role-captain', '6th Man':'role-6th', Reserve:'role-reserve', Redshirt:'role-redshirt' };
+const colorVars = { accent:'var(--accent)', blue:'var(--blue)', gold:'var(--gold)', orange:'var(--orange)', rose:'var(--rose)' };
+
+let currentDetailPlayer = '';
+
+function openPlayer(id) {
+  const p = teamPlayers[id];
+  if (!p) return;
+  currentDetailPlayer = p.name.split(' ').pop(); // last name for notes
+
+  document.getElementById('dpAvatar').style.background = p.color.replace(')', '-soft)').replace('var(', 'var(');
+  document.getElementById('dpAvatar').style.color = p.color;
+  document.getElementById('dpAvatar').textContent = p.initials;
+  document.getElementById('dpName').textContent = p.name;
+  document.getElementById('dpMeta').textContent = `${p.pos} · ${p.ht} · ${p.wt} lbs · ${p.cls} · ${p.status}`;
+
+  // Tags
+  let tags = `<span class="tag ${posColors[p.pos]}" style="font-size:10px">${p.pos}</span>`;
+  p.roles.forEach(r => { tags += ` <span class="role-tag ${roleClasses[r]}" style="font-size:10px">${r}</span>`; });
+  document.getElementById('dpTags').innerHTML = tags;
+
+  // Stats
+  document.getElementById('dpStats').innerHTML = `
+    <div class="dp-stat"><div class="dp-stat-val" style="color:var(--accent)">${p.ppg}</div><div class="dp-stat-label">PPG</div></div>
+    <div class="dp-stat"><div class="dp-stat-val" style="color:var(--blue)">${p.apg}</div><div class="dp-stat-label">APG</div></div>
+    <div class="dp-stat"><div class="dp-stat-val" style="color:var(--gold)">${p.rpg}</div><div class="dp-stat-label">RPG</div></div>`;
+
+  // Personal
+  document.getElementById('dpPersonal').innerHTML = `
+    <div class="dp-row"><span class="dp-row-label">Full Name</span><span class="dp-row-value">${p.name}</span></div>
+    <div class="dp-row"><span class="dp-row-label">Hometown</span><span class="dp-row-value">${p.hometown}</span></div>
+    <div class="dp-row"><span class="dp-row-label">Height / Weight</span><span class="dp-row-value">${p.ht} / ${p.wt} lbs</span></div>
+    <div class="dp-row"><span class="dp-row-label">Class</span><span class="dp-row-value">${p.cls}</span></div>
+    <div class="dp-row"><span class="dp-row-label">Jersey</span><span class="dp-row-value">${p.jersey}</span></div>`;
+
+  // Academics
+  document.getElementById('dpAcademics').innerHTML = `
+    <div class="dp-row"><span class="dp-row-label">GPA</span><span class="dp-row-value">${p.gpa} / 4.0</span></div>
+    <div class="dp-row"><span class="dp-row-label">NCAA Eligibility</span><span class="dp-row-value" style="color:var(--accent)">Cleared</span></div>`;
+
+  // Skills
+  document.getElementById('dpSkills').innerHTML = p.skills.map(s =>
+    `<div class="dp-metric-row"><span class="dp-metric-label">${s[0]}</span><div class="dp-metric-track"><div class="dp-metric-fill" style="width:${s[1]}%;background:${colorVars[s[2]]}"></div></div><span class="dp-metric-val" style="color:${colorVars[s[2]]}">${s[1]}</span></div>`
+  ).join('');
+
+  // Athletic
+  document.getElementById('dpAthletic').innerHTML = `
+    <div class="dp-row"><span class="dp-row-label">FG %</span><span class="dp-row-value">${p.fg}</span></div>
+    <div class="dp-row"><span class="dp-row-label">3PT %</span><span class="dp-row-value">${p.tp}</span></div>
+    <div class="dp-row"><span class="dp-row-label">FT %</span><span class="dp-row-value">${p.ft}</span></div>
+    <div class="dp-row"><span class="dp-row-label">Steals / Game</span><span class="dp-row-value">${p.stl}</span></div>
+    <div class="dp-row"><span class="dp-row-label">Turnovers / Game</span><span class="dp-row-value">${p.tov}</span></div>`;
+
+  document.getElementById('detailPanel').classList.add('open');
+  document.getElementById('detailOverlay').classList.add('open');
+}
+
+function closePlayer() {
+  document.getElementById('detailPanel').classList.remove('open');
+  document.getElementById('detailOverlay').classList.remove('open');
+}
+
+// ═══ MESSAGE PANEL ═══
+function openMessage(name) {
+  document.getElementById('msgTitle').textContent = 'Message — ' + name;
+  document.getElementById('msgTo').value = name;
+  document.getElementById('msgText').value = '';
+  document.getElementById('msgBody').style.display = 'flex';
+  document.querySelector('.msg-footer').style.display = 'flex';
+  document.getElementById('msgPanel').classList.add('open');
+  document.getElementById('msgOverlay').classList.add('open');
+}
+function closeMessage() {
+  document.getElementById('msgPanel').classList.remove('open');
+  document.getElementById('msgOverlay').classList.remove('open');
+}
+function selectChannel(el) {
+  el.parentElement.querySelectorAll('.msg-ch').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+}
+const msgTemplates = {
+  intro: "Hi [NAME],\n\nI'm Coach Williams. I've been following your season and I'm very impressed with your game. I'd love to connect and discuss what our program can offer.\n\nBest,\nCoach Williams",
+  visit: "Hi [NAME],\n\nWe'd like to officially invite you to visit our campus. We think you'd be a great fit.\n\nPlease let me know some dates that work for you and your family.\n\nBest,\nCoach Williams",
+  film: "Hi [NAME],\n\nCould you share any recent game film or highlight clips? We're continuing our evaluation process.\n\nBest,\nCoach Williams",
+  followup: "Hi [NAME],\n\nJust following up on our last conversation. Let me know if you have any questions about the program.\n\nBest,\nCoach Williams"
+};
+function applyTemplate(key) {
+  if (!key) { document.getElementById('msgText').value = ''; return; }
+  const name = document.getElementById('msgTo').value || 'there';
+  document.getElementById('msgText').value = msgTemplates[key].replace(/\[NAME\]/g, name.split(' ')[0]);
+}
+function sendMessage() {
+  const body = document.getElementById('msgBody');
+  const footer = document.querySelector('.msg-footer');
+  body.style.display = 'none';
+  footer.style.display = 'none';
+  body.parentElement.insertAdjacentHTML('beforeend', '<div class="msg-sent" id="msgSentConfirm"><div class="msg-sent-icon">✓</div><div class="msg-sent-text">Message Sent</div><div class="msg-sent-sub">Your message has been delivered.</div></div>');
+  setTimeout(() => {
+    closeMessage();
+    const sent = document.getElementById('msgSentConfirm');
+    if (sent) sent.remove();
+    body.style.display = 'flex';
+    footer.style.display = 'flex';
+  }, 1800);
+}
+
+const roleMap = {
+  'Starter': 'role-starter',
+  'Captain': 'role-captain',
+  '6th Man': 'role-6th',
+  'Reserve': 'role-reserve',
+  'Redshirt': 'role-redshirt',
+  'Practice Squad': 'role-practice'
+};
+const allRoles = Object.keys(roleMap);
+
+function toggleRoleMenu(btn) {
+  document.querySelectorAll('.role-menu.open').forEach(m => m.classList.remove('open'));
+  const menu = btn.querySelector('.role-menu');
+  const tags = btn.parentElement;
+  const existing = Array.from(tags.querySelectorAll('.role-tag')).map(t => t.textContent.replace('×','').trim());
+  menu.innerHTML = allRoles.filter(r => !existing.includes(r))
+    .map(r => `<button type="button" class="role-menu-item" onclick="event.stopPropagation(); addRole(this,'${r.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')">${r}</button>`).join('');
+  if (!menu.innerHTML) menu.innerHTML = '<span style="padding:6px 10px;font-size:11px;color:var(--text3)">All roles assigned</span>';
+  menu.classList.toggle('open');
+}
+
+function addRole(menuItem, roleName) {
+  const addBtn = menuItem.closest('.role-add');
+  const tags = addBtn.parentElement;
+  const tag = document.createElement('span');
+  tag.className = 'role-tag ' + roleMap[roleName];
+  tag.innerHTML = roleName + ' <button type="button" class="role-tag-x" onclick="event.stopPropagation(); this.parentElement.remove()">×</button>';
+  tags.insertBefore(tag, addBtn);
+  menuItem.closest('.role-menu').classList.remove('open');
+}
+
+// Roster filter
+function toggleRosterFilter(e) {
+  e.stopPropagation();
+  document.getElementById('rfDropdown').classList.toggle('open');
+}
+
+// Notes data
+let noteIdSeq = 100;
+function nextNoteId() { return ++noteIdSeq; }
+
+const playerNotes = {
+  Rivera: [
+    { id: 1, author: 'Coach Williams', date: 'Mar 28, 2026', text: 'Elite floor general. Runs offense with patience beyond his years. Needs to add strength for finishing through contact. Leadership is off the charts.', tag: 'performance' },
+    { id: 2, author: 'Coach Williams', date: 'Mar 20, 2026', text: 'First film review — crossover package is NCAA-ready. Defensive lateral movement needs work.', tag: 'film' },
+    { id: 3, author: 'Coach Williams', date: 'Mar 15, 2026', text: 'Met with academic advisor — on track for Business Admin. Strong student government involvement.', tag: 'academic' },
+  ],
+  Williams: [
+    { id: 11, author: 'Coach Williams', date: 'Mar 26, 2026', text: 'Senior leader. Setting the tone in practice every day. Will need to replace his production next year.', tag: 'character' },
+    { id: 12, author: 'Coach Williams', date: 'Mar 10, 2026', text: 'Averaging 15.8 PPG this month. Shot selection improving — fewer contested mid-range jumpers.', tag: 'performance' },
+  ],
+  Foster: [
+    { id: 21, author: 'Coach Williams', date: 'Mar 22, 2026', text: 'Two-way impact growing. Transition defense has improved significantly since January.', tag: 'performance' },
+  ],
+  Powell: [
+    { id: 31, author: 'Coach Williams', date: 'Mar 27, 2026', text: 'Team captain material. Vocal in huddles, holds teammates accountable. Best rim protector in the conference.', tag: 'character' },
+    { id: 32, author: 'Coach Williams', date: 'Mar 18, 2026', text: 'Minor knee soreness after practice — held out of scrimmage. Day-to-day.', tag: 'injury' },
+  ],
+  Jackson: [
+    { id: 41, author: 'Coach Williams', date: 'Mar 24, 2026', text: 'Showing promise as 6th man. Energy off the bench is exactly what we need. Needs to cut turnovers.', tag: 'performance' },
+  ],
+};
+
+const tagColors = {
+  general: 'background:var(--card-border);color:var(--text2)',
+  performance: 'background:var(--mint-soft);color:var(--accent)',
+  injury: 'background:var(--rose-soft);color:var(--rose)',
+  academic: 'background:var(--blue-soft);color:var(--blue)',
+  character: 'background:var(--gold-soft);color:var(--gold)',
+  film: 'background:var(--orange-soft);color:var(--orange)',
+};
+
+let currentNotesPlayer = '';
+let editingNoteId = null;
+
+function escapeHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function switchTeamTab(el) {
+  el.parentElement.querySelectorAll('.team-tab').forEach(t => {
+    t.classList.remove('active');
+  });
+  el.classList.add('active');
+  const pageTitle = document.querySelector('.page-title');
+  const label = el.textContent.replace(/\s+/g, ' ').trim();
+  if (pageTitle && label.includes('Basketball')) {
+    pageTitle.textContent = (el.querySelector('.gender-w') ? "Woman's" : "Man's") + ' Basketball 2025–26';
+  } else if (pageTitle && label) {
+    pageTitle.textContent = label.split(' ').slice(0, -1).join(' ') + (' ' + (el.querySelector('.gender-w') ? '(W)' : '(M)')) + ' 2025–26';
+  }
+}
+
+function renderNotesPanelHtml(name) {
+  currentNotesPlayer = name;
+  document.getElementById('npTitle').textContent = name + ' — Notes';
+  const notes = playerNotes[name] || [];
+  document.getElementById('npSub').textContent = notes.length + ' note' + (notes.length !== 1 ? 's' : '');
+
+  const body = document.getElementById('npBody');
+  if (notes.length === 0) {
+    body.innerHTML = '<div class="np-empty">No notes yet. Add the first note below.</div>';
+  } else {
+    body.innerHTML = notes.map(n => `
+      <div class="np-note" data-note-id="${n.id}">
+        <div class="np-note-head">
+          <span class="np-note-author">${escapeHtml(n.author)}</span>
+          <span class="np-note-actions">
+            <button type="button" class="np-note-action" title="Edit" onclick="event.stopPropagation(); beginEditNote(${n.id})">
+              <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M7 2l3 3-7 7H0V9z"/></svg>
+            </button>
+            <button type="button" class="np-note-action np-note-del" title="Delete" onclick="event.stopPropagation(); deleteNote(${n.id})">
+              <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M1.5 3h9M4.5 3V1.5h3V3M2.5 3v7.5a1 1 0 001 1h5a1 1 0 001-1V3"/></svg>
+            </button>
+          </span>
+        </div>
+        <div class="np-note-meta"><span class="np-note-date">${escapeHtml(n.date)}</span></div>
+        <div class="np-note-text">${escapeHtml(n.text)}</div>
+        <span class="np-note-tag" style="${tagColors[n.tag]}">${escapeHtml(n.tag)}</span>
+      </div>
+    `).join('');
+  }
+}
+
+function openNotes(e, name) {
+  e.stopPropagation();
+  cancelNoteEdit();
+  renderNotesPanelHtml(name);
+  document.getElementById('npTextarea').value = '';
+  document.getElementById('notesPanel').classList.add('open');
+  document.getElementById('notesOverlay').classList.add('open');
+}
+
+function closeNotes() {
+  cancelNoteEdit();
+  document.getElementById('notesPanel').classList.remove('open');
+  document.getElementById('notesOverlay').classList.remove('open');
+}
+
+function cancelNoteEdit() {
+  editingNoteId = null;
+  document.getElementById('npTextarea').value = '';
+  const sel = document.getElementById('npTagSelect');
+  if (sel) sel.selectedIndex = 0;
+  const b = document.getElementById('npSaveBtn');
+  if (b) b.textContent = 'Save Note';
+  const c = document.getElementById('npCancelEdit');
+  if (c) c.style.display = 'none';
+}
+
+function beginEditNote(noteId) {
+  const list = playerNotes[currentNotesPlayer] || [];
+  const n = list.find(x => x.id === noteId);
+  if (!n) return;
+  editingNoteId = noteId;
+  document.getElementById('npTextarea').value = n.text;
+  document.getElementById('npTagSelect').value = n.tag;
+  document.getElementById('npSaveBtn').textContent = 'Update Note';
+  document.getElementById('npCancelEdit').style.display = '';
+  document.getElementById('npTextarea').focus();
+}
+
+function deleteNote(noteId) {
+  const list = playerNotes[currentNotesPlayer];
+  if (!list) return;
+  const n = list.find(x => x.id === noteId);
+  if (!n || !confirm('Delete this note?')) return;
+  playerNotes[currentNotesPlayer] = list.filter(x => x.id !== noteId);
+  if (editingNoteId === noteId) cancelNoteEdit();
+  renderNotesPanelHtml(currentNotesPlayer);
+}
+
+function saveNote() {
+  const text = document.getElementById('npTextarea').value.trim();
+  if (!text) return;
+  const tag = document.getElementById('npTagSelect').value;
+  if (!playerNotes[currentNotesPlayer]) playerNotes[currentNotesPlayer] = [];
+
+  if (editingNoteId != null) {
+    const n = playerNotes[currentNotesPlayer].find(x => x.id === editingNoteId);
+    if (n) {
+      n.text = text;
+      n.tag = tag;
+      n.date = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+    cancelNoteEdit();
+  } else {
+    playerNotes[currentNotesPlayer].unshift({
+      id: nextNoteId(),
+      author: 'Coach Williams',
+      date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      text: text,
+      tag: tag
+    });
+  }
+
+  renderNotesPanelHtml(currentNotesPlayer);
+  document.getElementById('npTextarea').value = '';
+  document.getElementById('npSaveBtn').textContent = 'Save Note';
+}
+
+// Close dropdowns on outside click
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.role-add')) {
+    document.querySelectorAll('.role-menu.open').forEach(m => m.classList.remove('open'));
+  }
+  if (!e.target.closest('#rosterFilterBtn')) {
+    document.getElementById('rfDropdown').classList.remove('open');
+  }
+});
+</script>
+<script src="add-sport-tab.js"></script>
+</body>
+</html>

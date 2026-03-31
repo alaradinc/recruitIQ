@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RecruitIQ — Messages</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font: 'Instrument Sans', -apple-system, sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+    --bg: #3C5A3A; --bg-deep: #2D4529; --bg-mid: #4A6B48;
+    --card: #F6F1E7; --card2: #EDE7D9; --card-border: #DDD6C4; --card-hover: #FFFDF5;
+    --text-muted: #727a72; --text-strong: #565e56; --text: #727a72; --text2: #727a72; --text3: #727a72;
+    --head-text: #b8bdb6; --head-text2: #cdd1cb; --head-text3: #979d95; --head-faint: rgba(190,196,188,0.52);
+    --head-border: rgba(159,163,154,0.14); --on-deep: #F2EDE4; --head-wash: rgba(255,255,255,0.07); --head-wash2: rgba(255,255,255,0.12);
+    --accent: #2D7A4F; --accent-soft: rgba(45,122,79,0.1); --mint: #3DA06A; --mint-soft: rgba(61,160,106,0.1);
+    --gold: #B8892A; --gold-soft: rgba(184,137,42,0.1); --rose: #C24B44; --rose-soft: rgba(194,75,68,0.1);
+    --blue: #5A8BBF; --blue-soft: rgba(90,139,191,0.1); --orange: #C47A3A; --orange-soft: rgba(196,122,58,0.1);
+    --radius: 10px;
+  }
+  .inbox, .thread, .new-msg-panel {
+    --text-strong: #0b0d0b;
+    --text: #141814;
+    --text2: #2d322d;
+    --text3: #3a413a;
+    --text-muted: #3a413a;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:var(--font); font-size:13px; line-height:1.5; min-height:100vh; display:flex; -webkit-font-smoothing:antialiased; }
+
+  /* ═══ SIDEBAR ═══ */
+  .sidebar { width:224px; background:var(--bg-deep); border-right:1px solid var(--head-border); display:flex; flex-direction:column; padding:28px 14px; position:fixed; top:0; left:0; bottom:0; z-index:100; }
+  .logo { font-size:18px; font-weight:700; color:var(--head-text); margin-bottom:40px; padding:0 10px; }
+  .logo span { color:var(--mint); }
+  .nav-label { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:2px; color:var(--head-faint); padding:0 10px; margin:24px 0 10px; }
+  .nav-label:first-of-type { margin-top:0; }
+  .nav-item { display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:500; color:var(--head-text3); transition:all 0.15s; }
+  .nav-item:hover { background:var(--head-wash); color:var(--head-text2); }
+  .nav-item.active { background:var(--head-wash2); color:var(--head-text); font-weight:600; border:1px solid var(--head-border); }
+  a.nav-item, a.logo { text-decoration:none; }
+  .ni { width:20px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .nav-badge { margin-left:auto; font-family:var(--mono); background:var(--rose); color:#fff; font-size:10px; font-weight:500; padding:1px 7px; border-radius:10px; }
+  .nav-criteria { color:var(--mint) !important; font-weight:600 !important; }
+  .sidebar-bottom { margin-top:auto; border-top:1px solid var(--head-border); padding-top:16px; }
+  .user-block { display:flex; align-items:center; gap:10px; padding:10px; border-radius:8px; cursor:pointer; }
+  .user-block:hover { background:var(--head-wash); }
+  .user-av { width:34px; height:34px; border-radius:50%; background:var(--mint); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:var(--bg-deep); }
+  .user-name { font-size:13px; font-weight:600; color:var(--head-text); }
+  .user-role { font-size:11px; color:var(--head-text3); }
+
+  /* ═══ MAIN ═══ */
+  .main { margin-left:224px; flex:1; min-height:100vh; display:flex; flex-direction:column; }
+  .topbar { height:56px; border-bottom:1px solid var(--head-border); display:flex; align-items:center; padding:0 32px; background:var(--bg-deep); position:sticky; top:0; z-index:50; }
+  .topbar-title { font-size:15px; font-weight:700; color:var(--head-text); flex-shrink:0; }
+  .topbar-search { flex:1; max-width:440px; margin:0 24px; display:flex; align-items:center; gap:8px; background:var(--head-wash); border:1px solid var(--head-border); border-radius:8px; padding:6px 12px; transition:all 0.15s; color:var(--head-text3); }
+  .topbar-search:focus-within { border-color:var(--head-text2); background:var(--head-wash2); }
+  .topbar-search svg { flex-shrink:0; }
+  .topbar-search input { flex:1; border:none; outline:none; background:none; font-family:var(--font); font-size:12.5px; color:var(--head-text); }
+  .topbar-search input::placeholder { color:var(--head-faint); }
+  .topbar-search-shortcut { font-family:var(--mono); font-size:10px; font-weight:500; color:var(--head-text3); background:var(--head-wash); border:1px solid var(--head-border); padding:1px 6px; border-radius:4px; flex-shrink:0; }
+  .topbar-right { margin-left:auto; display:flex; align-items:center; gap:10px; flex-shrink:0; }
+  .htag { display:inline-flex; align-items:center; padding:4px 11px; border-radius:20px; font-size:10.5px; font-weight:600; }
+  .htag-mint { background:rgba(61,160,106,0.15); color:var(--mint); }
+  .icon-btn { width:34px; height:34px; border-radius:50%; border:1px solid var(--head-border); background:transparent; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--head-text3); transition:all 0.15s; }
+  .icon-btn:hover { border-color:var(--head-text3); color:var(--head-text2); }
+
+  .team-tabs { display:flex; align-items:center; gap:0; padding:0 32px; background:var(--bg-deep); border-bottom:1px solid var(--head-border); }
+  .team-tab { padding:10px 16px; font-size:12px; font-weight:500; color:var(--head-text3); cursor:pointer; border-bottom:2px solid transparent; transition:all 0.15s; white-space:nowrap; }
+  .team-tab:hover { color:var(--head-text2); }
+  .team-tab.active { color:var(--head-text); font-weight:600; border-bottom-color:var(--mint); }
+  .gender-badge {
+    font-size:9px; font-weight:700; padding:1px 5px;
+    border-radius:4px; margin-left:3px; letter-spacing:0.3px;
+    vertical-align:middle;
+  }
+  .gender-m { background:rgba(130,170,220,0.2); color:rgba(150,185,230,0.9); }
+  .gender-w { background:rgba(220,150,170,0.2); color:rgba(230,160,180,0.9); }
+
+  .add-sport-wrap { position:relative; display:flex; align-items:stretch; margin-left:2px; }
+  .add-sport-trigger {
+    display:flex; align-items:center; gap:6px;
+    padding:10px 14px; font-family:var(--font); font-size:12px; font-weight:600;
+    color:var(--head-text3); background:transparent; border:none;
+    border-bottom:2px solid transparent; cursor:pointer; transition:all 0.15s; white-space:nowrap;
+  }
+  .add-sport-trigger:hover { color:var(--head-text2); }
+  .add-sport-wrap.open .add-sport-trigger { color:var(--head-text); border-bottom-color:var(--mint); }
+  .add-sport-chev { flex-shrink:0; opacity:0.85; }
+  .add-sport-panel {
+    position:absolute; top:100%; right:0; margin-top:6px; min-width:248px;
+    padding:14px 16px; background:var(--bg-deep); border:1px solid var(--head-border);
+    border-radius:8px; box-shadow:0 14px 40px rgba(0,0,0,0.28);
+    z-index:120; display:none; flex-direction:column; gap:14px;
+  }
+  .add-sport-wrap.open .add-sport-panel { display:flex; }
+  .add-sport-label {
+    font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.9px;
+    color:var(--head-faint);
+  }
+  .add-sport-select {
+    margin-top:6px; width:100%; padding:8px 10px; border-radius:6px;
+    border:1px solid var(--head-border); background:var(--head-wash); color:var(--head-text);
+    font-family:var(--font); font-size:12px; outline:none; cursor:pointer; box-sizing:border-box;
+  }
+  .add-sport-select:focus { border-color:var(--mint); }
+  .add-sport-genders { display:flex; gap:8px; margin-top:6px; }
+  .add-sport-gbtn {
+    flex:1; padding:8px 10px; border-radius:6px; border:1px solid var(--head-border);
+    background:var(--head-wash); color:var(--head-text3); font-family:var(--font);
+    font-size:11px; font-weight:600; cursor:pointer; transition:all 0.15s;
+  }
+  .add-sport-gbtn:hover { color:var(--head-text2); }
+  .add-sport-gbtn.active { background:var(--mint); color:var(--bg-deep); border-color:var(--mint); }
+  .add-sport-add {
+    padding:9px 12px; border:none; border-radius:6px; background:var(--mint);
+    color:var(--bg-deep); font-family:var(--font); font-size:12px; font-weight:700;
+    cursor:pointer; transition:opacity 0.15s;
+  }
+  .add-sport-add:hover { opacity:0.9; }
+
+  .tag { display:inline-flex; align-items:center; padding:3px 10px; border-radius:20px; font-size:10.5px; font-weight:600; }
+  .tag-mint { background:var(--mint-soft); color:var(--accent); }
+  .tag-blue { background:var(--blue-soft); color:var(--blue); }
+  .tag-orange { background:var(--orange-soft); color:var(--orange); }
+  .tag-gold { background:var(--gold-soft); color:var(--gold); }
+
+  /* ═══ MESSAGES LAYOUT ═══ */
+  .msg-layout {
+    flex:1; display:flex; overflow:hidden;
+  }
+
+  /* Inbox sidebar */
+  .inbox {
+    width:320px; background:var(--card); border-right:1px solid var(--card-border);
+    display:flex; flex-direction:column; flex-shrink:0;
+  }
+  .inbox-header {
+    padding:16px 18px; border-bottom:1px solid var(--card-border);
+    display:flex; align-items:center; gap:10px;
+  }
+  .inbox-title { font-size:14px; font-weight:700; color:var(--text-strong); flex:1; }
+  .inbox-compose {
+    width:30px; height:30px; border-radius:7px;
+    border:1px solid var(--card-border); background:var(--card2);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; color:var(--text3); transition:all 0.15s;
+  }
+  .inbox-compose:hover { border-color:var(--accent); color:var(--accent); }
+
+  .inbox-search {
+    padding:10px 18px; border-bottom:1px solid var(--card-border);
+  }
+  .inbox-search-input {
+    width:100%; padding:7px 10px; border-radius:6px;
+    border:1px solid var(--card-border); background:var(--card2);
+    font-family:var(--font); font-size:12px; color:var(--text-strong);
+    outline:none; transition:border-color 0.15s;
+  }
+  .inbox-search-input:focus { border-color:var(--accent); }
+  .inbox-search-input::placeholder { color:var(--text3); }
+
+  .inbox-tabs {
+    display:flex; border-bottom:1px solid var(--card-border);
+  }
+  .inbox-tab {
+    flex:1; padding:9px; text-align:center;
+    font-size:11px; font-weight:600; color:var(--text3);
+    cursor:pointer; border-bottom:2px solid transparent;
+    transition:all 0.15s;
+  }
+  .inbox-tab:hover { color:var(--text2); }
+  .inbox-tab.active { color:var(--accent); border-bottom-color:var(--accent); }
+  .inbox-tab-count {
+    font-family:var(--mono); font-size:9px; font-weight:600;
+    background:var(--card-border); color:var(--text3);
+    padding:1px 5px; border-radius:8px; margin-left:4px;
+  }
+  .inbox-tab.active .inbox-tab-count { background:var(--mint-soft); color:var(--accent); }
+
+  .inbox-list { flex:1; overflow-y:auto; }
+
+  .inbox-item {
+    padding:14px 18px; border-bottom:1px solid var(--card-border);
+    cursor:pointer; transition:background 0.1s;
+    display:flex; gap:10px; align-items:flex-start;
+  }
+  .inbox-item:hover { background:var(--card-hover); }
+  .inbox-item.active { background:var(--mint-soft); border-left:3px solid var(--mint); }
+  .inbox-item.unread .inbox-item-name { font-weight:700; }
+  .inbox-item.unread .inbox-item-preview { color:var(--text); font-weight:500; }
+
+  .inbox-item-av {
+    width:36px; height:36px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:11px; font-weight:700; flex-shrink:0;
+  }
+  .inbox-item-content { flex:1; min-width:0; }
+  .inbox-item-top { display:flex; align-items:center; gap:6px; margin-bottom:2px; }
+  .inbox-item-name { font-size:12.5px; font-weight:600; color:var(--text-strong); }
+  .inbox-item-badge { font-size:9px; }
+  .inbox-item-time { margin-left:auto; font-family:var(--mono); font-size:10px; color:var(--text3); flex-shrink:0; }
+  .inbox-item-preview { font-size:11.5px; color:var(--text3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .inbox-unread-dot {
+    width:8px; height:8px; border-radius:50%; background:var(--mint);
+    flex-shrink:0; margin-top:14px;
+  }
+
+  /* Thread view */
+  .thread {
+    flex:1; display:flex; flex-direction:column; background:var(--card2);
+  }
+  .thread-header {
+    padding:16px 24px; background:var(--card); border-bottom:1px solid var(--card-border);
+    display:flex; align-items:center; gap:12px;
+  }
+  .thread-av {
+    width:40px; height:40px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:13px; font-weight:700; flex-shrink:0;
+  }
+  .thread-info { flex:1; }
+  .thread-name { font-size:14px; font-weight:700; color:var(--text-strong); }
+  .thread-meta { font-size:11px; color:var(--text3); }
+  .thread-actions { display:flex; gap:6px; }
+  .thread-action-btn {
+    width:32px; height:32px; border-radius:7px;
+    border:1px solid var(--card-border); background:var(--card2);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; color:var(--text3); transition:all 0.15s;
+  }
+  .thread-action-btn:hover { border-color:var(--accent); color:var(--accent); }
+
+  .thread-messages {
+    flex:1; overflow-y:auto; padding:20px 24px;
+    display:flex; flex-direction:column; gap:16px;
+  }
+
+  .msg-bubble-row { display:flex; gap:8px; align-items:flex-end; }
+  .msg-bubble-row.sent { flex-direction:row-reverse; }
+  .msg-bubble-av {
+    width:28px; height:28px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:9px; font-weight:700; flex-shrink:0;
+  }
+  .msg-bubble {
+    max-width:65%; padding:10px 14px;
+    border-radius:12px; font-size:12.5px; line-height:1.6;
+  }
+  .msg-bubble-row.received .msg-bubble {
+    background:var(--card); border:1px solid var(--card-border);
+    color:var(--text); border-bottom-left-radius:4px;
+  }
+  .msg-bubble-row.sent .msg-bubble {
+    background:var(--bg-deep); color:var(--on-deep);
+    border-bottom-right-radius:4px;
+  }
+  .msg-bubble-time {
+    font-family:var(--mono); font-size:9px; color:var(--text3);
+    margin-top:4px;
+  }
+  .msg-bubble-row.sent .msg-bubble-time { text-align:right; }
+
+  .msg-date-sep {
+    text-align:center; font-size:10px; font-weight:600;
+    color:var(--text3); padding:8px 0;
+  }
+
+  /* Compose */
+  .thread-compose {
+    padding:14px 24px; background:var(--card); border-top:1px solid var(--card-border);
+    display:flex; gap:10px; align-items:flex-end;
+  }
+  .compose-input {
+    flex:1; padding:10px 14px; border-radius:10px;
+    border:1px solid var(--card-border); background:var(--card2);
+    font-family:var(--font); font-size:12.5px; color:var(--text-strong);
+    outline:none; resize:none; min-height:40px; max-height:120px;
+    transition:border-color 0.15s;
+  }
+  .compose-input:focus { border-color:var(--accent); }
+  .compose-input::placeholder { color:var(--text3); }
+  .compose-send {
+    width:38px; height:38px; border-radius:10px;
+    background:var(--bg-deep); border:none;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; color:var(--mint); transition:opacity 0.15s;
+    flex-shrink:0;
+  }
+  .compose-send:hover { opacity:0.85; }
+
+  /* Empty thread */
+  .thread-empty {
+    flex:1; display:flex; align-items:center; justify-content:center;
+    flex-direction:column; gap:8px; color:var(--text3);
+  }
+  .thread-empty-title { font-size:14px; font-weight:600; color:var(--text-strong); }
+  .thread-empty-desc { font-size:12px; }
+
+  /* New message compose overlay */
+  .new-msg-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.3); z-index:200; opacity:0; pointer-events:none; transition:opacity 0.25s; }
+  .new-msg-overlay.open { opacity:1; pointer-events:all; }
+  .new-msg-panel {
+    position:fixed; top:50%; left:50%; transform:translate(-50%,-50%) scale(0.95);
+    background:var(--card); border:1px solid var(--card-border);
+    border-radius:12px; width:480px; box-shadow:0 16px 48px rgba(0,0,0,0.15);
+    z-index:201; opacity:0; pointer-events:none;
+    transition:all 0.25s ease;
+  }
+  .new-msg-panel.open { opacity:1; pointer-events:all; transform:translate(-50%,-50%) scale(1); }
+  .new-msg-header {
+    padding:18px 24px; border-bottom:1px solid var(--card-border);
+    display:flex; align-items:center;
+  }
+  .new-msg-title { font-size:15px; font-weight:700; color:var(--text-strong); flex:1; }
+  .new-msg-close {
+    width:28px; height:28px; display:flex; align-items:center; justify-content:center;
+    border:1px solid var(--card-border); background:var(--card2);
+    border-radius:6px; cursor:pointer; color:var(--text3); transition:all 0.15s;
+  }
+  .new-msg-close:hover { border-color:var(--accent); color:var(--accent); }
+  .new-msg-body { padding:20px 24px; display:flex; flex-direction:column; gap:14px; }
+  .new-msg-field { display:flex; flex-direction:column; gap:5px; }
+  .new-msg-label { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:var(--text3); }
+  .new-msg-input {
+    padding:9px 12px; border-radius:7px;
+    border:1px solid var(--card-border); background:var(--card2);
+    font-family:var(--font); font-size:12.5px; color:var(--text-strong); outline:none;
+    transition:border-color 0.15s;
+  }
+  .new-msg-input:focus { border-color:var(--accent); }
+  .new-msg-input::placeholder { color:var(--text3); }
+  .new-msg-textarea {
+    padding:10px 12px; border-radius:7px;
+    border:1px solid var(--card-border); background:var(--card2);
+    font-family:var(--font); font-size:12.5px; color:var(--text-strong);
+    outline:none; resize:vertical; min-height:100px;
+    transition:border-color 0.15s;
+  }
+  .new-msg-textarea:focus { border-color:var(--accent); }
+  .new-msg-textarea::placeholder { color:var(--text3); }
+  .new-msg-type-row { display:flex; gap:6px; }
+  .new-msg-type {
+    padding:5px 14px; border-radius:20px;
+    border:1px solid var(--card-border); background:var(--card2);
+    font-family:var(--font); font-size:11px; font-weight:500;
+    color:var(--text2); cursor:pointer; transition:all 0.15s;
+  }
+  .new-msg-type:hover { border-color:var(--accent); color:var(--accent); }
+  .new-msg-type.active { border-color:var(--accent); background:var(--mint-soft); color:var(--accent); font-weight:600; }
+  .new-msg-footer {
+    padding:16px 24px; border-top:1px solid var(--card-border);
+    display:flex; gap:8px; justify-content:flex-end;
+  }
+  .new-msg-send {
+    padding:9px 20px; border-radius:7px;
+    background:var(--bg-deep); color:var(--on-deep);
+    border:none; font-family:var(--font); font-size:12px; font-weight:700;
+    cursor:pointer;
+  }
+  .new-msg-send:hover { opacity:0.9; }
+  .new-msg-cancel {
+    padding:9px 16px; border-radius:7px;
+    background:transparent; color:var(--text3);
+    border:1px solid var(--card-border);
+    font-family:var(--font); font-size:12px; font-weight:500; cursor:pointer;
+  }
+  .new-msg-cancel:hover { border-color:var(--text3); color:var(--text2); }
+
+  ::-webkit-scrollbar { width:4px; }
+  ::-webkit-scrollbar-thumb { background:var(--card-border); border-radius:2px; }
+</style>
+</head>
+<body>
+
+<!-- ═══ SIDEBAR ═══ -->
+<nav class="sidebar">
+  <a href="index.html" class="logo">Recruit<span>IQ</span></a>
+  <div class="nav-label">Main</div>
+  <a href="index.html" class="nav-item"><span class="ni"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="1.5" width="5" height="5" rx="1"/><rect x="9.5" y="1.5" width="5" height="5" rx="1"/><rect x="1.5" y="9.5" width="5" height="5" rx="1"/><rect x="9.5" y="9.5" width="5" height="5" rx="1"/></svg></span> Dashboard</a>
+  <a href="all-players.html" class="nav-item"><span class="ni"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="5" r="2.5"/><circle cx="11" cy="5.5" r="2"/><path d="M1 14c0-2.8 2-4.5 4.5-4.5 1.2 0 2.3.4 3 1.1"/><path d="M9 14c0-2.2 1.5-3.5 3-3.5s3 1.3 3 3.5"/></svg></span> All Players</a>
+  <a href="team.html" class="nav-item"><span class="ni"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8.5a3.5 3.5 0 107 0 3.5 3.5 0 10-7 0z"/><path d="M1.5 14c0-2.5 2.5-4 6.5-4s6.5 1.5 6.5 4"/></svg></span> My Team</a>
+  <a href="film-search.html" class="nav-item"><span class="ni"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="12" height="10" rx="1.5"/><polygon points="6.5,6 6.5,11 11,8.5" fill="currentColor" stroke="none"/></svg></span> Film Search</a>
+  <a href="pipeline.html" class="nav-item"><span class="ni"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="12" height="12" rx="1.5"/><line x1="2" y1="6" x2="14" y2="6"/><line x1="6" y1="6" x2="6" y2="14"/><line x1="10" y1="6" x2="10" y2="14"/></svg></span> Pipeline</a>
+  <div class="nav-label">AI</div>
+  <a href="index.html#criteria" class="nav-item nav-criteria"><span class="ni"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="2" y1="4" x2="14" y2="4"/><line x1="2" y1="8" x2="14" y2="8"/><line x1="2" y1="12" x2="14" y2="12"/><circle cx="5" cy="4" r="1.5" fill="currentColor"/><circle cx="10" cy="8" r="1.5" fill="currentColor"/><circle cx="7" cy="12" r="1.5" fill="currentColor"/></svg></span> Recruiting Criteria</a>
+  <div class="nav-label">Communicate</div>
+  <a href="messages.html" class="nav-item active"><span class="ni"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 3h11a1 1 0 011 1v7a1 1 0 01-1 1h-3l-3 2.5V12h-5a1 1 0 01-1-1V4a1 1 0 011-1z"/></svg></span> Messages <span class="nav-badge">5</span></a>
+  <div class="nav-label">Insights</div>
+  <div class="nav-item"><span class="ni"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="13" x2="3" y2="7"/><line x1="6.5" y1="13" x2="6.5" y2="4"/><line x1="10" y1="13" x2="10" y2="9"/><line x1="13.5" y1="13" x2="13.5" y2="2"/></svg></span> Analytics</div>
+  <div class="nav-item"><span class="ni"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.5l1.5 3.2 3.5.5-2.5 2.5.6 3.5L8 9.5l-3.1 1.7.6-3.5L3 5.2l3.5-.5z"/></svg></span> Film Integrity</div>
+  <div class="sidebar-bottom">
+    <div class="nav-item"><span class="ni"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="2"/><path d="M13.5 8a5.5 5.5 0 00-.4-1.4l1.2-1.2-1.1-1.1-1.2 1.2A5.5 5.5 0 008 4.5V3H6.8v1.5a5.5 5.5 0 00-1.4.4L4.2 3.7 3.1 4.8l1.2 1.2A5.5 5.5 0 003.5 8H2v1.2h1.5c.1.5.2 1 .4 1.4l-1.2 1.2 1.1 1.1 1.2-1.2c.4.2.9.3 1.4.4V14H8v-1.5c.5-.1 1-.2 1.4-.4l1.2 1.2 1.1-1.1-1.2-1.2c.2-.4.3-.9.4-1.4H14V8z"/></svg></span> Settings</div>
+    <div class="user-block">
+      <div class="user-av">MW</div>
+      <div><div class="user-name">Coach Williams</div><div class="user-role">Head Coach · Basketball</div></div>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══ MAIN ═══ -->
+<div class="main">
+  <header class="topbar">
+    <div class="topbar-title">Messages</div>
+    <div class="topbar-search">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"/><line x1="10.5" y1="10.5" x2="14" y2="14"/></svg>
+      <input type="text" placeholder="Search players by move, play, or skill..." />
+      <span class="topbar-search-shortcut">⌘K</span>
+    </div>
+    <div class="topbar-right">
+      <span class="htag htag-mint">✓ Verified Coach</span>
+      <div class="icon-btn"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5a4 4 0 018 0c0 4 1.5 5 1.5 5H2.5S4 10.5 4 6.5z"/><path d="M6.5 13a1.5 1.5 0 003 0"/></svg></div>
+    </div>
+  </header>
+
+    <div class="team-tabs">
+    <div class="team-tab active">Basketball <span class="gender-badge gender-m">M</span></div>
+    <div class="team-tab">Basketball <span class="gender-badge gender-w">W</span></div>
+    <div class="team-tab">Swimming <span class="gender-badge gender-m">M</span></div>
+    <div class="team-tab">Ice Hockey <span class="gender-badge gender-m">M</span></div>
+    <div class="team-tab">Track & Field <span class="gender-badge gender-w">W</span></div>
+    <div class="team-tab">Soccer <span class="gender-badge gender-w">W</span></div>
+    <div class="add-sport-wrap">
+      <button type="button" class="add-sport-trigger" aria-expanded="false" aria-haspopup="true">
+        <span>Add sport</span>
+        <svg class="add-sport-chev" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 4.5l3 3 3-3"/></svg>
+      </button>
+      <div class="add-sport-panel" role="dialog" aria-label="Add sport program">
+        <div>
+          <div class="add-sport-label">Sport</div>
+          <select class="add-sport-select">
+            <option value="">Choose sport…</option>
+            <option value="Baseball">Baseball</option>
+            <option value="Softball">Softball</option>
+            <option value="Volleyball">Volleyball</option>
+            <option value="Football">Football</option>
+            <option value="Lacrosse">Lacrosse</option>
+            <option value="Tennis">Tennis</option>
+            <option value="Golf">Golf</option>
+            <option value="Wrestling">Wrestling</option>
+            <option value="Field Hockey">Field Hockey</option>
+            <option value="Water Polo">Water Polo</option>
+            <option value="Rowing">Rowing</option>
+            <option value="Gymnastics">Gymnastics</option>
+            <option value="Bowling">Bowling</option>
+            <option value="Esports">Esports</option>
+          </select>
+        </div>
+        <div>
+          <div class="add-sport-label">Gender</div>
+          <div class="add-sport-genders">
+            <button type="button" class="add-sport-gbtn active" data-gender="M">Man's</button>
+            <button type="button" class="add-sport-gbtn" data-gender="W">Woman's</button>
+          </div>
+        </div>
+        <button type="button" class="add-sport-add">Add program</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ MESSAGES LAYOUT ═══ -->
+  <div class="msg-layout">
+
+    <!-- Inbox -->
+    <div class="inbox">
+      <div class="inbox-header">
+        <span class="inbox-title">Inbox</span>
+        <div class="inbox-compose" onclick="openNewMsg()" title="New message">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M8.5 2.5l3 3-7 7H1.5V9.5z"/><line x1="7" y1="4" x2="10" y2="7"/></svg>
+        </div>
+      </div>
+      <div class="inbox-search">
+        <input class="inbox-search-input" type="text" placeholder="Search messages..." />
+      </div>
+      <div class="inbox-tabs">
+        <div class="inbox-tab active" onclick="filterInbox(this,'all')">All<span class="inbox-tab-count">8</span></div>
+        <div class="inbox-tab" onclick="filterInbox(this,'players')">Players<span class="inbox-tab-count">5</span></div>
+        <div class="inbox-tab" onclick="filterInbox(this,'coaches')">Coaches<span class="inbox-tab-count">3</span></div>
+      </div>
+      <div class="inbox-list" id="inboxList">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+    <!-- Thread -->
+    <div class="thread" id="threadArea">
+      <div class="thread-empty">
+        <svg width="40" height="40" viewBox="0 0 16 16" fill="none" stroke="var(--text3)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 3h11a1 1 0 011 1v7a1 1 0 01-1 1h-3l-3 2.5V12h-5a1 1 0 01-1-1V4a1 1 0 011-1z"/></svg>
+        <div class="thread-empty-title">Select a conversation</div>
+        <div class="thread-empty-desc">Choose a message from the inbox to view the thread.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ NEW MESSAGE MODAL ═══ -->
+<div class="new-msg-overlay" id="newMsgOverlay" onclick="closeNewMsg()"></div>
+<div class="new-msg-panel" id="newMsgPanel">
+  <div class="new-msg-header">
+    <span class="new-msg-title">New Message</span>
+    <button class="new-msg-close" onclick="closeNewMsg()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="3" y1="3" x2="11" y2="11"/><line x1="11" y1="3" x2="3" y2="11"/></svg>
+    </button>
+  </div>
+  <div class="new-msg-body">
+    <div class="new-msg-field">
+      <span class="new-msg-label">Send via</span>
+      <div class="new-msg-type-row">
+        <span class="new-msg-type active" onclick="this.parentElement.querySelectorAll('.new-msg-type').forEach(t=>t.classList.remove('active'));this.classList.add('active')">Email</span>
+        <span class="new-msg-type" onclick="this.parentElement.querySelectorAll('.new-msg-type').forEach(t=>t.classList.remove('active'));this.classList.add('active')">Text</span>
+        <span class="new-msg-type" onclick="this.parentElement.querySelectorAll('.new-msg-type').forEach(t=>t.classList.remove('active'));this.classList.add('active')">In-App</span>
+      </div>
+    </div>
+    <div class="new-msg-field">
+      <span class="new-msg-label">To</span>
+      <input class="new-msg-input" type="text" placeholder="Player or coach name..." />
+    </div>
+    <div class="new-msg-field">
+      <span class="new-msg-label">Subject</span>
+      <input class="new-msg-input" type="text" placeholder="Message subject..." />
+    </div>
+    <div class="new-msg-field">
+      <span class="new-msg-label">Message</span>
+      <textarea class="new-msg-textarea" placeholder="Write your message..."></textarea>
+    </div>
+  </div>
+  <div class="new-msg-footer">
+    <button class="new-msg-cancel" onclick="closeNewMsg()">Cancel</button>
+    <button class="new-msg-send" onclick="closeNewMsg()">Send Message</button>
+  </div>
+</div>
+
+<script>
+const conversations = [
+  { id:`jalen`, name:`Jalen Rivera`, initials:`JR`, color:`var(--gold)`, type:`player`, pos:`PG`, school:`Westfield Academy`, unread:true, time:`2m ago`,
+    preview:`Thank you Coach, I'd love to set up a time to visit campus next month.`,
+    messages:[
+      { from:`coach`, text:`Hi Jalen,\n\nI've been following your EYBL season and I'm very impressed with your floor game. Your court vision and leadership really stood out in your recent games.\n\nI'd love to connect and discuss what our program can offer you. Would you be available for a call this week?`, time:`Mar 26, 10:14 AM` },
+      { from:`them`, text:`Coach Williams, thank you so much for reaching out! I've actually been researching your program and I'm really interested. I'd be happy to set up a call.`, time:`Mar 26, 2:30 PM` },
+      { from:`coach`, text:`That's great to hear! How does Thursday at 4pm work for you? We can go over our program, playing style, and academic support. Also wanted to mention we'd love to have you for an official visit.`, time:`Mar 26, 3:02 PM` },
+      { from:`them`, text:`Thursday at 4pm works perfectly. And I'd definitely be interested in an official visit — let me talk to my parents about dates.`, time:`Mar 26, 5:18 PM` },
+      { from:`coach`, text:`Sounds good. I'll send over a call link. Also, I shared your crossover film with our staff — everyone was really impressed with your change-of-pace game. We think you'd be a perfect fit at the 1.`, time:`Mar 27, 9:05 AM` },
+      { from:`them`, text:`That means a lot Coach. I've been working hard on adding the pull-up three to my game too. Hopefully that showed in the EYBL session 2 footage.`, time:`Mar 27, 11:40 AM` },
+      { from:`coach`, text:`It absolutely did. Your shooting splits are trending in the right direction — 38.6% from three this season is solid. We'll break down the film together on the call.\n\nAlso, our academic support team would love to chat with you about the Business Admin program since that's your intended major.`, time:`Mar 28, 8:30 AM` },
+      { from:`them`, text:`That's awesome, I'd love to learn more about the academics side too. My GPA is a 3.8 so I'm hoping that opens some doors for academic scholarships as well.`, time:`Mar 28, 2:15 PM` },
+      { from:`them`, text:`Thank you Coach, I'd love to set up a time to visit campus next month. My parents are looking at the second or third weekend in April.`, time:`Mar 29, 9:22 AM` },
+    ]},
+  { id:`chen`, name:`Coach T. Chen`, initials:`TC`, color:`var(--blue)`, type:`coach`, title:`Head Coach · Duke`, unread:true, time:`1h ago`,
+    preview:`Want to compare film evals over coffee at the next tournament?`,
+    messages:[
+      { from:`coach`, text:`Coach Chen, hope the season is going well. Wanted to reach out — I know we're both looking at some of the same 2026 PG prospects. Thought it might be worth comparing notes.`, time:`Mar 25, 2:00 PM` },
+      { from:`them`, text:`Williams! Always good to hear from you. Yeah, the 2026 PG class is loaded. Who are you watching?`, time:`Mar 25, 4:30 PM` },
+      { from:`coach`, text:`We've been locked in on Jalen Rivera and Rashad Collins. Rivera's floor game is next-level — reminds me a bit of a young Chris Paul in terms of tempo control.`, time:`Mar 26, 9:00 AM` },
+      { from:`them`, text:`Interesting — Rivera is on our board too. His EYBL film is impressive. We had a scout at session 2 and the PnR decision-making stood out. Collins is electric but I worry about the turnover rate.`, time:`Mar 27, 10:15 AM` },
+      { from:`them`, text:`I saw your film evaluation note on Rivera — solid breakdown. His defensive lateral movement is the one area I flagged too.`, time:`Mar 29, 8:10 AM` },
+      { from:`them`, text:`Want to compare film evals over coffee at the next tournament? I'll be at the Nike Peach Jam in July.`, time:`Mar 29, 8:12 AM` },
+    ]},
+  { id:`rashad`, name:`Rashad Collins`, initials:`RC`, color:`var(--accent)`, type:`player`, pos:`PG`, school:`Peach Jam Circuit`, unread:false, time:`3h ago`,
+    preview:`Here's my updated highlight reel from last weekend. Let me know what you think!`,
+    messages:[
+      { from:`coach`, text:`Rashad, great showing at Peach Jam. Your euro step package is really developing — that reverse finish in the second half was elite. Would love to see more full-game film when you have it.`, time:`Mar 25, 4:00 PM` },
+      { from:`them`, text:`Thanks Coach! I've been working on finishing through contact. My trainer has me doing a lot of body control drills.`, time:`Mar 25, 7:20 PM` },
+      { from:`coach`, text:`It's showing. Your FG% at the rim is way up from last season. Keep that up and you'll be tough to guard at the next level.`, time:`Mar 26, 10:00 AM` },
+      { from:`them`, text:`That means a lot. I also added about 8 lbs since last summer — trying to get stronger without losing my speed.`, time:`Mar 26, 3:45 PM` },
+      { from:`coach`, text:`Smart approach. How are things going academically? We want to make sure you're on track for NCAA eligibility.`, time:`Mar 27, 9:15 AM` },
+      { from:`them`, text:`All good on that front — 3.5 GPA and I just got my SAT score back, 1210. My counselor said I'm cleared.`, time:`Mar 27, 11:00 AM` },
+      { from:`them`, text:`Here's my updated highlight reel from last weekend. Let me know what you think!`, time:`Mar 28, 11:30 AM` },
+      { from:`coach`, text:`Just watched it — excellent progress on the pull-up three. That step-back in the fourth quarter was cold. Let's talk about scheduling an official visit.`, time:`Mar 28, 2:15 PM` },
+    ]},
+  { id:`samuel`, name:`Samuel Powell`, initials:`SP`, color:`var(--accent)`, type:`player`, pos:`C`, school:`Adidas 3SSB`, unread:true, time:`5h ago`,
+    preview:`Coach, my advisor said I need one more class for NCAA eligibility. Working on it now.`,
+    messages:[
+      { from:`coach`, text:`Samuel, wanted to check in on your academic eligibility status. The NCAA deadline is coming up in May and we want to make sure everything is squared away on your end.`, time:`Mar 26, 9:00 AM` },
+      { from:`them`, text:`Hey Coach, thanks for checking. I'm meeting with my advisor tomorrow to go over everything.`, time:`Mar 26, 6:00 PM` },
+      { from:`coach`, text:`Good. Your on-court game is elite — 16.2 PPG and 9.8 RPG speak for themselves. We just need the academics locked down to make the offer official.`, time:`Mar 27, 8:30 AM` },
+      { from:`them`, text:`I appreciate that Coach. The offer means everything to me and my family. I won't let you down on the academic side.`, time:`Mar 27, 12:00 PM` },
+      { from:`coach`, text:`I know you won't. Also, Coach Barnes from Kansas reached out about your film — word is getting around. You're going to have a lot of options, but I think our program is the best fit for your development.`, time:`Mar 28, 9:00 AM` },
+      { from:`them`, text:`Coach, my advisor said I need one more class for NCAA eligibility. Working on it now. Should have it done by end of April.`, time:`Mar 28, 6:45 PM` },
+    ]},
+  { id:`barnes`, name:`Coach M. Barnes`, initials:`MB`, color:`var(--orange)`, type:`coach`, title:`Asst Coach · Kansas`, unread:false, time:`1d ago`,
+    preview:`Let me know if you want to connect at the Nike tournament in July.`,
+    messages:[
+      { from:`them`, text:`Coach Williams, hope things are going well. Heard you have some strong big men coming through this cycle. Any standouts you'd recommend keeping an eye on?`, time:`Mar 25, 11:00 AM` },
+      { from:`coach`, text:`Coach Barnes! Good to hear from you. Yes — Samuel Powell is the real deal. 6'10", elite shot blocker, and his post game has really developed. I'm sharing some film for your eval.`, time:`Mar 25, 2:00 PM` },
+      { from:`them`, text:`Just watched the clips. That drop step sequence is textbook. And the block rate is off the charts — reminds me of a young Adebayo.`, time:`Mar 26, 10:30 AM` },
+      { from:`coach`, text:`High praise! He's also a great kid — team captain, 3.6 GPA. The full package. We're hoping to lock him down soon but I know he'll have options.`, time:`Mar 26, 3:00 PM` },
+      { from:`them`, text:`Appreciate the film share. We had him on our board too — looks like he'll have some choices to make. Good problem to have as a coach though.`, time:`Mar 27, 3:30 PM` },
+      { from:`them`, text:`Let me know if you want to connect at the Nike tournament in July. Always good to catch up with fellow coaches.`, time:`Mar 27, 3:32 PM` },
+    ]},
+  { id:`maya`, name:`Maya Thompson`, initials:`MT`, color:`var(--gold)`, type:`player`, pos:`PG`, school:`Nike Nationals`, unread:false, time:`2d ago`,
+    preview:`I'll have my parents reach out about the visit dates this week. Thanks Coach!`,
+    messages:[
+      { from:`coach`, text:`Maya, your film from Nike Nationals was outstanding. Your court vision and composure under pressure are exactly what we look for in our program. Have you started thinking about the college recruiting process?`, time:`Mar 24, 11:00 AM` },
+      { from:`them`, text:`Thank you so much Coach Williams! I've heard great things about your program. I'm just starting to explore options — this is all pretty new to me and my family.`, time:`Mar 24, 4:15 PM` },
+      { from:`coach`, text:`Completely understandable — it's a big decision. I'd love to walk you through what our program offers, both on the court and in the classroom. Your 3.9 GPA is exceptional and opens up a lot of academic opportunities here.`, time:`Mar 25, 9:30 AM` },
+      { from:`them`, text:`That would be amazing! Academics are really important to me — I'm thinking about going into sports medicine or kinesiology.`, time:`Mar 25, 2:00 PM` },
+      { from:`coach`, text:`We have an excellent kinesiology program. Would you and your family be interested in scheduling an official visit? We have openings the second and third weekends in April. I can arrange meetings with the academic department too.`, time:`Mar 26, 5:00 PM` },
+      { from:`them`, text:`I talked to my parents and they're really excited! I'll have my parents reach out about the visit dates this week. Thanks Coach!`, time:`Mar 27, 9:00 AM` },
+    ]},
+  { id:`lopez`, name:`Coach A. Lopez`, initials:`AL`, color:`var(--mint)`, type:`coach`, title:`Scout · Gonzaga`, unread:true, time:`2d ago`,
+    preview:`We have a gap at the 3 and could use your help identifying some prospects.`,
+    messages:[
+      { from:`them`, text:`Coach Williams,\n\nHope the season is going well. Congratulations on the conference tournament run — your team looked great.\n\nI'm reaching out because we're rebuilding our wing rotation for next cycle. I know you see a lot of SF talent through your pipeline.`, time:`Mar 27, 2:00 PM` },
+      { from:`them`, text:`Do you have any updated film on your SF prospects? We have a gap at the 3 and could use your help identifying some prospects. Happy to share intel on big men in the Northwest in return.`, time:`Mar 27, 2:02 PM` },
+    ]},
+  { id:`deandre`, name:`DeAndre Williams`, initials:`DW`, color:`var(--blue)`, type:`player`, pos:`SG`, school:`Team Roster`, unread:false, time:`3d ago`,
+    preview:`Got it Coach. I'll focus on off-ball movement in film study tonight.`,
+    messages:[
+      { from:`coach`, text:`DeAndre, great game last night. 18 points on efficient shooting — exactly what we need from you.\n\nOne area I want you to focus on: off-ball movement on the weak side. When the ball swings to the opposite wing, you tend to stand and watch. We need you relocating to open spots.`, time:`Mar 24, 10:00 AM` },
+      { from:`them`, text:`Thanks Coach! Yeah I noticed that too when I rewatched the film. I get caught ball-watching sometimes.`, time:`Mar 24, 12:30 PM` },
+      { from:`coach`, text:`Good self-awareness. I'm sending you 3 film clips of players who do this really well — study how they use screens off-ball to get open. Let's drill it in Thursday's practice.`, time:`Mar 24, 1:15 PM` },
+      { from:`them`, text:`Just watched all three clips. The curl off the pin-down screen is something I can definitely add. Never thought about using the screener's body that way.`, time:`Mar 24, 6:00 PM` },
+      { from:`coach`, text:`Now you're thinking like a pro. This is what separates good shooters from great scorers — you can shoot, now we need you to create separation without the ball. Senior year is about maximizing every possession.`, time:`Mar 25, 8:45 AM` },
+      { from:`them`, text:`Got it Coach. I'll focus on off-ball movement in film study tonight. Also wanted to let you know my parents are coming to Saturday's game — they'd love to say hi after.`, time:`Mar 25, 12:30 PM` },
+      { from:`coach`, text:`That's great — I'll make sure to connect with them after the game. Your parents should be proud, you've come a long way this season. Keep pushing.`, time:`Mar 25, 1:00 PM` },
+    ]},
+];
+
+let currentFilter = 'all';
+let activeConvo = null;
+
+function renderInbox() {
+  const list = document.getElementById('inboxList');
+  const filtered = conversations.filter(c => currentFilter === 'all' || (currentFilter === 'players' && c.type === 'player') || (currentFilter === 'coaches' && c.type === 'coach'));
+
+  list.innerHTML = filtered.map(c => `
+    <div class="inbox-item ${c.id === activeConvo ? 'active' : ''} ${c.unread ? 'unread' : ''}" onclick="openConvo('${c.id}')">
+      <div class="inbox-item-av" style="background:${c.color.replace(')','-soft)').replace('var(','var(')};color:${c.color}">${c.initials}</div>
+      <div class="inbox-item-content">
+        <div class="inbox-item-top">
+          <span class="inbox-item-name">${c.name}</span>
+          ${c.type === 'player' ? `<span class="tag tag-blue inbox-item-badge">${c.pos}</span>` : `<span class="tag tag-gold inbox-item-badge">Coach</span>`}
+          <span class="inbox-item-time">${c.time}</span>
+        </div>
+        <div class="inbox-item-preview">${c.preview}</div>
+      </div>
+      ${c.unread ? '<div class="inbox-unread-dot"></div>' : ''}
+    </div>
+  `).join('');
+}
+
+function filterInbox(tab, filter) {
+  document.querySelectorAll('.inbox-tab').forEach(t => t.classList.remove('active'));
+  tab.classList.add('active');
+  currentFilter = filter;
+  renderInbox();
+}
+
+function openConvo(id) {
+  activeConvo = id;
+  const c = conversations.find(x => x.id === id);
+  if (!c) return;
+  c.unread = false;
+  renderInbox();
+
+  const area = document.getElementById('threadArea');
+  const subtitle = c.type === 'player' ? `${c.pos} · ${c.school}` : c.title;
+
+  let html = `
+    <div class="thread-header">
+      <div class="thread-av" style="background:${c.color.replace(')','-soft)').replace('var(','var(')};color:${c.color}">${c.initials}</div>
+      <div class="thread-info">
+        <div class="thread-name">${c.name}</div>
+        <div class="thread-meta">${subtitle}</div>
+      </div>
+      <div class="thread-actions">
+        <div class="thread-action-btn" title="View profile">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="5" r="3"/><path d="M2.5 14.5c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/></svg>
+        </div>
+        <div class="thread-action-btn" title="Archive">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="2" y="2" width="12" height="4" rx="1"/><path d="M2 6v7a1 1 0 001 1h10a1 1 0 001-1V6"/><line x1="6.5" y1="9.5" x2="9.5" y2="9.5"/></svg>
+        </div>
+      </div>
+    </div>
+    <div class="thread-messages" id="threadMessages">
+      <div class="msg-date-sep">Today</div>`;
+
+  c.messages.forEach(m => {
+    const isSent = m.from === 'coach';
+    html += `
+      <div class="msg-bubble-row ${isSent ? 'sent' : 'received'}">
+        ${!isSent ? `<div class="msg-bubble-av" style="background:${c.color.replace(')','-soft)').replace('var(','var(')};color:${c.color}">${c.initials}</div>` : ''}
+        <div>
+          <div class="msg-bubble">${m.text.replace(/\n/g,'<br>')}</div>
+          <div class="msg-bubble-time">${m.time}</div>
+        </div>
+        ${isSent ? `<div class="msg-bubble-av" style="background:var(--mint-soft);color:var(--accent)">MW</div>` : ''}
+      </div>`;
+  });
+
+  html += `</div>
+    <div class="thread-compose">
+      <textarea class="compose-input" id="composeInput" placeholder="Type a message..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendReply();}"></textarea>
+      <button class="compose-send" onclick="sendReply()">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="2" y1="8" x2="14" y2="8"/><polyline points="9,3 14,8 9,13"/></svg>
+      </button>
+    </div>`;
+
+  area.innerHTML = html;
+  const msgs = document.getElementById('threadMessages');
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function sendReply() {
+  const input = document.getElementById('composeInput');
+  const text = input.value.trim();
+  if (!text) return;
+
+  const msgs = document.getElementById('threadMessages');
+  const now = new Date();
+  const time = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+
+  msgs.insertAdjacentHTML('beforeend', `
+    <div class="msg-bubble-row sent" style="animation:fadeIn 0.2s ease">
+      <div>
+        <div class="msg-bubble">${text.replace(/\n/g,'<br>')}</div>
+        <div class="msg-bubble-time">Just now · ${time}</div>
+      </div>
+      <div class="msg-bubble-av" style="background:var(--mint-soft);color:var(--accent)">MW</div>
+    </div>
+  `);
+
+  input.value = '';
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function openNewMsg() {
+  document.getElementById('newMsgOverlay').classList.add('open');
+  document.getElementById('newMsgPanel').classList.add('open');
+}
+function closeNewMsg() {
+  document.getElementById('newMsgOverlay').classList.remove('open');
+  document.getElementById('newMsgPanel').classList.remove('open');
+}
+
+// Init
+renderInbox();
+openConvo('jalen');
+</script>
+<style>
+  @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+</style>
+<script src="add-sport-tab.js"></script>
+</body>
+</html>
