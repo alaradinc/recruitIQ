@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RecruitIQ — Film Search</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font: 'Instrument Sans', -apple-system, sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+    --bg: #3C5A3A; --bg-deep: #2D4529; --bg-mid: #4A6B48;
+    --card: #F6F1E7; --card2: #EDE7D9; --card-border: #DDD6C4; --card-hover: #FFFDF5;
+    --text-muted: #727a72; --text-strong: #565e56; --text: #727a72; --text2: #727a72; --text3: #727a72;
+    --head-text: #b8bdb6; --head-text2: #cdd1cb; --head-text3: #979d95; --head-faint: rgba(190,196,188,0.52);
+    --head-border: rgba(159,163,154,0.14); --on-deep: #F2EDE4; --head-wash: rgba(255,255,255,0.07); --head-wash2: rgba(255,255,255,0.12);
+    --accent: #2D7A4F; --accent-soft: rgba(45,122,79,0.1); --mint: #3DA06A; --mint-soft: rgba(61,160,106,0.1);
+    --gold: #B8892A; --gold-soft: rgba(184,137,42,0.1); --rose: #C24B44; --rose-soft: rgba(194,75,68,0.1);
+    --blue: #5A8BBF; --blue-soft: rgba(90,139,191,0.1); --orange: #C47A3A; --orange-soft: rgba(196,122,58,0.1);
+    --radius: 10px;
+  }
+  .card, .detail-panel, .detail-overlay {
+    --text-strong: #0b0d0b;
+    --text: #141814;
+    --text2: #2d322d;
+    --text3: #3a413a;
+    --text-muted: #3a413a;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:var(--font); font-size:13px; line-height:1.5; min-height:100vh; display:flex; -webkit-font-smoothing:antialiased; }
+
+  /* ═══ SIDEBAR ═══ */
+  .sidebar { width:224px; background:var(--bg-deep); border-right:1px solid var(--head-border); display:flex; flex-direction:column; padding:28px 14px; position:fixed; top:0; left:0; bottom:0; z-index:100; }
+  .logo { font-size:18px; font-weight:700; color:var(--head-text); margin-bottom:40px; padding:0 10px; }
+  .logo span { color:var(--mint); }
+  .nav-label { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:2px; color:var(--head-faint); padding:0 10px; margin:24px 0 10px; }
+  .nav-label:first-of-type { margin-top:0; }
+  .nav-item { display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:500; color:var(--head-text3); transition:all 0.15s; }
+  .nav-item:hover { background:var(--head-wash); color:var(--head-text2); }
+  .nav-item.active { background:var(--head-wash2); color:var(--head-text); font-weight:600; border:1px solid var(--head-border); }
+  a.nav-item, a.logo { text-decoration:none; }
+  .ni { width:20px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .nav-badge { margin-left:auto; font-family:var(--mono); background:var(--rose); color:#fff; font-size:10px; font-weight:500; padding:1px 7px; border-radius:10px; }
+  .nav-criteria { color:var(--mint) !important; font-weight:600 !important; }
+  .sidebar-bottom { margin-top:auto; border-top:1px solid var(--head-border); padding-top:16px; }
+  .user-block { display:flex; align-items:center; gap:10px; padding:10px; border-radius:8px; cursor:pointer; }
+  .user-block:hover { background:var(--head-wash); }
+  .user-av { width:34px; height:34px; border-radius:50%; background:var(--mint); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:var(--bg-deep); }
+  .user-name { font-size:13px; font-weight:600; color:var(--head-text); }
+  .user-role { font-size:11px; color:var(--head-text3); }
+
+  /* ═══ MAIN ═══ */
+  .main { margin-left:224px; flex:1; min-height:100vh; display:flex; flex-direction:column; }
+  .topbar { height:56px; border-bottom:1px solid var(--head-border); display:flex; align-items:center; padding:0 32px; background:var(--bg-deep); position:sticky; top:0; z-index:50; }
+  .topbar-title { font-size:15px; font-weight:700; color:var(--head-text); flex-shrink:0; }
+  .topbar-search { flex:1; max-width:440px; margin:0 24px; display:flex; align-items:center; gap:8px; background:var(--head-wash); border:1px solid var(--head-border); border-radius:8px; padding:6px 12px; transition:all 0.15s; color:var(--head-text3); }
+  .topbar-search:focus-within { border-color:var(--head-text2); background:var(--head-wash2); }
+  .topbar-search svg { flex-shrink:0; }
+  .topbar-search input { flex:1; border:none; outline:none; background:none; font-family:var(--font); font-size:12.5px; color:var(--head-text); }
+  .topbar-search input::placeholder { color:var(--head-faint); }
+  .topbar-search-shortcut { font-family:var(--mono); font-size:10px; font-weight:500; color:var(--head-text3); background:var(--head-wash); border:1px solid var(--head-border); padding:1px 6px; border-radius:4px; flex-shrink:0; }
+  .topbar-right { margin-left:auto; display:flex; align-items:center; gap:10px; flex-shrink:0; }
+  .htag { display:inline-flex; align-items:center; padding:4px 11px; border-radius:20px; font-size:10.5px; font-weight:600; }
+  .htag-mint { background:rgba(61,160,106,0.15); color:var(--mint); }
+  .icon-btn { width:34px; height:34px; border-radius:50%; border:1px solid var(--head-border); background:transparent; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--head-text3); transition:all 0.15s; }
+  .icon-btn:hover { border-color:var(--head-text3); color:var(--head-text2); }
+
+  .team-tabs { display:flex; align-items:center; gap:0; padding:0 32px; background:var(--bg-deep); border-bottom:1px solid var(--head-border); }
+  .team-tab { padding:10px 16px; font-size:12px; font-weight:500; color:var(--head-text3); cursor:pointer; border-bottom:2px solid transparent; transition:all 0.15s; white-space:nowrap; }
+  .team-tab:hover { color:var(--head-text2); }
+  .team-tab.active { color:var(--head-text); font-weight:600; border-bottom-color:var(--mint); }
+  .gender-badge {
+    font-size:9px; font-weight:700; padding:1px 5px;
+    border-radius:4px; margin-left:3px; letter-spacing:0.3px;
+    vertical-align:middle;
+  }
+  .gender-m { background:rgba(130,170,220,0.2); color:rgba(150,185,230,0.9); }
+  .gender-w { background:rgba(220,150,170,0.2); color:rgba(230,160,180,0.9); }
+
+  .add-sport-wrap { position:relative; display:flex; align-items:stretch; margin-left:2px; }
+  .add-sport-trigger {
+    display:flex; align-items:center; gap:6px;
+    padding:10px 14px; font-family:var(--font); font-size:12px; font-weight:600;
+    color:var(--head-text3); background:transparent; border:none;
+    border-bottom:2px solid transparent; cursor:pointer; transition:all 0.15s; white-space:nowrap;
+  }
+  .add-sport-trigger:hover { color:var(--head-text2); }
+  .add-sport-wrap.open .add-sport-trigger { color:var(--head-text); border-bottom-color:var(--mint); }
+  .add-sport-chev { flex-shrink:0; opacity:0.85; }
+  .add-sport-panel {
+    position:absolute; top:100%; right:0; margin-top:6px; min-width:248px;
+    padding:14px 16px; background:var(--bg-deep); border:1px solid var(--head-border);
+    border-radius:8px; box-shadow:0 14px 40px rgba(0,0,0,0.28);
+    z-index:120; display:none; flex-direction:column; gap:14px;
+  }
+  .add-sport-wrap.open .add-sport-panel { display:flex; }
+  .add-sport-label {
+    font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.9px;
+    color:var(--head-faint);
+  }
+  .add-sport-select {
+    margin-top:6px; width:100%; padding:8px 10px; border-radius:6px;
+    border:1px solid var(--head-border); background:var(--head-wash); color:var(--head-text);
+    font-family:var(--font); font-size:12px; outline:none; cursor:pointer; box-sizing:border-box;
+  }
+  .add-sport-select:focus { border-color:var(--mint); }
+  .add-sport-genders { display:flex; gap:8px; margin-top:6px; }
+  .add-sport-gbtn {
+    flex:1; padding:8px 10px; border-radius:6px; border:1px solid var(--head-border);
+    background:var(--head-wash); color:var(--head-text3); font-family:var(--font);
+    font-size:11px; font-weight:600; cursor:pointer; transition:all 0.15s;
+  }
+  .add-sport-gbtn:hover { color:var(--head-text2); }
+  .add-sport-gbtn.active { background:var(--mint); color:var(--bg-deep); border-color:var(--mint); }
+  .add-sport-add {
+    padding:9px 12px; border:none; border-radius:6px; background:var(--mint);
+    color:var(--bg-deep); font-family:var(--font); font-size:12px; font-weight:700;
+    cursor:pointer; transition:opacity 0.15s;
+  }
+  .add-sport-add:hover { opacity:0.9; }
+
+  .tag { display:inline-flex; align-items:center; padding:3px 10px; border-radius:20px; font-size:10.5px; font-weight:600; }
+  .tag-mint { background:var(--mint-soft); color:var(--accent); }
+  .tag-gold { background:var(--gold-soft); color:var(--gold); }
+  .tag-blue { background:var(--blue-soft); color:var(--blue); }
+  .tag-rose { background:var(--rose-soft); color:var(--rose); }
+  .tag-orange { background:var(--orange-soft); color:var(--orange); }
+  .badge-sm { display:inline-flex; align-items:center; gap:3px; padding:2px 8px; border-radius:4px; font-size:10px; font-weight:600; }
+  .badge-ok { background:var(--mint-soft); color:var(--accent); }
+  .badge-flag { background:var(--rose-soft); color:var(--rose); }
+
+  /* ═══ CONTENT ═══ */
+  .content { padding:28px 32px; display:flex; flex-direction:column; gap:20px; }
+
+  .page-header { display:flex; align-items:center; gap:16px; }
+  .page-title { font-size:18px; font-weight:700; color:var(--head-text); }
+  .page-count { font-family:var(--mono); font-size:13px; font-weight:500; color:var(--head-text3); }
+
+  .card { background:var(--card); border:1px solid var(--card-border); border-radius:var(--radius); overflow:hidden; }
+  .card-header { padding:14px 20px; border-bottom:1px solid var(--card-border); display:flex; align-items:center; gap:10px; }
+  .card-title { font-size:14px; font-weight:700; color:var(--text-strong); }
+
+  /* ═══ FILM SEARCH ═══ */
+  .film-search-box {
+    background:var(--card); border:1px solid var(--card-border); border-radius:var(--radius);
+    padding:24px; display:flex; flex-direction:column; gap:14px;
+  }
+  .film-search-row { display:flex; gap:10px; align-items:center; }
+  .film-search-input {
+    flex:1; padding:12px 16px; border-radius:8px;
+    border:1px solid var(--card-border); background:var(--card2);
+    font-family:var(--font); font-size:14px; font-weight:500;
+    color:var(--text-strong); outline:none; transition:border-color 0.15s;
+  }
+  .film-search-input:focus { border-color:var(--accent); }
+  .film-search-input::placeholder { color:var(--text3); }
+  .film-search-btn {
+    padding:12px 24px; border-radius:8px;
+    background:var(--bg-deep); color:var(--on-deep);
+    border:none; font-family:var(--font); font-size:13px; font-weight:700;
+    cursor:pointer; white-space:nowrap; display:flex; align-items:center; gap:6px;
+    transition:opacity 0.15s;
+  }
+  .film-search-btn:hover { opacity:0.9; }
+
+  .film-tags { display:flex; flex-wrap:wrap; gap:6px; }
+  .film-tag {
+    padding:5px 12px; border-radius:20px;
+    border:1px solid var(--card-border); background:var(--card2);
+    font-family:var(--font); font-size:11px; font-weight:500;
+    color:var(--text2); cursor:pointer; transition:all 0.15s;
+  }
+  .film-tag:hover { border-color:var(--accent); color:var(--accent); }
+  .film-tag.active { border-color:var(--accent); background:var(--mint-soft); color:var(--accent); font-weight:600; }
+  .film-tag-hidden { display:none; }
+  .film-tags.expanded .film-tag-hidden { display:inline-flex; }
+  .film-tag-expand {
+    width:30px; text-align:center; padding:5px 0;
+    font-weight:700; font-size:14px; color:var(--text3);
+  }
+  .film-tag-expand:hover { color:var(--accent); border-color:var(--accent); }
+
+  /* Results */
+  .film-results-header {
+    padding:14px 20px; border-bottom:1px solid var(--card-border);
+    display:flex; align-items:center; gap:10px;
+  }
+  .film-results-count { font-family:var(--mono); font-size:12px; color:var(--text3); }
+  .film-sort {
+    margin-left:auto; padding:5px 10px; border-radius:6px;
+    border:none; background:transparent;
+    font-family:var(--font); font-size:11px; color:var(--text3);
+    cursor:pointer;
+  }
+  .film-sort:hover { color:var(--text2); }
+
+  .film-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; padding:16px 20px; }
+
+  .film-card {
+    background:var(--card); border:1px solid var(--card-border);
+    border-radius:var(--radius); overflow:hidden;
+    cursor:pointer; transition:all 0.15s;
+  }
+  .film-card:hover { border-color:var(--accent); box-shadow:0 4px 16px rgba(0,0,0,0.06); }
+
+  .film-thumb {
+    width:100%; aspect-ratio:16/9;
+    display:flex; align-items:center; justify-content:center;
+    position:relative; overflow:hidden;
+  }
+  .film-thumb-bg { position:absolute; inset:0; }
+  .ft-1 .film-thumb-bg { background:linear-gradient(135deg,#3a5a3c,#2d4529); }
+  .ft-2 .film-thumb-bg { background:linear-gradient(135deg,#4a5a6b,#3d4a5a); }
+  .ft-3 .film-thumb-bg { background:linear-gradient(135deg,#5a4a3a,#4a3d2d); }
+  .ft-4 .film-thumb-bg { background:linear-gradient(135deg,#3a4a5a,#2d3d4a); }
+  .ft-5 .film-thumb-bg { background:linear-gradient(135deg,#5a6b4a,#4a5a3d); }
+  .ft-6 .film-thumb-bg { background:linear-gradient(135deg,#6b5a4a,#5a4a3d); }
+
+  .film-play {
+    width:40px; height:40px; border-radius:50%;
+    background:rgba(255,255,255,0.2); backdrop-filter:blur(4px);
+    display:flex; align-items:center; justify-content:center;
+    z-index:1; transition:all 0.2s;
+  }
+  .film-card:hover .film-play { background:rgba(255,255,255,0.35); transform:scale(1.1); }
+  .film-play-icon { color:white; font-size:16px; margin-left:2px; }
+
+  .film-dur {
+    position:absolute; bottom:8px; right:8px;
+    font-family:var(--mono); font-size:10px; font-weight:500;
+    background:rgba(0,0,0,0.6); color:white;
+    padding:2px 6px; border-radius:4px; z-index:1;
+  }
+  .film-verified {
+    position:absolute; top:8px; right:8px; z-index:1;
+  }
+  .film-match {
+    position:absolute; top:8px; left:8px;
+    font-family:var(--mono); font-size:10px; font-weight:700;
+    background:var(--accent); color:white;
+    padding:2px 8px; border-radius:4px; z-index:1;
+  }
+
+  .film-info { padding:12px 14px; }
+  .film-title { font-size:13px; font-weight:600; color:var(--text-strong); margin-bottom:4px; }
+  .film-meta { font-size:11px; color:var(--text3); margin-bottom:8px; }
+
+  .film-player {
+    display:flex; align-items:center; gap:8px;
+    padding:8px 0 0; border-top:1px solid var(--card-border);
+  }
+  .film-player-av {
+    width:28px; height:28px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:9px; font-weight:700; flex-shrink:0;
+  }
+  .film-player-info { flex:1; min-width:0; }
+  .at-name { font-size:12px; font-weight:700; color:var(--text-strong); letter-spacing:-0.02em; }
+  .at-sub { font-size:10.5px; color:var(--text3); margin-top:1px; }
+  .table-num { font-family:var(--mono); font-size:12px; font-weight:600; }
+  .film-player-score { margin-left:auto; flex-shrink:0; }
+
+  /* Empty / loading */
+  .film-empty {
+    text-align:center; padding:60px 20px; color:var(--text3);
+  }
+  .film-empty-icon { font-size:40px; margin-bottom:12px; opacity:0.3; }
+  .film-empty-title { font-size:14px; font-weight:600; color:var(--text-strong); margin-bottom:4px; }
+  .film-empty-desc { font-size:12px; }
+
+  @keyframes shimmer {
+    0% { background-position:-200px 0; }
+    100% { background-position:200px 0; }
+  }
+  .film-loading .film-thumb-bg {
+    background:linear-gradient(90deg,var(--card2) 25%,var(--card-border) 50%,var(--card2) 75%);
+    background-size:400px 100%;
+    animation:shimmer 1.5s infinite;
+  }
+
+  /* ═══ PLAYER DETAIL (film) ═══ */
+  .detail-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.35); z-index:200; opacity:0; pointer-events:none; transition:opacity 0.25s; }
+  .detail-overlay.open { opacity:1; pointer-events:all; }
+  .detail-panel { position:fixed; top:0; right:0; bottom:0; width:min(540px,100vw); background:var(--card); border-left:1px solid var(--card-border); z-index:201; display:flex; flex-direction:column; transform:translateX(100%); transition:transform 0.3s ease; box-shadow:-8px 0 32px rgba(0,0,0,0.15); overflow-y:auto; }
+  .detail-panel.open { transform:translateX(0); }
+  .dp-header { padding:20px 24px; border-bottom:1px solid var(--card-border); display:flex; align-items:flex-start; gap:16px; position:sticky; top:0; background:var(--card); z-index:1; }
+  .dp-avatar { width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:700; flex-shrink:0; }
+  .dp-info { flex:1; min-width:0; }
+  .dp-name { font-size:18px; font-weight:700; color:var(--text-strong); }
+  .dp-meta { font-size:12px; color:var(--text3); margin-top:2px; line-height:1.4; }
+  .dp-tags { display:flex; gap:6px; margin-top:8px; flex-wrap:wrap; }
+  .dp-close { width:32px; height:32px; display:flex; align-items:center; justify-content:center; border:1px solid var(--card-border); background:var(--card2); border-radius:8px; cursor:pointer; color:var(--text3); transition:all 0.15s; flex-shrink:0; }
+  .dp-close:hover { border-color:var(--accent); color:var(--accent); }
+  .dp-actions { padding:16px 24px; border-bottom:1px solid var(--card-border); display:flex; gap:8px; flex-wrap:wrap; }
+  .dp-btn { padding:8px 16px; border-radius:7px; font-family:var(--font); font-size:12px; font-weight:600; cursor:pointer; transition:all 0.15s; border:none; }
+  .dp-btn-primary { background:var(--bg-deep); color:var(--on-deep); }
+  .dp-btn-primary:hover { opacity:0.9; }
+  .dp-btn-secondary { background:var(--card2); color:var(--text2); border:1px solid var(--card-border); }
+  .dp-btn-secondary:hover { border-color:var(--accent); color:var(--accent); }
+  .dp-section { padding:20px 24px; border-bottom:1px solid var(--card-border); }
+  .dp-section:last-child { border-bottom:none; }
+  .dp-section-title { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; color:var(--text3); margin-bottom:14px; }
+  .dp-stats { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
+  .dp-stat { background:var(--card2); border-radius:8px; padding:12px; text-align:center; }
+  .dp-stat-val { font-family:var(--mono); font-size:20px; font-weight:600; }
+  .dp-stat-label { font-size:10px; font-weight:500; color:var(--text3); margin-top:2px; text-transform:uppercase; letter-spacing:0.5px; }
+  .dp-row { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:8px 0; border-bottom:1px solid var(--card-border); }
+  .dp-row:last-child { border-bottom:none; }
+  .dp-row-label { font-size:12px; font-weight:500; color:var(--text3); flex-shrink:0; }
+  .dp-row-value { font-size:12.5px; font-weight:600; color:var(--text-strong); text-align:right; }
+  .film-clip-title { font-size:12px; font-weight:600; color:var(--text-strong); flex:1; min-width:0; text-align:left; }
+  .film-clip-meta { font-size:10px; color:var(--text3); margin-top:2px; }
+
+  ::-webkit-scrollbar { width:4px; }
+  ::-webkit-scrollbar-thumb { background:var(--card-border); border-radius:2px; }
+</style>
+</head>
+<body>
+
+<!-- ═══ SIDEBAR ═══ -->
+<nav class="sidebar">
+  <a href="index.html" class="logo">Recruit<span>IQ</span></a>
+  <div class="nav-label">Main</div>
+  <a href="index.html" class="nav-item"><span class="ni"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="1.5" width="5" height="5" rx="1"/><rect x="9.5" y="1.5" width="5" height="5" rx="1"/><rect x="1.5" y="9.5" width="5" height="5" rx="1"/><rect x="9.5" y="9.5" width="5" height="5" rx="1"/></svg></span> Dashboard</a>
+  <a href="all-players.html" class="nav-item"><span class="ni"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="5" r="2.5"/><circle cx="11" cy="5.5" r="2"/><path d="M1 14c0-2.8 2-4.5 4.5-4.5 1.2 0 2.3.4 3 1.1"/><path d="M9 14c0-2.2 1.5-3.5 3-3.5s3 1.3 3 3.5"/></svg></span> All Players</a>
+  <a href="team.html" class="nav-item"><span class="ni"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8.5a3.5 3.5 0 107 0 3.5 3.5 0 10-7 0z"/><path d="M1.5 14c0-2.5 2.5-4 6.5-4s6.5 1.5 6.5 4"/></svg></span> My Team</a>
+  <a href="film-search.html" class="nav-item active"><span class="ni"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="12" height="10" rx="1.5"/><polygon points="6.5,6 6.5,11 11,8.5" fill="currentColor" stroke="none"/></svg></span> Film Search</a>
+  <a href="pipeline.html" class="nav-item"><span class="ni"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="12" height="12" rx="1.5"/><line x1="2" y1="6" x2="14" y2="6"/><line x1="6" y1="6" x2="6" y2="14"/><line x1="10" y1="6" x2="10" y2="14"/></svg></span> Pipeline</a>
+  <div class="nav-label">AI</div>
+  <a href="index.html#criteria" class="nav-item nav-criteria"><span class="ni"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="2" y1="4" x2="14" y2="4"/><line x1="2" y1="8" x2="14" y2="8"/><line x1="2" y1="12" x2="14" y2="12"/><circle cx="5" cy="4" r="1.5" fill="currentColor"/><circle cx="10" cy="8" r="1.5" fill="currentColor"/><circle cx="7" cy="12" r="1.5" fill="currentColor"/></svg></span> Recruiting Criteria</a>
+  <div class="nav-label">Communicate</div>
+  <a href="messages.html" class="nav-item"><span class="ni"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 3h11a1 1 0 011 1v7a1 1 0 01-1 1h-3l-3 2.5V12h-5a1 1 0 01-1-1V4a1 1 0 011-1z"/></svg></span> Messages <span class="nav-badge">5</span></a>
+  <div class="nav-label">Insights</div>
+  <div class="nav-item"><span class="ni"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="13" x2="3" y2="7"/><line x1="6.5" y1="13" x2="6.5" y2="4"/><line x1="10" y1="13" x2="10" y2="9"/><line x1="13.5" y1="13" x2="13.5" y2="2"/></svg></span> Analytics</div>
+  <div class="nav-item"><span class="ni"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.5l1.5 3.2 3.5.5-2.5 2.5.6 3.5L8 9.5l-3.1 1.7.6-3.5L3 5.2l3.5-.5z"/></svg></span> Film Integrity</div>
+  <div class="sidebar-bottom">
+    <div class="nav-item"><span class="ni"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="2"/><path d="M13.5 8a5.5 5.5 0 00-.4-1.4l1.2-1.2-1.1-1.1-1.2 1.2A5.5 5.5 0 008 4.5V3H6.8v1.5a5.5 5.5 0 00-1.4.4L4.2 3.7 3.1 4.8l1.2 1.2A5.5 5.5 0 003.5 8H2v1.2h1.5c.1.5.2 1 .4 1.4l-1.2 1.2 1.1 1.1 1.2-1.2c.4.2.9.3 1.4.4V14H8v-1.5c.5-.1 1-.2 1.4-.4l1.2 1.2 1.1-1.1-1.2-1.2c.2-.4.3-.9.4-1.4H14V8z"/></svg></span> Settings</div>
+    <div class="user-block">
+      <div class="user-av">MW</div>
+      <div><div class="user-name">Coach Williams</div><div class="user-role">Head Coach · Basketball</div></div>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══ MAIN ═══ -->
+<div class="main">
+  <header class="topbar">
+    <div class="topbar-title">Film Search</div>
+    <div class="topbar-search">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"/><line x1="10.5" y1="10.5" x2="14" y2="14"/></svg>
+      <input type="text" placeholder="Search players by move, play, or skill..." />
+      <span class="topbar-search-shortcut">⌘K</span>
+    </div>
+    <div class="topbar-right">
+      <span class="htag htag-mint">✓ Verified Coach</span>
+      <div class="icon-btn"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5a4 4 0 018 0c0 4 1.5 5 1.5 5H2.5S4 10.5 4 6.5z"/><path d="M6.5 13a1.5 1.5 0 003 0"/></svg></div>
+    </div>
+  </header>
+
+    <div class="team-tabs">
+    <div class="team-tab active" data-program="basketball-m" onclick="switchFilmProgram(this)">Basketball <span class="gender-badge gender-m">M</span></div>
+    <div class="team-tab" data-program="basketball-w" onclick="switchFilmProgram(this)">Basketball <span class="gender-badge gender-w">W</span></div>
+    <div class="team-tab" data-program="swimming-m" onclick="switchFilmProgram(this)">Swimming <span class="gender-badge gender-m">M</span></div>
+    <div class="team-tab" data-program="ice-hockey-m" onclick="switchFilmProgram(this)">Ice Hockey <span class="gender-badge gender-m">M</span></div>
+    <div class="team-tab" data-program="track-field-w" onclick="switchFilmProgram(this)">Track & Field <span class="gender-badge gender-w">W</span></div>
+    <div class="team-tab" data-program="soccer-w" onclick="switchFilmProgram(this)">Soccer <span class="gender-badge gender-w">W</span></div>
+    <div class="add-sport-wrap" data-tab-handler="switchFilmProgram">
+      <button type="button" class="add-sport-trigger" aria-expanded="false" aria-haspopup="true">
+        <span>Add sport</span>
+        <svg class="add-sport-chev" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 4.5l3 3 3-3"/></svg>
+      </button>
+      <div class="add-sport-panel" role="dialog" aria-label="Add sport program">
+        <div>
+          <div class="add-sport-label">Sport</div>
+          <select class="add-sport-select">
+            <option value="">Choose sport…</option>
+            <option value="Baseball">Baseball</option>
+            <option value="Softball">Softball</option>
+            <option value="Volleyball">Volleyball</option>
+            <option value="Football">Football</option>
+            <option value="Lacrosse">Lacrosse</option>
+            <option value="Tennis">Tennis</option>
+            <option value="Golf">Golf</option>
+            <option value="Wrestling">Wrestling</option>
+            <option value="Field Hockey">Field Hockey</option>
+            <option value="Water Polo">Water Polo</option>
+            <option value="Rowing">Rowing</option>
+            <option value="Gymnastics">Gymnastics</option>
+            <option value="Bowling">Bowling</option>
+            <option value="Esports">Esports</option>
+          </select>
+        </div>
+        <div>
+          <div class="add-sport-label">Gender</div>
+          <div class="add-sport-genders">
+            <button type="button" class="add-sport-gbtn active" data-gender="M">Man's</button>
+            <button type="button" class="add-sport-gbtn" data-gender="W">Woman's</button>
+          </div>
+        </div>
+        <button type="button" class="add-sport-add">Add program</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <div class="page-header">
+      <div class="page-title">Film Search</div>
+      <div class="page-count" id="filmPageSub">Man's basketball · indexed film library</div>
+    </div>
+
+    <!-- Search Box -->
+    <div class="film-search-box">
+      <div class="film-search-row">
+        <input class="film-search-input" id="filmInput" type="text" placeholder="Search plays... e.g. crossover, 3-pointer, dunk, pick and roll" onkeydown="if(event.key==='Enter')searchFilm()" />
+        <button class="film-search-btn" onclick="searchFilm()">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"/><line x1="10.5" y1="10.5" x2="14" y2="14"/></svg>
+          Search Film
+        </button>
+      </div>
+      <div class="film-tags" id="filmTags">
+        <span class="film-tag" onclick="quickSearch(this)">3-Pointer</span>
+        <span class="film-tag" onclick="quickSearch(this)">Crossover</span>
+        <span class="film-tag" onclick="quickSearch(this)">Dunk</span>
+        <span class="film-tag" onclick="quickSearch(this)">Pick & Roll</span>
+        <span class="film-tag" onclick="quickSearch(this)">Euro Step</span>
+        <span class="film-tag film-tag-hidden" onclick="quickSearch(this)">Fast Break</span>
+        <span class="film-tag film-tag-hidden" onclick="quickSearch(this)">Block</span>
+        <span class="film-tag film-tag-hidden" onclick="quickSearch(this)">Steal</span>
+        <span class="film-tag film-tag-hidden" onclick="quickSearch(this)">Post Move</span>
+        <span class="film-tag film-tag-hidden" onclick="quickSearch(this)">Alley-Oop</span>
+        <span class="film-tag film-tag-hidden" onclick="quickSearch(this)">Free Throw</span>
+        <span class="film-tag film-tag-hidden" onclick="quickSearch(this)">Full Game</span>
+        <span class="film-tag film-tag-expand" id="tagExpand" onclick="toggleTags()">+</span>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div id="resultsArea">
+      <div class="card">
+        <div class="film-empty">
+          <div class="film-empty-icon"><svg width="48" height="48" viewBox="0 0 16 16" fill="none" stroke="var(--text3)" stroke-width="1" stroke-linecap="round"><rect x="2" y="3" width="12" height="10" rx="1.5"/><polygon points="6.5,6 6.5,11 11,8.5"/></svg></div>
+          <div class="film-empty-title">Search for plays and skills</div>
+          <div class="film-empty-desc">Type a play type like "3-pointer" or "dunk" or click a tag above to find matching film clips.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ PLAYER DETAIL (from film) ═══ -->
+<div class="detail-overlay" id="filmDetailOverlay" onclick="closeFilmPlayerDetail()"></div>
+<div class="detail-panel" id="filmDetailPanel">
+  <div class="dp-header">
+    <div class="dp-avatar" id="filmDpAvatar">—</div>
+    <div class="dp-info">
+      <div class="dp-name" id="filmDpName">—</div>
+      <div class="dp-meta" id="filmDpMeta">—</div>
+      <div class="dp-tags" id="filmDpTags"></div>
+    </div>
+    <button type="button" class="dp-close" onclick="closeFilmPlayerDetail()" aria-label="Close">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="3" y1="3" x2="11" y2="11"/><line x1="11" y1="3" x2="3" y2="11"/></svg>
+    </button>
+  </div>
+  <div class="dp-actions" id="filmDpActions"></div>
+  <div id="filmDetailBody"></div>
+</div>
+
+<script>
+/** Sport/gender tab id (matches data-program on .team-tab; add-sport uses slug + -m / -w) */
+let currentFilmProgram = 'basketball-m';
+
+const PROGRAM_CONFIG = {
+  'basketball-m': {
+    label: "Man's basketball",
+    placeholder: "Search plays… e.g. crossover, 3-pointer, dunk, pick and roll",
+    quickTags: ['3-Pointer','Crossover','Dunk','Pick & Roll','Euro Step','Fast Break','Block','Steal','Post Move','Alley-Oop','Free Throw','Full Game'],
+    emptyLead: 'Search for plays and skills',
+    emptyHint: 'Type a play or click a quick tag. Results are scoped to this program tab.',
+  },
+  'basketball-w': {
+    label: "Woman's basketball",
+    placeholder: "Search… e.g. three, high post, ball screen, transition",
+    quickTags: ['3-Pointer','Pick & Roll','Post Move','Full Court Press','Backdoor','Fast Break','Block','Mid-Range'],
+    emptyLead: 'Woman\'s basketball film',
+    emptyHint: 'Indexed WBB clips from EYBL Girls, Nike Nationals, and HS film.',
+  },
+  'swimming-m': {
+    label: "Man's swimming",
+    placeholder: "Search… e.g. freestyle, flip turn, relay, underwater",
+    quickTags: ['Freestyle','Backstroke','Breaststroke','Flip Turn','Relay','Underwater','Sprint Finish'],
+    emptyLead: 'Swimming technique library',
+    emptyHint: 'Race footage and skills from conference and invite meets.',
+  },
+  'ice-hockey-m': {
+    label: "Man's ice hockey",
+    placeholder: "Search… e.g. wrist shot, breakout, penalty kill, save",
+    quickTags: ['Wrist Shot','One-Timer','Breakaway','Board Battle','Faceoff Win','Power Play'],
+    emptyLead: 'Hockey shift & skills film',
+    emptyHint: 'NCAA-style tagged shifts and scout clips.',
+  },
+  'track-field-w': {
+    label: "Woman's track & field",
+    placeholder: "Search… e.g. hurdles, long jump, relay, blocks",
+    quickTags: ['Hurdles','Long Jump','Sprint Blocks','4×400','Throwing Circle','Distance Kick'],
+    emptyLead: 'Track & field marks',
+    emptyHint: 'Field events and running clips from regional qualifiers.',
+  },
+  'soccer-w': {
+    label: "Woman's soccer",
+    placeholder: "Search… e.g. through ball, corner, press, finish",
+    quickTags: ['Through Ball','Corner Kick','Press Trigger','Finish','1v1 Defending','Build-Up'],
+    emptyLead: 'Soccer tactical film',
+    emptyHint: 'Full match segments and isolated skills from club & college prep.',
+  },
+};
+
+function getProgramConfig(key) {
+  if (PROGRAM_CONFIG[key]) return PROGRAM_CONFIG[key];
+  const pretty = key.replace(/-/g, ' ').replace(/\bm\b/i, '(M)').replace(/\bw\b/i, '(W)');
+  return {
+    label: pretty.replace(/\b\w/g, c => c.toUpperCase()),
+    placeholder: 'Search film for this program…',
+    quickTags: ['Highlight','Skills','Game film','Training'],
+    emptyLead: 'Film library',
+    emptyHint: 'No clips indexed yet for this program. Add searches above as your library grows.',
+  };
+}
+
+function programKeyFromTab(el) {
+  if (el && el.dataset && el.dataset.program) return el.dataset.program;
+  const text = (el && el.textContent ? el.textContent : '').replace(/\s+/g, ' ').trim();
+  const m = text.match(/^(.+?)\s+([MW])\s*$/i);
+  if (m) {
+    const slug = m[1].toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    return slug + '-' + m[2].toLowerCase();
+  }
+  return 'basketball-m';
+}
+
+function clipsForProgram(program) {
+  return filmDB.filter(f => f.program === program);
+}
+
+function switchFilmProgram(el) {
+  currentFilmProgram = programKeyFromTab(el);
+  el.parentElement.querySelectorAll('.team-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+
+  const cfg = getProgramConfig(currentFilmProgram);
+  const n = clipsForProgram(currentFilmProgram).length;
+  document.getElementById('filmPageSub').textContent = cfg.label + ' · ' + n + ' indexed clip' + (n !== 1 ? 's' : '');
+
+  const input = document.getElementById('filmInput');
+  input.placeholder = cfg.placeholder;
+  input.value = '';
+
+  renderQuickTags();
+  showProgramEmpty();
+}
+
+function renderQuickTags() {
+  const cfg = getProgramConfig(currentFilmProgram);
+  const tags = cfg.quickTags;
+  const showFirst = 5;
+  const container = document.getElementById('filmTags');
+  let html = tags.map((label, i) =>
+    `<span class="film-tag${i >= showFirst ? ' film-tag-hidden' : ''}" onclick="quickSearch(this)">${label}</span>`
+  ).join('');
+  html += '<span class="film-tag film-tag-expand" id="tagExpand" onclick="toggleTags()">+</span>';
+  container.innerHTML = html;
+  container.classList.remove('expanded');
+}
+
+function showProgramEmpty() {
+  const cfg = getProgramConfig(currentFilmProgram);
+  document.getElementById('resultsArea').innerHTML = `<div class="card"><div class="film-empty">
+    <div class="film-empty-icon"><svg width="48" height="48" viewBox="0 0 16 16" fill="none" stroke="var(--text3)" stroke-width="1" stroke-linecap="round"><rect x="2" y="3" width="12" height="10" rx="1.5"/><polygon points="6.5,6 6.5,11 11,8.5"/></svg></div>
+    <div class="film-empty-title">${cfg.emptyLead}</div>
+    <div class="film-empty-desc">${cfg.emptyHint}</div>
+  </div></div>`;
+}
+
+const filmDB = [
+  { program:'basketball-m', title:'Catch & Shoot Triple', player:'Jalen Rivera', initials:'JR', color:'var(--gold)', pos:'PG', meta:'EYBL Atlanta · Q3 2:14', dur:'0:06', score:91, verified:true, tags:['3-pointer','shooting','catch and shoot'], thumb:'ft-1' },
+  { program:'basketball-m', title:'Step-Back Three', player:'DeAndre Williams', initials:'DW', color:'var(--blue)', pos:'SG', meta:'UAA Circuit · Q2 5:30', dur:'0:08', score:85, verified:true, tags:['3-pointer','step-back','shooting'], thumb:'ft-2' },
+  { program:'basketball-m', title:'Corner Three off Screen', player:'Kyle Mitchell', initials:'KM', color:'var(--blue)', pos:'SG', meta:'HS Season · Q4 1:02', dur:'0:05', score:84, verified:true, tags:['3-pointer','off-screen','shooting'], thumb:'ft-4' },
+  { program:'basketball-m', title:'Pull-Up Three in Transition', player:'Anthony Brooks', initials:'AB', color:'var(--blue)', pos:'PG', meta:'Peach Jam · Q1 6:44', dur:'0:07', score:78, verified:true, tags:['3-pointer','transition','pull-up'], thumb:'ft-5' },
+  { program:'basketball-m', title:'Crossover + Pull-up Jumper', player:'Jalen Rivera', initials:'JR', color:'var(--gold)', pos:'PG', meta:'EYBL Atlanta · Q2 3:41', dur:'0:09', score:91, verified:true, tags:['crossover','mid-range','ball handling'], thumb:'ft-1' },
+  { program:'basketball-m', title:'Double Crossover Drive', player:'Rashad Collins', initials:'RC', color:'var(--accent)', pos:'PG', meta:'Peach Jam · Q3 1:15', dur:'0:07', score:94, verified:true, tags:['crossover','drive','ball handling'], thumb:'ft-3' },
+  { program:'basketball-m', title:'Behind-the-Back Crossover', player:'Anthony Brooks', initials:'AB', color:'var(--blue)', pos:'PG', meta:'HS Season · Q2 4:22', dur:'0:06', score:78, verified:false, tags:['crossover','behind the back','ball handling'], thumb:'ft-6' },
+  { program:'basketball-m', title:'Transition Slam Dunk', player:'Noah Foster', initials:'NF', color:'var(--accent)', pos:'SF', meta:'UAA Circuit · Q1 8:10', dur:'0:05', score:85, verified:true, tags:['dunk','fast break','transition','slam'], thumb:'ft-2' },
+  { program:'basketball-m', title:'Poster Dunk over Defender', player:'Elijah Lewis', initials:'EL', color:'var(--orange)', pos:'PF', meta:'EYBL Session 2 · Q3 0:44', dur:'0:06', score:86, verified:true, tags:['dunk','poster','power','contact'], thumb:'ft-3' },
+  { program:'basketball-m', title:'Alley-Oop Finish', player:'Samuel Powell', initials:'SP', color:'var(--accent)', pos:'C', meta:'Adidas 3SSB · Q2 5:55', dur:'0:04', score:92, verified:true, tags:['dunk','alley-oop','finish','lob'], thumb:'ft-1' },
+  { program:'basketball-m', title:'Pick & Roll — Pocket Pass', player:'Jalen Rivera', initials:'JR', color:'var(--gold)', pos:'PG', meta:'EYBL · Q4 2:30', dur:'0:11', score:91, verified:true, tags:['pick and roll','pass','ball handling','court vision'], thumb:'ft-4' },
+  { program:'basketball-m', title:'P&R Pop — Mid-Range Pull-Up', player:'Elijah Lewis', initials:'EL', color:'var(--orange)', pos:'PF', meta:'UAA · Q1 3:18', dur:'0:08', score:86, verified:true, tags:['pick and roll','mid-range','pop'], thumb:'ft-5' },
+  { program:'basketball-m', title:'Euro Step + Finish', player:'Rashad Collins', initials:'RC', color:'var(--accent)', pos:'PG', meta:'Peach Jam · Q2 7:12', dur:'0:07', score:94, verified:true, tags:['euro step','layup','finish','drive'], thumb:'ft-2' },
+  { program:'basketball-m', title:'Euro Step Reverse Layup', player:'DeAndre Williams', initials:'DW', color:'var(--blue)', pos:'SG', meta:'HS Season · Q3 4:58', dur:'0:06', score:85, verified:true, tags:['euro step','reverse','layup','finish'], thumb:'ft-6' },
+  { program:'basketball-m', title:'Coast-to-Coast Fast Break', player:'Noah Foster', initials:'NF', color:'var(--accent)', pos:'SF', meta:'EYBL · Q1 0:30', dur:'0:08', score:85, verified:true, tags:['fast break','transition','coast to coast'], thumb:'ft-1' },
+  { program:'basketball-m', title:'3-on-1 Fast Break Finish', player:'Anthony Brooks', initials:'AB', color:'var(--blue)', pos:'PG', meta:'Peach Jam · Q4 1:55', dur:'0:09', score:78, verified:true, tags:['fast break','finish','transition'], thumb:'ft-3' },
+  { program:'basketball-m', title:'Chase-Down Block', player:'Samuel Powell', initials:'SP', color:'var(--accent)', pos:'C', meta:'3SSB · Q2 6:22', dur:'0:05', score:92, verified:true, tags:['block','chase-down','defense','rim protection'], thumb:'ft-4' },
+  { program:'basketball-m', title:'Weak Side Shot Block', player:'Terrence Washington', initials:'TW', color:'var(--mint)', pos:'C', meta:'HS Season · Q3 3:10', dur:'0:04', score:79, verified:true, tags:['block','weak side','defense','rim protection'], thumb:'ft-5' },
+  { program:'basketball-m', title:'Steal + Coast to Coast', player:'Jalen Rivera', initials:'JR', color:'var(--gold)', pos:'PG', meta:'EYBL · Q1 4:08', dur:'0:10', score:91, verified:true, tags:['steal','fast break','transition','defense'], thumb:'ft-6' },
+  { program:'basketball-m', title:'Post Up + Drop Step', player:'Samuel Powell', initials:'SP', color:'var(--accent)', pos:'C', meta:'3SSB · Q4 2:45', dur:'0:08', score:92, verified:true, tags:['post move','drop step','interior','finish'], thumb:'ft-2' },
+  { program:'basketball-m', title:'Up-and-Under Post Move', player:'Elijah Lewis', initials:'EL', color:'var(--orange)', pos:'PF', meta:'UAA · Q2 5:12', dur:'0:07', score:86, verified:true, tags:['post move','up and under','interior','footwork'], thumb:'ft-1' },
+  { program:'basketball-m', title:'Full Game — vs. Southeast Elite', player:'Jalen Rivera', initials:'JR', color:'var(--gold)', pos:'PG', meta:'EYBL Session 2 · Mar 28, 2026', dur:'32:14', score:91, verified:true, tags:['full game','complete'], thumb:'ft-3' },
+  { program:'basketball-m', title:'Full Game — vs. Midwest Select', player:'Samuel Powell', initials:'SP', color:'var(--accent)', pos:'C', meta:'Adidas 3SSB · Mar 22, 2026', dur:'28:41', score:92, verified:true, tags:['full game','complete'], thumb:'ft-4' },
+  { program:'basketball-m', title:'Free Throw Routine (10 Attempts)', player:'DeAndre Williams', initials:'DW', color:'var(--blue)', pos:'SG', meta:'Practice Film · Mar 2026', dur:'1:22', score:85, verified:false, tags:['free throw','routine','shooting form'], thumb:'ft-5' },
+  { program:'basketball-m', title:'Alley-Oop Connection', player:'Jalen Rivera', initials:'JR', color:'var(--gold)', pos:'PG', meta:'EYBL · Q3 1:40', dur:'0:05', score:91, verified:true, tags:['alley-oop','pass','lob','assist'], thumb:'ft-6' },
+
+  { program:'basketball-w', title:'Step-Back Three — Left Wing', player:'Maya Thompson', initials:'MT', color:'var(--gold)', pos:'PG', meta:'Nike Nationals · Q2 4:02', dur:'0:07', score:89, verified:true, tags:['3-pointer','step-back','shooting'], thumb:'ft-1' },
+  { program:'basketball-w', title:'High-Low Entry & Finish', player:'Aaliyah Johnson', initials:'AJ', color:'var(--accent)', pos:'C', meta:'EYBL Girls · Q3 1:18', dur:'0:08', score:93, verified:true, tags:['post move','high low','finish'], thumb:'ft-2' },
+  { program:'basketball-w', title:'Ball-Screen Reject & Drive', player:'Maya Thompson', initials:'MT', color:'var(--gold)', pos:'PG', meta:'Nike Nationals · Q1 6:10', dur:'0:09', score:89, verified:true, tags:['pick and roll','reject','drive'], thumb:'ft-3' },
+  { program:'basketball-w', title:'Full Court Press Trap POV', player:'Paige Donovan', initials:'PD', color:'var(--blue)', pos:'SG', meta:'Bay State Flash · Q4 0:45', dur:'0:12', score:83, verified:true, tags:['full court press','defense','trap'], thumb:'ft-4' },
+  { program:'basketball-w', title:'Backdoor Cut Layup', player:'Skylar Reese', initials:'SR', color:'var(--orange)', pos:'PF', meta:'Arizona Power · Q2 3:22', dur:'0:05', score:76, verified:true, tags:['backdoor','cut','finish'], thumb:'ft-5' },
+  { program:'basketball-w', title:'Transition Pull-Up Two', player:'Christine Walters', initials:'CW', color:'var(--blue)', pos:'PG', meta:'North Tartan · Q1 2:11', dur:'0:06', score:81, verified:true, tags:['fast break','mid-range','pull-up'], thumb:'ft-6' },
+  { program:'basketball-w', title:'Weak-Side Help Block', player:'Aaliyah Johnson', initials:'AJ', color:'var(--accent)', pos:'C', meta:'EYBL Girls · Q4 5:00', dur:'0:04', score:93, verified:true, tags:['block','help side','defense'], thumb:'ft-1' },
+  { program:'basketball-w', title:'Full Game — vs. West Coast Stars', player:'Maya Thompson', initials:'MT', color:'var(--gold)', pos:'PG', meta:'Nike Nationals · Mar 20, 2026', dur:'31:02', score:89, verified:true, tags:['full game','complete'], thumb:'ft-2' },
+
+  { program:'swimming-m', title:'50 Free — Race Walls', player:'Tyler Chen', initials:'TC', color:'var(--blue)', pos:'50FR', meta:'Conference Champs · Lane 4', dur:'0:32', score:88, verified:true, tags:['freestyle','sprint finish','race'], thumb:'ft-3' },
+  { program:'swimming-m', title:'100 Back — Underwater Breakout', player:'Marcus Webb', initials:'MW', color:'var(--accent)', pos:'100BK', meta:'Invite Meet · Prelims', dur:'0:28', score:84, verified:true, tags:['backstroke','underwater','breakout'], thumb:'ft-4' },
+  { program:'swimming-m', title:'200 IM — Breast Pullout', player:'Tyler Chen', initials:'TC', color:'var(--blue)', pos:'200IM', meta:'Sectionals · Leg 3', dur:'0:45', score:88, verified:true, tags:['breaststroke','pullout','turn'], thumb:'ft-5' },
+  { program:'swimming-m', title:'400 Free Relay — Flying Takeover', player:'A. State', initials:'4×1', color:'var(--gold)', pos:'Relay', meta:'Finals · Anchor split 46.2', dur:'0:38', score:91, verified:true, tags:['relay','takeover','freestyle'], thumb:'ft-6' },
+  { program:'swimming-m', title:'Flip Turn — Open 200 Free', player:'Marcus Webb', initials:'MW', color:'var(--accent)', pos:'200FR', meta:'Dual Meet · Wall 2', dur:'0:22', score:84, verified:false, tags:['flip turn','freestyle','underwaters'], thumb:'ft-1' },
+
+  { program:'ice-hockey-m', title:'Slot One-Timer Goal', player:'Jake Morozov', initials:'JM', color:'var(--blue)', pos:'LW', meta:'USPHL · PP unit', dur:'0:08', score:87, verified:true, tags:['one-timer','power play','finish'], thumb:'ft-2' },
+  { program:'ice-hockey-m', title:'Off-Wing Wrist Shot', player:'Ryan Okafor', initials:'RO', color:'var(--accent)', pos:'RD', meta:'Showcase · Zone entry', dur:'0:06', score:82, verified:true, tags:['wrist shot','zone entry','shooting'], thumb:'ft-3' },
+  { program:'ice-hockey-m', title:'Breakaway Save Sequence', player:'C. Anders', initials:'CA', color:'var(--mint)', pos:'G', meta:'Tournament · Glove side', dur:'0:11', score:90, verified:true, tags:['breakaway','save','goaltending'], thumb:'ft-4' },
+  { program:'ice-hockey-m', title:'Board Battle — Puck Extraction', player:'Jake Morozov', initials:'JM', color:'var(--blue)', pos:'LW', meta:'League Play · OZ corner', dur:'0:09', score:87, verified:true, tags:['board battle','cycle','possession'], thumb:'ft-5' },
+  { program:'ice-hockey-m', title:'Offensive-Zone Faceoff Win → Shot', player:'Ryan Okafor', initials:'RO', color:'var(--accent)', pos:'RD', meta:'Power Play · Dot tie-up', dur:'0:07', score:82, verified:true, tags:['faceoff win','one-timer','power play'], thumb:'ft-6' },
+
+  { program:'track-field-w', title:'100H — Block Start to H1', player:'Nia Patterson', initials:'NP', color:'var(--gold)', pos:'100H', meta:'Regional Qualifier', dur:'0:18', score:86, verified:true, tags:['hurdles','sprint blocks','start'], thumb:'ft-1' },
+  { program:'track-field-w', title:'Long Jump — Approach Rhythms', player:'Nia Patterson', initials:'NP', color:'var(--gold)', pos:'LJ', meta:'Pit Cam · 6.12m', dur:'0:24', score:86, verified:true, tags:['long jump','approach','takeoff'], thumb:'ft-2' },
+  { program:'track-field-w', title:'4×400 — Anchor Leg Split', player:'East HS', initials:'4×4', color:'var(--blue)', pos:'4×400', meta:'State Prelims · Leg 4', dur:'0:52', score:83, verified:true, tags:['4×400','relay','anchor leg'], thumb:'ft-3' },
+  { program:'track-field-w', title:'Discus — Full Throws', player:'Jordan Ellis', initials:'JE', color:'var(--orange)', pos:'DISC', meta:'Field Sectionals · 3 throws', dur:'1:10', score:79, verified:true, tags:['throwing circle','discus','technique'], thumb:'ft-4' },
+  { program:'track-field-w', title:'800 — Final 200 Kick', player:'Taylor Singh', initials:'TS', color:'var(--accent)', pos:'800', meta:'Invitational · Bell lap', dur:'0:35', score:85, verified:false, tags:['distance kick','800','closing speed'], thumb:'ft-5' },
+
+  { program:'soccer-w', title:'Through Ball — Channel Run', player:'Emma Vasquez', initials:'EV', color:'var(--blue)', pos:'FW', meta:'ECNL · Final third', dur:'0:11', score:88, verified:true, tags:['through ball','run in behind','finish'], thumb:'ft-6' },
+  { program:'soccer-w', title:'Corner Service — Near-Post Glance', player:'Sofia Reed', initials:'SR', color:'var(--gold)', pos:'MID', meta:'HS State · Set piece', dur:'0:08', score:84, verified:true, tags:['corner kick','set piece','service'], thumb:'ft-1' },
+  { program:'soccer-w', title:'High Press — Forced Turnover', player:'Emma Vasquez', initials:'EV', color:'var(--blue)', pos:'FW', meta:'Showcase · First line', dur:'0:14', score:88, verified:true, tags:['press trigger','turnover','transition'], thumb:'ft-2' },
+  { program:'soccer-w', title:'1v1 Defending — Forced Wide', player:'Riley Park', initials:'RP', color:'var(--accent)', pos:'FB', meta:'Club Cup · Wide channel', dur:'0:12', score:81, verified:true, tags:['1v1 defending','channel','delay'], thumb:'ft-3' },
+  { program:'soccer-w', title:'Build-Up — CB Line Break', player:'Morgan Lee', initials:'ML', color:'var(--mint)', pos:'CB', meta:'DA match · First phase', dur:'0:16', score:86, verified:true, tags:['build-up','line break','possession'], thumb:'ft-4' },
+];
+
+function searchFilm() {
+  const raw = document.getElementById('filmInput').value.trim();
+  const query = raw.toLowerCase();
+  if (!query) {
+    showProgramEmpty();
+    document.querySelectorAll('.film-tag').forEach(t => t.classList.remove('active'));
+    return;
+  }
+
+  document.querySelectorAll('.film-tag').forEach(t => {
+    if (t.classList.contains('film-tag-expand')) return;
+    t.classList.toggle('active', t.textContent.trim().toLowerCase() === query);
+  });
+
+  const pool = clipsForProgram(currentFilmProgram);
+  const qTags = query.replace(/\s*&\s*/g, ' and ');
+  const results = pool.filter(f =>
+    f.tags.some(t => t.includes(qTags)) ||
+    f.title.toLowerCase().includes(query) ||
+    f.player.toLowerCase().includes(query) ||
+    (f.pos && f.pos.toLowerCase().includes(query))
+  ).sort((a,b) => b.score - a.score);
+
+  renderResults(raw, results);
+}
+
+function quickSearch(el) {
+  if (el.classList.contains('film-tag-expand')) return;
+  document.getElementById('filmInput').value = el.textContent.trim();
+  document.querySelectorAll('.film-tag').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  searchFilm();
+}
+
+function toggleTags() {
+  const container = document.getElementById('filmTags');
+  const btn = document.getElementById('tagExpand');
+  if (!btn) return;
+  container.classList.toggle('expanded');
+  btn.textContent = container.classList.contains('expanded') ? '−' : '+';
+}
+
+function posTagClass(pos) {
+  const map = { PG:'tag-blue', SG:'tag-blue', SF:'tag-orange', PF:'tag-orange', C:'tag-mint' };
+  return map[pos] || 'tag-blue';
+}
+
+/** Full name → My Team roster key (team.html) */
+const FILM_NAME_TO_TEAM = {
+  'Jalen Rivera': 'rivera',
+  'DeAndre Williams': 'dwilliams',
+  'Kyle Mitchell': 'mitchell',
+  'Anthony Brooks': 'brooks',
+  'Noah Foster': 'foster',
+  'Elijah Lewis': 'lewis',
+  'Samuel Powell': 'powell',
+  'Terrence Washington': 'washington',
+};
+
+const FILM_PLAYER_EXTRA = {
+  'Jalen Rivera': { school: 'Westfield Academy', hometown: 'Atlanta, GA', classYr: '2026', gpa: '3.8' },
+  'DeAndre Williams': { school: '—', hometown: 'Chicago, IL', classYr: 'Sr', gpa: '3.2' },
+  'Kyle Mitchell': { school: 'Whitney Young HS', hometown: 'Chicago, IL', classYr: 'Fr', gpa: '3.4' },
+  'Anthony Brooks': { school: 'Garfield HS', hometown: 'Seattle, WA', classYr: 'Fr', gpa: '3.4' },
+  'Rashad Collins': { school: 'American Heritage', hometown: 'Miami, FL', classYr: '2026', gpa: '3.5' },
+  'Noah Foster': { school: 'Strake Jesuit', hometown: 'Houston, TX', classYr: 'Jr', gpa: '3.5' },
+  'Elijah Lewis': { school: 'Bellaire HS', hometown: 'Houston, TX', classYr: 'So', gpa: '3.3' },
+  'Samuel Powell': { school: 'Hillcrest Prep', hometown: 'Phoenix, AZ', classYr: 'Sr', gpa: '3.6' },
+  'Terrence Washington': { school: 'Christ the King', hometown: 'New York, NY', classYr: 'So', gpa: '3.0' },
+  'Maya Thompson': { school: 'Prestonwood Academy', hometown: 'Dallas, TX', classYr: '2027', gpa: '3.9' },
+  'Aaliyah Johnson': { school: 'Westlake HS', hometown: 'Atlanta, GA', classYr: '2027', gpa: '3.7' },
+  'Paige Donovan': { school: 'Bay State Flash', hometown: 'Boston, MA', classYr: '2026', gpa: '3.5' },
+  'Skylar Reese': { school: 'Arizona Power', hometown: 'Phoenix, AZ', classYr: '2026', gpa: '3.2' },
+  'Christine Walters': { school: 'North Tartan', hometown: 'Minneapolis, MN', classYr: '2026', gpa: '3.4' },
+  'Tyler Chen': { school: 'State University Swim', hometown: '—', classYr: 'Jr', gpa: '3.6' },
+  'Marcus Webb': { school: '—', hometown: '—', classYr: 'Sr', gpa: '3.3' },
+  'A. State': { school: 'Relay (400 FR)', hometown: '—', classYr: '—', gpa: '—' },
+  'Jake Morozov': { school: 'USPHL Program', hometown: '—', classYr: '2026', gpa: '—' },
+  'Ryan Okafor': { school: 'Showcase League', hometown: '—', classYr: '2026', gpa: '3.1' },
+  'C. Anders': { school: '—', hometown: '—', classYr: 'Jr', gpa: '—' },
+  'Nia Patterson': { school: '—', hometown: '—', classYr: '2026', gpa: '3.5' },
+  'East HS': { school: 'East HS (relay)', hometown: '—', classYr: '—', gpa: '—' },
+  'Jordan Ellis': { school: '—', hometown: '—', classYr: '2026', gpa: '3.0' },
+  'Taylor Singh': { school: '—', hometown: '—', classYr: '2027', gpa: '3.4' },
+  'Emma Vasquez': { school: 'ECNL Club', hometown: '—', classYr: '2026', gpa: '3.6' },
+  'Sofia Reed': { school: '—', hometown: '—', classYr: '2026', gpa: '3.2' },
+  'Riley Park': { school: '—', hometown: '—', classYr: '2027', gpa: '3.3' },
+  'Morgan Lee': { school: '—', hometown: '—', classYr: '2026', gpa: '3.5' },
+};
+
+function escMini(s) {
+  return String(s == null ? '—' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+}
+
+function closeFilmPlayerDetail() {
+  document.getElementById('filmDetailPanel').classList.remove('open');
+  document.getElementById('filmDetailOverlay').classList.remove('open');
+}
+
+function openFilmPlayerDetail(name) {
+  const clips = filmDB.filter(f => f.player === name);
+  if (!clips.length) return;
+  const c0 = clips[0];
+  const avg = Math.round(clips.reduce((s, x) => s + x.score, 0) / clips.length);
+  const extra = FILM_PLAYER_EXTRA[name] || {};
+  const anyVerified = clips.some(c => c.verified);
+  const programLabels = [...new Set(clips.map(c => getProgramConfig(c.program).label))];
+
+  const softBg = c0.color.replace(')', '-soft)').replace('var(','var(');
+  document.getElementById('filmDpAvatar').style.background = softBg;
+  document.getElementById('filmDpAvatar').style.color = c0.color;
+  document.getElementById('filmDpAvatar').textContent = c0.initials;
+  document.getElementById('filmDpName').textContent = name;
+  document.getElementById('filmDpMeta').textContent = `${c0.pos} · Avg film match ${avg}% · ${clips.length} indexed clip${clips.length !== 1 ? 's' : ''} · ${programLabels.join(' · ')}`;
+
+  let tags = `<span class="tag ${posTagClass(c0.pos)}" style="font-size:10px">${escMini(c0.pos)}</span>`;
+  if (anyVerified) tags += ' <span class="badge-sm badge-ok" style="font-size:9px">✓ Verified film</span>';
+  document.getElementById('filmDpTags').innerHTML = tags;
+
+  const teamKey = FILM_NAME_TO_TEAM[name];
+  document.getElementById('filmDpActions').innerHTML = teamKey
+    ? '<a class="dp-btn dp-btn-primary" href="team.html" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center">View on My Team</a><button type="button" class="dp-btn dp-btn-secondary" onclick="closeFilmPlayerDetail()">Close</button>'
+    : '<button type="button" class="dp-btn dp-btn-secondary" onclick="closeFilmPlayerDetail()">Close</button>';
+
+  const scoreColor = avg >= 90 ? 'var(--accent)' : avg >= 85 ? 'var(--blue)' : 'var(--text3)';
+  const listHtml = [...clips].sort((a, b) => b.score - a.score).map(c => {
+    const sc = c.score >= 90 ? 'var(--accent)' : c.score >= 85 ? 'var(--blue)' : 'var(--text3)';
+    return `<div class="dp-row" style="align-items:flex-start">
+      <div style="flex:1;min-width:0">
+        <div class="film-clip-title">${escMini(c.title)}</div>
+        <div class="film-clip-meta">${escMini(c.meta)} · ${escMini(getProgramConfig(c.program).label)}</div>
+      </div>
+      <span class="table-num" style="color:${sc};flex-shrink:0">${c.score}</span>
+    </div>`;
+  }).join('');
+
+  document.getElementById('filmDetailBody').innerHTML = `
+    <div class="dp-section">
+      <div class="dp-section-title">Film library</div>
+      <div class="dp-stats">
+        <div class="dp-stat"><div class="dp-stat-val" style="color:${scoreColor}">${avg}</div><div class="dp-stat-label">Avg match</div></div>
+        <div class="dp-stat"><div class="dp-stat-val" style="color:var(--text-strong)">${clips.length}</div><div class="dp-stat-label">Clips</div></div>
+        <div class="dp-stat"><div class="dp-stat-val" style="color:var(--accent)">${programLabels.length}</div><div class="dp-stat-label">Programs</div></div>
+      </div>
+    </div>
+    <div class="dp-section">
+      <div class="dp-section-title">Profile</div>
+      <div class="dp-row"><span class="dp-row-label">School</span><span class="dp-row-value">${escMini(extra.school)}</span></div>
+      <div class="dp-row"><span class="dp-row-label">Hometown</span><span class="dp-row-value">${escMini(extra.hometown)}</span></div>
+      <div class="dp-row"><span class="dp-row-label">Class</span><span class="dp-row-value">${escMini(extra.classYr)}</span></div>
+      <div class="dp-row"><span class="dp-row-label">GPA</span><span class="dp-row-value">${escMini(extra.gpa)}</span></div>
+    </div>
+    <div class="dp-section">
+      <div class="dp-section-title">Indexed clips</div>
+      ${listHtml}
+    </div>`;
+
+  document.getElementById('filmDetailPanel').classList.add('open');
+  document.getElementById('filmDetailOverlay').classList.add('open');
+}
+
+function renderResults(query, results) {
+  const area = document.getElementById('resultsArea');
+  const qEsc = query.replace(/</g,'&lt;');
+  const cfg = getProgramConfig(currentFilmProgram);
+
+  if (results.length === 0) {
+    area.innerHTML = `<div class="card"><div class="film-empty">
+      <div class="film-empty-icon"><svg width="48" height="48" viewBox="0 0 16 16" fill="none" stroke="var(--text3)" stroke-width="1" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"/><line x1="10.5" y1="10.5" x2="14" y2="14"/></svg></div>
+      <div class="film-empty-title">No clips in ${cfg.label} for "${qEsc}"</div>
+      <div class="film-empty-desc">Try another term or switch quick tags — search stays scoped to this program tab.</div>
+    </div></div>`;
+    return;
+  }
+
+  let html = `<div class="card"><div class="film-results-header">
+    <span class="card-title">${cfg.label} — results for "${qEsc}"</span>
+    <span class="film-results-count">${results.length} clip${results.length!==1?'s':''}</span>
+    <button type="button" class="film-sort">Sort: AI Score ↓</button>
+  </div>
+  <div class="film-grid">`;
+
+  results.forEach(f => {
+    html += `<div class="film-card ${f.thumb}" role="button" tabindex="0" onclick="openFilmPlayerDetail(${JSON.stringify(f.player)})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openFilmPlayerDetail(${JSON.stringify(f.player)})}">
+      <div class="film-thumb">
+        <div class="film-thumb-bg"></div>
+        <div class="film-play"><span class="film-play-icon">▶</span></div>
+        <span class="film-dur">${f.dur}</span>
+        <span class="film-match">${f.score}%</span>
+        ${f.verified ? '<span class="film-verified"><span class="badge-sm badge-ok" style="font-size:9px">✓</span></span>' : ''}
+      </div>
+      <div class="film-info">
+        <div class="film-title">${f.title}</div>
+        <div class="film-meta">${f.meta}</div>
+        <div class="film-player">
+          <div class="film-player-av" style="background:${f.color.replace(')','-soft)').replace('var(','var(')};color:${f.color}">${f.initials}</div>
+          <div class="film-player-info">
+            <div class="at-name">${f.player}</div>
+            <div class="at-sub"><span class="tag ${posTagClass(f.pos)}" style="font-size:9px;margin-right:4px">${f.pos}</span>${f.meta}</div>
+          </div>
+          <span class="film-player-score table-num" style="color:${f.score>=90?'var(--accent)':f.score>=85?'var(--blue)':'var(--text3)'}">${f.score}</span>
+        </div>
+      </div>
+    </div>`;
+  });
+
+  html += '</div></div>';
+  area.innerHTML = html;
+}
+
+(function initFilmSearch() {
+  const first = document.querySelector('.team-tab[data-program="basketball-m"]') || document.querySelector('.team-tab');
+  if (first) switchFilmProgram(first);
+})();
+</script>
+<script src="add-sport-tab.js"></script>
+</body>
+</html>

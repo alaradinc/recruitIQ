@@ -1,0 +1,2083 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RecruitIQ — Coach Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font: 'Instrument Sans', -apple-system, sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+
+    --bg: #3C5A3A;
+    --bg-deep: #2D4529;
+    --bg-mid: #4A6B48;
+
+    --card: #F6F1E7;
+    --card2: #EDE7D9;
+    --card-border: #DDD6C4;
+    --card-hover: #FFFDF5;
+
+    /* Unified light surfaces: pipeline / label gray */
+    --text-muted: #727a72;
+    --text-strong: #565e56;
+    --text: #727a72;
+    --text2: #727a72;
+    --text3: #727a72;
+
+    /* Sidebar / topbar: matte gray-green on #2D4529 (avoids bright cream on active nav) */
+    --head-text: #b8bdb6;
+    --head-text2: #cdd1cb;
+    --head-text3: #979d95;
+    --head-faint: rgba(190,196,188,0.52);
+    --head-border: rgba(159,163,154,0.14);
+    --on-deep: #F2EDE4;
+    --head-wash: rgba(255,255,255,0.07);
+    --head-wash2: rgba(255,255,255,0.12);
+
+    --accent: #2D7A4F;
+    --sage: #619b70;
+    --accent-soft: rgba(45,122,79,0.1);
+    --mint: #3DA06A;
+    --mint-soft: rgba(61,160,106,0.1);
+    --gold: #B8892A;
+    --gold-soft: rgba(184,137,42,0.1);
+    --rose: #C24B44;
+    --rose-soft: rgba(194,75,68,0.1);
+    --blue: #5A8BBF;
+    --blue-soft: rgba(90,139,191,0.1);
+    --orange: #C47A3A;
+    --orange-soft: rgba(196,122,58,0.1);
+
+    --radius: 10px;
+  }
+
+  .card, .stat-card, .rec-card, .criteria-panel, .detail-panel, .msg-panel, .notes-panel {
+    --text-strong: #0b0d0b;
+    --text: #141814;
+    --text2: #2d322d;
+    --text3: #3a413a;
+    --text-muted: #3a413a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 13px;
+    line-height: 1.5;
+    min-height: 100vh;
+    display: flex;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ═══ SIDEBAR ═══ */
+  .sidebar {
+    width: 224px;
+    background: var(--bg-deep);
+    border-right: 1px solid var(--head-border);
+    display: flex;
+    flex-direction: column;
+    padding: 28px 14px;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    z-index: 100;
+  }
+  .logo {
+    font-size: 18px; font-weight: 700;
+    color: var(--head-text);
+    margin-bottom: 40px; padding: 0 10px;
+    letter-spacing: -0.3px;
+  }
+  .logo span { color: var(--mint); }
+
+  .nav-label {
+    font-size: 10px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 2px;
+    color: var(--head-faint);
+    padding: 0 10px; margin: 24px 0 10px;
+  }
+  .nav-label:first-of-type { margin-top: 0; }
+
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 10px; border-radius: 8px;
+    cursor: pointer; font-size: 13px; font-weight: 500;
+    color: var(--head-text3); transition: all 0.15s, background 0.3s;
+  }
+  .nav-item:hover { background: var(--head-wash); color: var(--head-text2); }
+  .nav-item.active { background: var(--head-wash2); color: var(--head-text); font-weight: 600; border: 1px solid var(--head-border); }
+  a.nav-item, a.logo { text-decoration: none; }
+  .ni { width: 20px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .nav-badge {
+    margin-left: auto; font-family: var(--mono);
+    background: var(--rose); color: #fff;
+    font-size: 10px; font-weight: 500;
+    padding: 1px 7px; border-radius: 10px;
+    transition: background 0.4s;
+  }
+
+  .sidebar-bottom { margin-top: auto; border-top: 1px solid var(--head-border); padding-top: 16px; }
+  .user-block { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 8px; cursor: pointer; }
+  .user-block:hover { background: var(--head-wash); }
+  .user-av {
+    width: 34px; height: 34px; border-radius: 50%; background: var(--mint);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: var(--bg-deep);
+  }
+  .user-name { font-size: 13px; font-weight: 600; color: var(--head-text); }
+  .user-role { font-size: 11px; color: var(--head-text3); }
+
+  /* ═══ MAIN ═══ */
+  .main { margin-left: 224px; flex: 1; min-height: 100vh; display: flex; flex-direction: column; }
+
+  .topbar {
+    height: 56px; border-bottom: 1px solid var(--head-border);
+    display: flex; align-items: center; padding: 0 32px;
+    background: var(--bg-deep); position: sticky; top: 0; z-index: 50;
+  }
+  .topbar-title { font-size: 15px; font-weight: 700; color: var(--head-text); flex-shrink: 0; }
+  .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+
+  .topbar-search {
+    flex: 1;
+    max-width: 440px;
+    margin: 0 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--head-wash);
+    border: 1px solid var(--head-border);
+    border-radius: 8px;
+    padding: 6px 12px;
+    transition: all 0.15s;
+    color: var(--head-text3);
+  }
+  .topbar-search:focus-within {
+    border-color: var(--head-text2);
+    background: var(--head-wash2);
+  }
+  .topbar-search svg { flex-shrink: 0; }
+  .topbar-search input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: none;
+    font-family: var(--font);
+    font-size: 12.5px;
+    color: var(--head-text);
+  }
+  .topbar-search input::placeholder { color: var(--head-faint); }
+  .topbar-search-shortcut {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--head-text3);
+    background: var(--head-wash);
+    border: 1px solid var(--head-border);
+    padding: 1px 6px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+
+  .htag { display: inline-flex; align-items: center; padding: 4px 11px; border-radius: 20px; font-size: 10.5px; font-weight: 600; }
+  .htag-mint { background: rgba(61,160,106,0.15); color: var(--mint); }
+  .htag-orange { background: rgba(196,122,58,0.15); color: var(--orange); }
+
+  .icon-btn {
+    width: 34px; height: 34px; border-radius: 50%;
+    border: 1px solid var(--head-border); background: transparent;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 14px; color: var(--head-text3); transition: all 0.15s;
+  }
+  .icon-btn:hover { border-color: var(--head-text3); color: var(--head-text2); }
+  a.icon-btn {
+    text-decoration: none;
+    color: var(--head-text3);
+  }
+  a.icon-btn:hover { color: var(--head-text2); }
+
+  /* ═══ TAGS ═══ */
+  .tag { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 20px; font-size: 10.5px; font-weight: 600; }
+  .tag-mint { background: var(--mint-soft); color: var(--accent); }
+  .tag-gold { background: var(--gold-soft); color: var(--gold); }
+  .tag-blue { background: var(--blue-soft); color: var(--blue); }
+  .tag-rose { background: var(--rose-soft); color: var(--rose); }
+  .tag-orange { background: var(--orange-soft); color: var(--orange); }
+
+  .badge-sm { display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; }
+  .badge-ok { background: var(--mint-soft); color: var(--accent); }
+  .badge-flag { background: var(--rose-soft); color: var(--rose); }
+
+  /* ═══ CONTENT ═══ */
+  .content { padding: 28px 32px; display: flex; flex-direction: column; gap: 20px; }
+
+  /* ─── Card system ─── */
+  .card { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); overflow: hidden; }
+  .card-header { padding: 14px 20px; border-bottom: 1px solid var(--card-border); display: flex; align-items: center; gap: 10px; }
+  .card-title { font-size: 14px; font-weight: 700; color: var(--text-strong); }
+  .card-actions { margin-left: auto; display: flex; gap: 6px; }
+  .btn-sm {
+    padding: 5px 12px; border-radius: 6px; font-family: var(--font);
+    font-size: 11px; font-weight: 500; cursor: pointer;
+    border: 1px solid var(--card-border); background: var(--card2); color: var(--text); transition: all 0.15s;
+  }
+  a.btn-sm {
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .btn-sm:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-sm.active { border-color: var(--accent); color: var(--accent); background: var(--mint-soft); }
+
+  /* ═══════════════════════════════════════════
+     1. AI NOTIFICATION — dark green, dismissable
+     ═══════════════════════════════════════════ */
+  .ai-notif {
+    background: var(--bg-deep);
+    border: 1px solid var(--head-border);
+    border-top: 2px solid var(--mint);
+    border-radius: var(--radius);
+    padding: 18px 22px;
+    animation: notifSlideIn 0.4s ease;
+    transition: opacity 0.3s, transform 0.3s, max-height 0.4s, padding 0.3s, margin 0.3s;
+    max-height: 300px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.08), 0 12px 28px rgba(0,0,0,0.14), 0 24px 56px rgba(0,0,0,0.16);
+    position: relative;
+  }
+  .ai-notif.dismissed {
+    opacity: 0;
+    transform: translateY(-10px);
+    max-height: 0;
+    padding: 0 20px;
+    margin: 0;
+    border: none;
+    pointer-events: none;
+  }
+  @keyframes notifSlideIn {
+    from { opacity: 0; transform: translateY(-12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .ai-notif-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .ai-notif-dot {
+    width: 8px; height: 8px;
+    background: var(--mint);
+    border-radius: 50%;
+    flex-shrink: 0;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+  .ai-notif-top svg {
+    animation: sparkle 3s ease-in-out infinite;
+  }
+  @keyframes sparkle {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(0.9); }
+  }
+  .ai-notif-label {
+    font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1.2px;
+    color: var(--mint);
+  }
+  .ai-notif-time {
+    font-family: var(--mono);
+    font-size: 10px; color: var(--head-faint);
+    margin-left: auto;
+  }
+  .ai-notif-close {
+    width: 26px; height: 26px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--head-border);
+    background: var(--head-wash);
+    color: var(--head-text3);
+    cursor: pointer;
+    border-radius: 6px;
+    flex-shrink: 0;
+    transition: all 0.15s;
+    margin-left: 8px;
+  }
+  .ai-notif-close:hover { border-color: var(--head-text3); color: var(--head-text); background: var(--head-wash2); }
+
+  .ai-notif-title {
+    font-size: 15px; font-weight: 700;
+    color: var(--head-text2); margin-bottom: 3px;
+    letter-spacing: -0.2px;
+  }
+  .ai-notif-desc {
+    font-size: 12px; color: var(--head-text3); line-height: 1.5;
+    margin-bottom: 12px;
+  }
+
+  .ai-notif-prospects {
+    display: flex; gap: 8px; align-items: stretch;
+  }
+  .ai-prospect {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--head-wash2);
+    border: 1px solid var(--head-border);
+    border-radius: 8px; padding: 8px 12px 8px 8px;
+    cursor: pointer; transition: all 0.15s;
+    flex: 1;
+  }
+  .ai-prospect:hover { border-color: var(--head-text3); background: rgba(255,255,255,0.14); }
+  a.ai-prospect {
+    text-decoration: none;
+    color: inherit;
+  }
+  .ai-prospect-av {
+    width: 30px; height: 30px; border-radius: 50%;
+    font-size: 10px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .ai-prospect-info { flex: 1; }
+  .ai-prospect-name { font-size: 12px; font-weight: 600; color: var(--head-text2); }
+  .ai-prospect-meta { font-size: 10px; color: var(--head-faint); }
+  .ai-prospect-score { font-family: var(--mono); font-size: 17px; font-weight: 600; flex-shrink: 0; }
+
+  .ai-notif-actions { display: flex; gap: 8px; margin-left: auto; flex-shrink: 0; }
+  .btn-review {
+    padding: 8px 18px; background: var(--sage); color: var(--bg-deep);
+    border: none; border-radius: 9px; font-family: var(--font);
+    font-size: 11.5px; font-weight: 700; cursor: pointer;
+    letter-spacing: 0.3px; white-space: nowrap;
+    transition: opacity 0.15s;
+  }
+  .btn-review:hover { opacity: 0.88; }
+  a.btn-review {
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+
+  /* ═══════════════════════════════════════════
+     3. STAT CARDS — 4 cards
+     ═══════════════════════════════════════════ */
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .stat-card {
+    background: var(--card); border: 1px solid var(--card-border);
+    border-radius: var(--radius); padding: 20px; transition: border-color 0.2s;
+  }
+  a.stat-card {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+  .stat-card:hover { border-color: var(--accent); }
+  .stat-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.2px; color: var(--text3); margin-bottom: 10px; }
+  .stat-value { font-family: var(--mono); font-size: 32px; font-weight: 600; line-height: 1; letter-spacing: -1px; }
+  .stat-sub { font-size: 11px; color: var(--text3); margin-top: 6px; }
+  .stat-sub .up { color: var(--accent); font-weight: 600; }
+  .stat-sub .need { color: var(--orange); font-weight: 600; }
+
+  /* ═══════════════════════════════════════════
+     4. PIPELINE — full width, hybrid (1-2 per stage)
+     ═══════════════════════════════════════════ */
+  .pipeline-board {
+    padding: 16px;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+  }
+  .col-head {
+    font-size: 10px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 1.2px; color: var(--text3);
+    padding-bottom: 10px; margin-bottom: 8px;
+    border-bottom: 2px solid var(--card-border);
+    display: flex; justify-content: space-between;
+  }
+  .col-count { font-family: var(--mono); font-size: 10px; font-weight: 500; background: var(--card2); padding: 1px 7px; border-radius: 4px; color: var(--text3); }
+
+  .pc {
+    background: var(--card2); border: 1px solid var(--card-border);
+    border-radius: 8px; padding: 12px; cursor: pointer;
+    transition: all 0.15s; margin-bottom: 8px;
+  }
+  .pc:hover { border-color: var(--accent); }
+  .pc.flagged { border-color: var(--rose); border-style: dashed; }
+  .pc.hot { border-left: 3px solid var(--gold); }
+
+  .pc-row { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+  .pc-init {
+    width: 30px; height: 30px; border-radius: 50%;
+    font-size: 10px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .pc-name { font-size: 12.5px; font-weight: 700; color: var(--text-strong); letter-spacing: -0.02em; }
+  .pc-pos { font-size: 10.5px; color: var(--text2); line-height: 1.35; }
+  .pc-org { font-size: 10px; color: var(--text-muted); margin-top: 2px; line-height: 1.35; }
+  .pc-score { margin-left: auto; font-family: var(--mono); font-size: 18px; font-weight: 600; }
+  .pc-tags { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
+  .hot-fire {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 18px; height: 18px; border-radius: 4px;
+    background: var(--gold-soft); color: var(--gold);
+    flex-shrink: 0; line-height: 0;
+  }
+  .hot-fire svg { display: block; }
+  .pc-tag {
+    font-family: var(--mono); font-size: 9.5px; padding: 2px 7px;
+    border-radius: 4px; background: var(--card); color: var(--text3); border: 1px solid var(--card-border);
+  }
+
+  .view-all-link {
+    display: block; text-align: center;
+    padding: 12px; border-top: 1px solid var(--card-border);
+    font-size: 12px; font-weight: 600; color: var(--accent);
+    cursor: pointer; transition: background 0.1s;
+  }
+  .view-all-link:hover { background: var(--mint-soft); }
+  a.view-all-link { text-decoration: none; }
+
+  /* ═══════════════════════════════════════════
+     5. AI TEAM RECOMMENDATION
+     ═══════════════════════════════════════════ */
+  .rec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  .rec-card {
+    background: var(--card); border: 1px solid var(--card-border);
+    border-radius: var(--radius); padding: 20px 24px;
+    transition: border-color 0.15s;
+  }
+  a.rec-card {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+  a.rec-card:hover { border-color: var(--accent); }
+  .rec-title { font-size: 14px; font-weight: 700; color: var(--text-strong); margin-bottom: 4px; }
+  .rec-subtitle { font-size: 11px; font-weight: 500; color: var(--text3); margin-bottom: 16px; }
+
+  .strength-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .strength-label { font-size: 12px; font-weight: 500; color: var(--text); width: 90px; flex-shrink: 0; }
+  .strength-track { flex: 1; height: 6px; background: var(--card-border); border-radius: 3px; }
+  .strength-fill { height: 100%; border-radius: 3px; }
+  .strength-val { font-family: var(--mono); font-size: 11px; font-weight: 600; width: 30px; text-align: right; }
+
+  .need-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px; background: var(--card2); border: 1px solid var(--card-border);
+    border-radius: 8px; margin-bottom: 8px;
+  }
+  a.need-item {
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  a.need-item:hover {
+    border-color: var(--accent);
+    background: var(--card);
+  }
+  .need-priority {
+    font-family: var(--mono); font-size: 10px; font-weight: 600;
+    padding: 2px 8px; border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .need-p1 { background: var(--rose-soft); color: var(--rose); }
+  .need-p2 { background: var(--orange-soft); color: var(--orange); }
+  .need-p3 { background: var(--gold-soft); color: var(--gold); }
+  .need-info { flex: 1; }
+  .need-title { font-size: 12.5px; font-weight: 600; color: var(--text-strong); }
+  .need-desc { font-size: 11px; color: var(--text3); margin-top: 1px; }
+  .need-count { font-family: var(--mono); font-size: 18px; font-weight: 600; color: var(--text3); }
+
+  /* ═══════════════════════════════════════════
+     6. PROSPECT TABLE + FILM COLUMN
+     ═══════════════════════════════════════════ */
+  .roster-table { width: 100%; border-collapse: collapse; }
+  .roster-table th {
+    padding: 11px 14px; font-size: 10px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 1.2px;
+    color: var(--text-muted); text-align: left; border-bottom: 1px solid var(--card-border);
+  }
+  .roster-table td {
+    padding: 12px 14px; font-size: 13px; border-bottom: 1px solid var(--card-border); color: var(--text);
+  }
+  .roster-table tbody tr { transition: background 0.1s; cursor: pointer; }
+  .roster-table tbody tr:hover { background: var(--card-hover); }
+  .roster-table tbody tr:last-child td { border-bottom: none; }
+
+  .table-mono { font-family: var(--mono); font-size: 11px; font-weight: 500; color: var(--text); }
+  .table-num { font-family: var(--mono); font-size: 12px; font-weight: 600; }
+
+  .at-name { font-weight: 700; color: var(--text-strong); letter-spacing: -0.02em; }
+  .at-sub { font-size: 11px; color: var(--text2); margin-top: 2px; line-height: 1.35; }
+  .at-org { font-size: 10.5px; color: var(--text-muted); margin-top: 3px; line-height: 1.35; }
+  .stars { color: var(--gold); font-size: 12px; letter-spacing: 1px; }
+  .star-dim { color: var(--card-border); }
+  .film-cell-title { font-size: 12px; font-weight: 600; color: var(--text-strong); line-height: 1.3; }
+
+  .gpa-inline { display: flex; align-items: center; gap: 6px; }
+  .gpa-num { font-family: var(--mono); font-size: 12px; font-weight: 500; color: var(--text); }
+  .gpa-track { width: 44px; height: 3px; background: var(--card-border); border-radius: 2px; }
+  .gpa-fill { height: 100%; border-radius: 2px; background: var(--accent); }
+
+  /* Film thumbnail in table */
+  .film-cell {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .film-mini-thumb {
+    width: 48px; height: 30px; border-radius: 5px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; font-size: 11px; color: rgba(255,255,255,0.7);
+    position: relative; overflow: hidden;
+  }
+  .film-mini-thumb::after {
+    content: '▶'; position: absolute;
+    font-size: 10px; color: rgba(255,255,255,0.8);
+  }
+  .ft-a { background: linear-gradient(135deg, #4a6b4c, #3d5a3e); }
+  .ft-b { background: linear-gradient(135deg, #4a5a6b, #3d4a5a); }
+  .ft-c { background: linear-gradient(135deg, #6b4a4a, #5a3d3d); }
+  .ft-d { background: linear-gradient(135deg, #5a6b4a, #4a5a3d); }
+  .film-mini-label { font-size: 10.5px; color: var(--text3); }
+
+  /* ═══════════════════════════════════════════
+     7. TEAM COMPOSITION ANALYTICS (bottom)
+     ═══════════════════════════════════════════ */
+  .analytics-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+  .pos-bar-group { margin-bottom: 12px; }
+  .pos-bar-label { display: flex; justify-content: space-between; margin-bottom: 4px; }
+  .pos-bar-name { font-size: 12px; font-weight: 500; color: var(--text); }
+  .pos-bar-val { font-family: var(--mono); font-size: 11px; font-weight: 600; color: var(--text-strong); }
+  .pos-bar-track { height: 8px; background: var(--card-border); border-radius: 4px; overflow: hidden; display: flex; }
+  .pos-bar-fill { height: 100%; border-radius: 4px; }
+  .pos-bar-need { height: 100%; background: repeating-linear-gradient(45deg, transparent, transparent 2px, var(--card-border) 2px, var(--card-border) 4px); border-radius: 0 4px 4px 0; }
+
+  .class-breakdown { padding: 20px 24px; }
+  .class-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .class-year { font-family: var(--mono); font-size: 11px; font-weight: 600; color: var(--text); width: 44px; }
+  .class-bar-track { flex: 1; height: 6px; background: var(--card-border); border-radius: 3px; }
+  .class-bar-fill { height: 100%; border-radius: 3px; }
+  .class-count { font-family: var(--mono); font-size: 11px; font-weight: 600; width: 24px; text-align: right; }
+
+  .perf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 20px 24px; }
+  .perf-stat {
+    background: var(--card2); border-radius: 8px; padding: 14px;
+    text-align: center;
+  }
+  .perf-stat-val { font-family: var(--mono); font-size: 22px; font-weight: 600; }
+  .perf-stat-label { font-size: 10px; font-weight: 500; color: var(--text3); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.8px; }
+
+  /* ═══════════════════════════════════════════
+     TEAM TABS
+     ═══════════════════════════════════════════ */
+  .team-tabs {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 0 32px;
+    background: var(--bg-deep);
+    border-bottom: 1px solid var(--head-border);
+  }
+  .team-tab {
+    padding: 10px 16px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--head-text3);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .team-tab:hover { color: var(--head-text2); }
+  .team-tab.active {
+    color: var(--head-text);
+    font-weight: 600;
+    border-bottom-color: var(--mint);
+  }
+  .gender-badge {
+    font-size:9px; font-weight:700; padding:1px 5px;
+    border-radius:4px; margin-left:3px; letter-spacing:0.3px;
+    vertical-align:middle;
+  }
+  .gender-m { background:rgba(130,170,220,0.2); color:rgba(150,185,230,0.9); }
+  .gender-w { background:rgba(220,150,170,0.2); color:rgba(230,160,180,0.9); }
+
+  .add-sport-wrap { position: relative; display: flex; align-items: stretch; margin-left: 2px; }
+  .add-sport-trigger {
+    display: flex; align-items: center; gap: 6px;
+    padding: 10px 14px; font-family: var(--font); font-size: 12px; font-weight: 600;
+    color: var(--head-text3); background: transparent; border: none;
+    border-bottom: 2px solid transparent; cursor: pointer; transition: all 0.15s; white-space: nowrap;
+  }
+  .add-sport-trigger:hover { color: var(--head-text2); }
+  .add-sport-wrap.open .add-sport-trigger { color: var(--head-text); border-bottom-color: var(--mint); }
+  .add-sport-chev { flex-shrink: 0; opacity: 0.85; }
+  .add-sport-panel {
+    position: absolute; top: 100%; right: 0; margin-top: 6px; min-width: 248px;
+    padding: 14px 16px; background: var(--bg-deep); border: 1px solid var(--head-border);
+    border-radius: 8px; box-shadow: 0 14px 40px rgba(0, 0, 0, 0.28);
+    z-index: 120; display: none; flex-direction: column; gap: 14px;
+  }
+  .add-sport-wrap.open .add-sport-panel { display: flex; }
+  .add-sport-label {
+    font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.9px;
+    color: var(--head-faint);
+  }
+  .add-sport-select {
+    margin-top: 6px; width: 100%; padding: 8px 10px; border-radius: 6px;
+    border: 1px solid var(--head-border); background: var(--head-wash); color: var(--head-text);
+    font-family: var(--font); font-size: 12px; outline: none; cursor: pointer; box-sizing: border-box;
+  }
+  .add-sport-select:focus { border-color: var(--mint); }
+  .add-sport-genders { display: flex; gap: 8px; margin-top: 6px; }
+  .add-sport-gbtn {
+    flex: 1; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--head-border);
+    background: var(--head-wash); color: var(--head-text3); font-family: var(--font);
+    font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+  }
+  .add-sport-gbtn:hover { color: var(--head-text2); }
+  .add-sport-gbtn.active { background: var(--mint); color: var(--bg-deep); border-color: var(--mint); }
+  .add-sport-add {
+    padding: 9px 12px; border: none; border-radius: 6px; background: var(--mint);
+    color: var(--bg-deep); font-family: var(--font); font-size: 12px; font-weight: 700;
+    cursor: pointer; transition: opacity 0.15s;
+  }
+  .add-sport-add:hover { opacity: 0.9; }
+
+  /* ═══════════════════════════════════════════
+     CRITERIA PANEL — saved list + form
+     ═══════════════════════════════════════════ */
+  .nav-criteria { color: var(--mint) !important; font-weight: 600 !important; }
+  .criteria-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+  .criteria-overlay.open { opacity: 1; pointer-events: all; }
+  .criteria-panel { position: fixed; top: 0; right: 0; bottom: 0; width: 420px; background: var(--card); border-left: 1px solid var(--card-border); z-index: 201; display: flex; flex-direction: column; transform: translateX(100%); transition: transform 0.3s ease; box-shadow: -8px 0 32px rgba(0,0,0,0.12); }
+  .criteria-panel.open { transform: translateX(0); }
+
+  .cp-header { padding: 18px 24px; border-bottom: 1px solid var(--card-border); display: flex; align-items: center; gap: 10px; }
+  .cp-title { font-size: 15px; font-weight: 700; color: var(--text-strong); flex: 1; }
+  .cp-add-btn { padding: 6px 12px; border-radius: 6px; border: 1px solid var(--card-border); background: var(--card2); font-family: var(--font); font-size: 11px; font-weight: 600; color: var(--accent); cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 4px; }
+  .cp-add-btn:hover { border-color: var(--accent); background: var(--mint-soft); }
+  .cp-add-btn.hidden { display: none; }
+  .cp-close { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--card-border); background: var(--card2); border-radius: 6px; cursor: pointer; color: var(--text3); transition: all 0.15s; }
+  .cp-close:hover { border-color: var(--accent); color: var(--accent); }
+  .cp-list { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .cp-list.hidden, .cp-form.hidden, .cp-footer.hidden, #sportCriteria.hidden { display: none; }
+  .saved-criteria { background: var(--card2); border: 1px solid var(--card-border); border-radius: 8px; padding: 14px 16px; cursor: pointer; transition: all 0.15s; overflow: hidden; }
+  .saved-criteria:hover { border-color: var(--accent); }
+  .saved-criteria.active-search { border-left: 3px solid var(--mint); }
+  .sc-top { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .sc-pos { font-family: var(--mono); font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 4px; }
+  .sc-title { font-size: 13px; font-weight: 600; color: var(--text-strong); }
+  .sc-status { margin-left: auto; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 10px; }
+  .sc-active { background: var(--mint-soft); color: var(--accent); }
+  .sc-paused { background: var(--card-border); color: var(--text3); }
+  .sc-details { display: flex; flex-wrap: wrap; gap: 4px; }
+  .sc-detail { font-size: 10.5px; color: var(--text3); background: var(--card); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--card-border); }
+  .sc-player-tie {
+    display: flex; align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap;
+  }
+  .sc-player-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text3); }
+  .sc-player-name { font-size: 12px; font-weight: 600; color: var(--blue); }
+  .sc-footer { display: flex; align-items: center; gap: 8px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--card-border); }
+  .sc-matches { font-family: var(--mono); font-size: 11px; font-weight: 600; color: var(--accent); }
+  .sc-time { font-size: 10px; color: var(--text3); margin-left: auto; }
+  .sc-action {
+    width: 24px; height: 24px; border-radius: 5px; border: 1px solid var(--card-border); background: var(--card);
+    display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text3);
+    transition: all 0.15s; font-size: 11px;
+  }
+  button.sc-action {
+    margin: 0; padding: 0; font: inherit; -webkit-appearance: none; appearance: none;
+    line-height: 1; flex-shrink: 0;
+  }
+  .sc-action:hover { border-color: var(--accent); color: var(--accent); }
+  .sc-action[title="Delete"]:hover { border-color: var(--rose); color: var(--rose); background: var(--rose-soft); }
+  .cp-form { flex: 1; overflow-y: auto; padding: 20px 24px; display: flex; flex-direction: column; gap: 18px; }
+  .cp-back { display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; color: var(--accent); cursor: pointer; border: none; background: none; font-family: var(--font); padding: 0; }
+  .cp-back:hover { opacity: 0.7; }
+  .cp-section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: var(--text3); margin-bottom: 8px; }
+  .cp-field { display: flex; flex-direction: column; gap: 6px; }
+  .cp-field-label { font-size: 12px; font-weight: 600; color: var(--text-strong); }
+  .cp-field-hint { font-size: 10.5px; color: var(--text3); }
+  .cp-input { padding: 9px 12px; border-radius: 7px; border: 1px solid var(--card-border); background: var(--card2); color: var(--text-strong); font-family: var(--font); font-size: 12.5px; outline: none; transition: border-color 0.15s; }
+  .cp-input:focus { border-color: var(--accent); }
+  .cp-input::placeholder { color: var(--text3); }
+  .cp-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .cp-chip { padding: 5px 12px; border-radius: 20px; border: 1px solid var(--card-border); background: var(--card2); font-family: var(--font); font-size: 11.5px; font-weight: 500; color: var(--text); cursor: pointer; transition: all 0.15s; }
+  .cp-chip:hover { border-color: var(--accent); color: var(--accent); }
+  .cp-chip.selected { border-color: var(--accent); background: var(--mint-soft); color: var(--accent); font-weight: 600; }
+  .cp-range { display: flex; align-items: center; gap: 8px; }
+  .cp-range-input { padding: 9px 12px; border-radius: 7px; border: 1px solid var(--card-border); background: var(--card2); color: var(--text-strong); font-family: var(--mono); font-size: 12px; width: 70px; text-align: center; outline: none; }
+  .cp-range-input:focus { border-color: var(--accent); }
+  .cp-range-sep { font-size: 12px; color: var(--text3); }
+  .cp-footer { padding: 16px 24px; border-top: 1px solid var(--card-border); display: flex; gap: 8px; }
+  .cp-save { flex: 1; padding: 10px; background: var(--bg-deep); color: var(--on-deep); border: none; border-radius: 7px; font-family: var(--font); font-size: 12px; font-weight: 700; cursor: pointer; }
+  .cp-save:hover { opacity: 0.9; }
+  .cp-reset { padding: 10px 16px; background: transparent; color: var(--text3); border: 1px solid var(--card-border); border-radius: 7px; font-family: var(--font); font-size: 12px; font-weight: 500; cursor: pointer; }
+  .cp-reset:hover { border-color: var(--rose); color: var(--rose); }
+  .fab { position: fixed; bottom: 28px; right: 28px; width: 48px; height: 48px; background: var(--bg-deep); border: 2px solid var(--mint); border-radius: 14px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 150; box-shadow: 0 4px 20px rgba(0,0,0,0.2); transition: all 0.2s; color: var(--mint); }
+  .fab:hover { transform: scale(1.08); background: var(--accent); border-color: var(--accent); color: white; }
+  .fab-tooltip { position: fixed; bottom: 36px; right: 84px; background: var(--bg-deep); color: var(--on-deep); font-size: 11px; font-weight: 600; padding: 6px 12px; border-radius: 6px; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+  .fab:hover + .fab-tooltip { opacity: 1; }
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- ═══ SIDEBAR ═══ -->
+<nav class="sidebar">
+  <a href="index.html" class="logo">Recruit<span>IQ</span></a>
+  <div class="nav-label">Main</div>
+  <a href="index.html" class="nav-item active"><span class="ni"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="1.5" width="5" height="5" rx="1"/><rect x="9.5" y="1.5" width="5" height="5" rx="1"/><rect x="1.5" y="9.5" width="5" height="5" rx="1"/><rect x="9.5" y="9.5" width="5" height="5" rx="1"/></svg></span> Dashboard</a>
+  <a href="all-players.html" class="nav-item"><span class="ni"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="5" r="2.5"/><circle cx="11" cy="5.5" r="2"/><path d="M1 14c0-2.8 2-4.5 4.5-4.5 1.2 0 2.3.4 3 1.1"/><path d="M9 14c0-2.2 1.5-3.5 3-3.5s3 1.3 3 3.5"/></svg></span> All Players</a>
+  <a href="team.html" class="nav-item"><span class="ni"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8.5a3.5 3.5 0 107 0 3.5 3.5 0 10-7 0z"/><path d="M1.5 14c0-2.5 2.5-4 6.5-4s6.5 1.5 6.5 4"/></svg></span> My Team</a>
+  <a href="film-search.html" class="nav-item"><span class="ni"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="12" height="10" rx="1.5"/><polygon points="6.5,6 6.5,11 11,8.5" fill="currentColor" stroke="none"/></svg></span> Film Search</a>
+  <a href="pipeline.html" class="nav-item"><span class="ni"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="12" height="12" rx="1.5"/><line x1="2" y1="6" x2="14" y2="6"/><line x1="6" y1="6" x2="6" y2="14"/><line x1="10" y1="6" x2="10" y2="14"/></svg></span> Pipeline</a>
+  <div class="nav-label">AI</div>
+  <div class="nav-item nav-criteria" id="criteriaToggle" onclick="toggleCriteria()"><span class="ni"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="2" y1="4" x2="14" y2="4"/><line x1="2" y1="8" x2="14" y2="8"/><line x1="2" y1="12" x2="14" y2="12"/><circle cx="5" cy="4" r="1.5" fill="currentColor"/><circle cx="10" cy="8" r="1.5" fill="currentColor"/><circle cx="7" cy="12" r="1.5" fill="currentColor"/></svg></span> Recruiting Criteria</div>
+  <div class="nav-label">Communicate</div>
+  <a href="messages.html" class="nav-item" id="navMessages"><span class="ni"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 3h11a1 1 0 011 1v7a1 1 0 01-1 1h-3l-3 2.5V12h-5a1 1 0 01-1-1V4a1 1 0 011-1z"/></svg></span> Messages <span class="nav-badge" id="msgBadge">5</span></a>
+  <div class="nav-label">Insights</div>
+  <div class="nav-item"><span class="ni"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="13" x2="3" y2="7"/><line x1="6.5" y1="13" x2="6.5" y2="4"/><line x1="10" y1="13" x2="10" y2="9"/><line x1="13.5" y1="13" x2="13.5" y2="2"/></svg></span> Analytics</div>
+  <div class="nav-item"><span class="ni"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.5l1.5 3.2 3.5.5-2.5 2.5.6 3.5L8 9.5l-3.1 1.7.6-3.5L3 5.2l3.5-.5z"/></svg></span> Film Integrity</div>
+  <div class="sidebar-bottom">
+    <div class="nav-item"><span class="ni"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="2"/><path d="M13.5 8a5.5 5.5 0 00-.4-1.4l1.2-1.2-1.1-1.1-1.2 1.2A5.5 5.5 0 008 4.5V3H6.8v1.5a5.5 5.5 0 00-1.4.4L4.2 3.7 3.1 4.8l1.2 1.2A5.5 5.5 0 003.5 8H2v1.2h1.5c.1.5.2 1 .4 1.4l-1.2 1.2 1.1 1.1 1.2-1.2c.4.2.9.3 1.4.4V14H8v-1.5c.5-.1 1-.2 1.4-.4l1.2 1.2 1.1-1.1-1.2-1.2c.2-.4.3-.9.4-1.4H14V8z"/></svg></span> Settings</div>
+    <div class="user-block">
+      <div class="user-av">MW</div>
+      <div>
+        <div class="user-name">Coach Williams</div>
+        <div class="user-role">Head Coach · Basketball</div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══ MAIN ═══ -->
+<div class="main">
+  <header class="topbar">
+    <div class="topbar-title">Woman's Basketball Dashboard</div>
+    <div class="topbar-search">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"/><line x1="10.5" y1="10.5" x2="14" y2="14"/></svg>
+      <input type="text" placeholder="Search players by move, play, or skill..." />
+      <span class="topbar-search-shortcut">⌘K</span>
+    </div>
+    <div class="topbar-right">
+      <span class="htag htag-mint">✓ Verified Coach</span>
+      <a href="messages.html" class="icon-btn" aria-label="Notifications"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5a4 4 0 018 0c0 4 1.5 5 1.5 5H2.5S4 10.5 4 6.5z"/><path d="M6.5 13a1.5 1.5 0 003 0"/></svg></a>
+    </div>
+  </header>
+
+  <!-- ═══ TEAM TABS ═══ -->
+    <div class="team-tabs">
+    <div class="team-tab" onclick="switchDashboardTeam(this)">Basketball <span class="gender-badge gender-m">M</span></div>
+    <div class="team-tab active" onclick="switchDashboardTeam(this)">Basketball <span class="gender-badge gender-w">W</span></div>
+    <div class="team-tab" onclick="switchDashboardTeam(this)">Swimming <span class="gender-badge gender-m">M</span></div>
+    <div class="team-tab" onclick="switchDashboardTeam(this)">Ice Hockey <span class="gender-badge gender-m">M</span></div>
+    <div class="team-tab" onclick="switchDashboardTeam(this)">Track & Field <span class="gender-badge gender-w">W</span></div>
+    <div class="team-tab" onclick="switchDashboardTeam(this)">Soccer <span class="gender-badge gender-w">W</span></div>
+    <div class="add-sport-wrap" data-tab-handler="switchDashboardTeam">
+      <button type="button" class="add-sport-trigger" aria-expanded="false" aria-haspopup="true">
+        <span>Add sport</span>
+        <svg class="add-sport-chev" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 4.5l3 3 3-3"/></svg>
+      </button>
+      <div class="add-sport-panel" role="dialog" aria-label="Add sport program">
+        <div>
+          <div class="add-sport-label">Sport</div>
+          <select class="add-sport-select">
+            <option value="">Choose sport…</option>
+            <option value="Baseball">Baseball</option>
+            <option value="Softball">Softball</option>
+            <option value="Volleyball">Volleyball</option>
+            <option value="Football">Football</option>
+            <option value="Lacrosse">Lacrosse</option>
+            <option value="Tennis">Tennis</option>
+            <option value="Golf">Golf</option>
+            <option value="Wrestling">Wrestling</option>
+            <option value="Field Hockey">Field Hockey</option>
+            <option value="Water Polo">Water Polo</option>
+            <option value="Rowing">Rowing</option>
+            <option value="Gymnastics">Gymnastics</option>
+            <option value="Bowling">Bowling</option>
+            <option value="Esports">Esports</option>
+          </select>
+        </div>
+        <div>
+          <div class="add-sport-label">Gender</div>
+          <div class="add-sport-genders">
+            <button type="button" class="add-sport-gbtn active" data-gender="M">Man's</button>
+            <button type="button" class="add-sport-gbtn" data-gender="W">Woman's</button>
+          </div>
+        </div>
+        <button type="button" class="add-sport-add">Add program</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ═══ 1. AI NOTIFICATION ═══ -->
+    <div class="ai-notif" id="aiNotif">
+      <div class="ai-notif-top">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0">
+          <path d="M8 1l1.2 3.6L13 6l-3.8 1.4L8 11l-1.2-3.6L3 6l3.8-1.4z" fill="var(--mint)" opacity="0.9"/>
+          <path d="M12.5 0.5l0.5 1.5 1.5 0.5-1.5 0.5-0.5 1.5-0.5-1.5-1.5-0.5 1.5-0.5z" fill="var(--mint)" opacity="0.5"/>
+          <path d="M3 11l0.4 1.2 1.2 0.4-1.2 0.4L3 14.2l-0.4-1.2-1.2-0.4 1.2-0.4z" fill="var(--mint)" opacity="0.5"/>
+        </svg>
+        <span class="ai-notif-label">AI Recruiting Assistant</span>
+        <button class="ai-notif-close" id="aiDismiss" title="Dismiss to Messages">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="3" y1="3" x2="11" y2="11"/><line x1="11" y1="3" x2="3" y2="11"/></svg>
+        </button>
+      </div>
+      <div class="ai-notif-title">3 new prospects match your criteria</div>
+      <div class="ai-notif-desc" id="aiNotifDesc">Point Guard, 5'8"+, 3.4+ GPA, Nike Nationals circuit. Woman's field — film verified with outreach templates ready.</div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="ai-notif-prospects" id="aiProspectsHost">
+          <a href="all-players.html" class="ai-prospect">
+            <div class="ai-prospect-av" style="background:var(--gold-soft);color:var(--gold)">MT</div>
+            <div class="ai-prospect-info">
+              <div class="ai-prospect-name">M. Thompson</div>
+              <div class="ai-prospect-meta">PG · 5'8" · DAL · 3.9 GPA</div>
+            </div>
+            <div class="ai-prospect-score" style="color:var(--gold)">89</div>
+          </a>
+          <a href="all-players.html" class="ai-prospect">
+            <div class="ai-prospect-av" style="background:var(--blue-soft);color:var(--blue)">SC</div>
+            <div class="ai-prospect-info">
+              <div class="ai-prospect-name">S. Cole</div>
+              <div class="ai-prospect-meta">SG · 5'10" · DEN · 3.5 GPA</div>
+            </div>
+            <div class="ai-prospect-score" style="color:var(--blue)">86</div>
+          </a>
+          <a href="all-players.html" class="ai-prospect">
+            <div class="ai-prospect-av" style="background:var(--mint-soft);color:var(--accent)">AJ</div>
+            <div class="ai-prospect-info">
+              <div class="ai-prospect-name">A. Johnson</div>
+              <div class="ai-prospect-meta">C · 6'2" · ATL · 3.7 GPA</div>
+            </div>
+            <div class="ai-prospect-score" style="color:var(--accent)">93</div>
+          </a>
+        </div>
+        <div class="ai-notif-actions">
+          <a href="all-players.html" class="btn-review">Review All</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ 2. STAT CARDS ═══ -->
+    <div class="stats-row">
+      <a href="all-players.html" class="stat-card" title="Open player database">
+        <div class="stat-label">Active Prospects</div>
+        <div class="stat-value" style="color:var(--accent)">147</div>
+        <div class="stat-sub"><span class="up">+12</span> this week</div>
+      </a>
+      <a href="messages.html" class="stat-card" title="Open messages">
+        <div class="stat-label">Athletes Contacted</div>
+        <div class="stat-value" style="color:var(--blue)">64</div>
+        <div class="stat-sub"><span class="up">+8</span> this month</div>
+      </a>
+      <a href="pipeline.html" class="stat-card" title="Open recruiting pipeline">
+        <div class="stat-label">Offers Sent</div>
+        <div class="stat-value" style="color:var(--gold)">6</div>
+        <div class="stat-sub">2 pending response</div>
+      </a>
+      <a href="team.html" class="stat-card" title="Open team roster">
+        <div class="stat-label">Roster Gaps</div>
+        <div class="stat-value" style="color:var(--orange)">3</div>
+        <div class="stat-sub"><span class="need">PG · C · SF</span> needed</div>
+      </a>
+    </div>
+
+    <!-- ═══ 4. PIPELINE — full width, hybrid ═══ -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Recruiting Pipeline</span>
+        <span class="tag tag-mint" style="font-size:10px">Class of 2026</span>
+        <div class="card-actions">
+          <a href="pipeline.html" class="btn-sm">Filter</a>
+          <a href="all-players.html" class="btn-sm active">+ Add</a>
+        </div>
+      </div>
+      <div class="pipeline-board">
+        <div>
+          <div class="col-head">Discovery <span class="col-count">5</span></div>
+          <div class="pc hot">
+            <div class="pc-row">
+              <div class="pc-init" style="background:var(--gold-soft);color:var(--gold)">JR</div>
+              <div><div class="pc-name">J. Rivera</div><div class="pc-pos">PG · 6'1" / 175</div><div class="pc-org">Nike EYBL</div></div>
+              <div class="pc-score" style="color:var(--gold)">91</div>
+            </div>
+            <div class="pc-tags"><span class="pc-tag">ATL</span><span class="pc-tag">AAU</span><span class="pc-tag">3.8</span></div>
+          </div>
+          <div class="pc">
+            <div class="pc-row">
+              <div class="pc-init" style="background:var(--blue-soft);color:var(--blue)">KM</div>
+              <div><div class="pc-name">K. Mitchell</div><div class="pc-pos">SG · 6'3" / 185</div><div class="pc-org">Nike EYBL</div></div>
+              <div class="pc-score" style="color:var(--blue)">84</div>
+            </div>
+            <div class="pc-tags"><span class="pc-tag">CHI</span><span class="pc-tag">HS</span></div>
+          </div>
+        </div>
+        <div>
+          <div class="col-head">Contacted <span class="col-count">3</span></div>
+          <div class="pc">
+            <div class="pc-row">
+              <div class="pc-init" style="background:var(--orange-soft);color:var(--orange)">DJ</div>
+              <div><div class="pc-name">D. Jackson</div><div class="pc-pos">SF · 6'6" / 210</div><div class="pc-org">Nike EYBL</div></div>
+              <div class="pc-score" style="color:var(--orange)">88</div>
+            </div>
+            <div class="pc-tags"><span class="pc-tag">MIA</span><span class="pc-tag">3.5</span></div>
+          </div>
+          <div class="pc">
+            <div class="pc-row">
+              <div class="pc-init" style="background:var(--gold-soft);color:var(--gold)">AB</div>
+              <div><div class="pc-name">A. Brooks</div><div class="pc-pos">PG · 6'0" / 168</div><div class="pc-org">UAA</div></div>
+              <div class="pc-score" style="color:var(--gold)">82</div>
+            </div>
+            <div class="pc-tags"><span class="pc-tag">SEA</span><span class="pc-tag">HS</span></div>
+          </div>
+        </div>
+        <div>
+          <div class="col-head">Film Review <span class="col-count">4</span></div>
+          <div class="pc flagged">
+            <div class="pc-row">
+              <div class="pc-init" style="background:var(--rose-soft);color:var(--rose)">MD</div>
+              <div><div class="pc-name">M. Davis</div><div class="pc-pos">SG · 6'2" / 180</div><div class="pc-org">Unknown</div></div>
+              <div class="pc-score" style="color:var(--text3);opacity:0.5;font-size:12px">N/A</div>
+            </div>
+            <div class="pc-tags"><span class="pc-tag">LAS</span><span class="badge-sm badge-flag">⚠ Flagged</span></div>
+          </div>
+          <div class="pc">
+            <div class="pc-row">
+              <div class="pc-init" style="background:var(--blue-soft);color:var(--blue)">EL</div>
+              <div><div class="pc-name">E. Lewis</div><div class="pc-pos">PF · 6'7" / 220</div><div class="pc-org">UAA Circuit</div></div>
+              <div class="pc-score" style="color:var(--blue)">86</div>
+            </div>
+            <div class="pc-tags"><span class="pc-tag">HOU</span><span class="badge-sm badge-ok">✓ OK</span></div>
+          </div>
+        </div>
+        <div>
+          <div class="col-head">Official Visit <span class="col-count">2</span></div>
+          <div class="pc hot">
+            <div class="pc-row">
+              <div class="pc-init" style="background:var(--gold-soft);color:var(--gold)">RC</div>
+              <div><div class="pc-name">R. Collins</div><div class="pc-pos">PG · 6'2" / 180</div><div class="pc-org">Peach Jam</div></div>
+              <div class="pc-score" style="color:var(--gold)">94</div>
+            </div>
+            <div class="pc-tags"><span class="pc-tag">Apr 4</span><span class="hot-fire" title="Hot prospect" role="img" aria-label="Hot prospect"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 14.5A2.5 2.5 0 0 0 12 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 2 7.5a2.5 2.5 0 1 1-5 0z"/></svg></span></div>
+          </div>
+        </div>
+        <div>
+          <div class="col-head">Offered <span class="col-count">2</span></div>
+          <div class="pc" style="border-left:3px solid var(--accent)">
+            <div class="pc-row">
+              <div class="pc-init" style="background:var(--mint-soft);color:var(--accent)">SP</div>
+              <div><div class="pc-name">S. Powell</div><div class="pc-pos">C · 6'10" / 245</div><div class="pc-org">Adidas 3SSB</div></div>
+              <div class="pc-score" style="color:var(--accent)">92</div>
+            </div>
+            <div class="pc-tags"><span class="tag tag-mint" style="font-size:9px">Offer Sent</span></div>
+          </div>
+          <div class="pc" style="border-left:3px solid var(--accent)">
+            <div class="pc-row">
+              <div class="pc-init" style="background:var(--mint-soft);color:var(--accent)">NF</div>
+              <div><div class="pc-name">N. Foster</div><div class="pc-pos">SF · 6'5" / 205</div><div class="pc-org">UAA Circuit</div></div>
+              <div class="pc-score" style="color:var(--accent)">89</div>
+            </div>
+            <div class="pc-tags"><span class="tag tag-mint" style="font-size:9px">Pending</span></div>
+          </div>
+        </div>
+      </div>
+      <a href="pipeline.html" class="view-all-link">View Full Pipeline →</a>
+    </div>
+
+    <!-- ═══ 5. AI TEAM RECOMMENDATIONS ═══ -->
+    <div class="rec-grid">
+      <a href="team.html" class="rec-card" title="View team roster">
+        <div class="rec-title">Current Team Strengths</div>
+        <div class="rec-subtitle">Based on roster composition & AI analysis</div>
+        <div class="strength-row">
+          <span class="strength-label">Perimeter D</span>
+          <div class="strength-track"><div class="strength-fill" style="width:88%;background:var(--accent)"></div></div>
+          <span class="strength-val" style="color:var(--accent)">88</span>
+        </div>
+        <div class="strength-row">
+          <span class="strength-label">Rebounding</span>
+          <div class="strength-track"><div class="strength-fill" style="width:72%;background:var(--blue)"></div></div>
+          <span class="strength-val" style="color:var(--blue)">72</span>
+        </div>
+        <div class="strength-row">
+          <span class="strength-label">Ball Handling</span>
+          <div class="strength-track"><div class="strength-fill" style="width:65%;background:var(--orange)"></div></div>
+          <span class="strength-val" style="color:var(--orange)">65</span>
+        </div>
+        <div class="strength-row">
+          <span class="strength-label">3PT Shooting</span>
+          <div class="strength-track"><div class="strength-fill" style="width:81%;background:var(--gold)"></div></div>
+          <span class="strength-val" style="color:var(--gold)">81</span>
+        </div>
+        <div class="strength-row">
+          <span class="strength-label">Interior Scoring</span>
+          <div class="strength-track"><div class="strength-fill" style="width:54%;background:var(--rose)"></div></div>
+          <span class="strength-val" style="color:var(--rose)">54</span>
+        </div>
+      </a>
+      <div class="rec-card">
+        <div class="rec-title">AI Recruiting Priorities</div>
+        <div class="rec-subtitle">Recommended targets to fill roster gaps</div>
+        <a href="all-players.html" class="need-item">
+          <span class="need-priority need-p1">P1</span>
+          <div class="need-info">
+            <div class="need-title">Point Guard · Floor General</div>
+            <div class="need-desc">6'1"+ · High assist rate, ball handling, leadership. Addresses weakest skill area.</div>
+          </div>
+          <div style="text-align:center;flex-shrink:0">
+            <div class="need-count" style="color:var(--rose)">12</div>
+            <div style="font-size:9px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px">matches</div>
+          </div>
+        </a>
+        <a href="all-players.html" class="need-item">
+          <span class="need-priority need-p2">P2</span>
+          <div class="need-info">
+            <div class="need-title">Center · Rim Protector</div>
+            <div class="need-desc">6'9"+ · Shot blocking, interior scoring. Fills biggest positional gap.</div>
+          </div>
+          <div style="text-align:center;flex-shrink:0">
+            <div class="need-count" style="color:var(--orange)">8</div>
+            <div style="font-size:9px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px">matches</div>
+          </div>
+        </a>
+        <a href="all-players.html" class="need-item">
+          <span class="need-priority need-p3">P3</span>
+          <div class="need-info">
+            <div class="need-title">Small Forward · Two-Way Wing</div>
+            <div class="need-desc">6'5"+ · Versatile defender, transition scoring. Depth need.</div>
+          </div>
+          <div style="text-align:center;flex-shrink:0">
+            <div class="need-count" style="color:var(--gold)">5</div>
+            <div style="font-size:9px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px">matches</div>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- ═══ 6. PROSPECT PROFILES + FILM ═══ -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Top Prospects</span>
+        <span class="tag tag-blue" style="font-size:10px">AI Ranked</span>
+        <div class="card-actions">
+          <a href="all-players.html" class="btn-sm">Position ▾</a>
+          <a href="all-players.html" class="btn-sm">GPA ▾</a>
+          <a href="all-players.html" class="btn-sm">Region ▾</a>
+        </div>
+      </div>
+      <table class="roster-table">
+        <thead><tr><th>Player</th><th>Ht / Wt</th><th>Stars</th><th>AI Score</th><th>GPA</th><th>Latest Film</th><th>Integrity</th><th>Stage</th></tr></thead>
+        <tbody id="topProspectsBody">
+          <tr>
+            <td><div class="at-name">Aaliyah Johnson</div><div class="at-sub"><span class="tag tag-mint" style="font-size:9px;margin-right:4px">C</span>ATL, GA</div><div class="at-org">EYBL Girls</div></td>
+            <td>6'2" / 190</td>
+            <td><span class="stars">★★★★★</span></td>
+            <td><span class="table-num" style="color:var(--accent)">93</span></td>
+            <td><div class="gpa-inline"><span class="gpa-num">3.7</span><div class="gpa-track"><div class="gpa-fill" style="width:93%"></div></div></div></td>
+            <td>
+              <div class="film-cell">
+                <div class="film-mini-thumb ft-a"></div>
+                <div><div class="film-cell-title">Block + Outlet</div><div class="film-mini-label">EYBL · 0:08</div></div>
+              </div>
+            </td>
+            <td><span class="badge-sm badge-ok">✓ Verified</span></td>
+            <td><span class="tag tag-gold" style="font-size:10px">Visit</span></td>
+          </tr>
+          <tr>
+            <td><div class="at-name">Maya Thompson</div><div class="at-sub"><span class="tag tag-blue" style="font-size:9px;margin-right:4px">PG</span>DAL, TX</div><div class="at-org">Nike Nationals</div></td>
+            <td>5'8" / 145</td>
+            <td><span class="stars">★★★★<span class="star-dim">★</span></span></td>
+            <td><span class="table-num" style="color:var(--gold)">89</span></td>
+            <td><div class="gpa-inline"><span class="gpa-num">3.9</span><div class="gpa-track"><div class="gpa-fill" style="width:98%"></div></div></div></td>
+            <td>
+              <div class="film-cell">
+                <div class="film-mini-thumb ft-b"></div>
+                <div><div class="film-cell-title">Full Court Vision</div><div class="film-mini-label">Nike · 0:12</div></div>
+              </div>
+            </td>
+            <td><span class="badge-sm badge-ok">✓ Verified</span></td>
+            <td><span class="tag tag-orange" style="font-size:10px">Discovery</span></td>
+          </tr>
+          <tr>
+            <td><div class="at-name">Sienna Cole</div><div class="at-sub"><span class="tag tag-blue" style="font-size:9px;margin-right:4px">SG</span>DEN, CO</div><div class="at-org">Club Circuit</div></td>
+            <td>5'10" / 155</td>
+            <td><span class="stars">★★★★<span class="star-dim">★</span></span></td>
+            <td><span class="table-num" style="color:var(--blue)">86</span></td>
+            <td><div class="gpa-inline"><span class="gpa-num">3.5</span><div class="gpa-track"><div class="gpa-fill" style="width:88%"></div></div></div></td>
+            <td>
+              <div class="film-cell">
+                <div class="film-mini-thumb ft-c"></div>
+                <div><div class="film-cell-title">Catch & Shoot</div><div class="film-mini-label">Club · 0:06</div></div>
+              </div>
+            </td>
+            <td><span class="badge-sm badge-ok">✓ Verified</span></td>
+            <td><span class="tag tag-blue" style="font-size:10px">Review</span></td>
+          </tr>
+          <tr>
+            <td><div class="at-name">Jordan Ellis</div><div class="at-sub"><span class="tag tag-orange" style="font-size:9px;margin-right:4px">PF</span>SEA, WA</div><div class="at-org">Northwest Elite</div></td>
+            <td>6'1" / 175</td>
+            <td><span class="stars">★★★★<span class="star-dim">★</span></span></td>
+            <td><span class="table-num" style="color:var(--blue)">84</span></td>
+            <td><div class="gpa-inline"><span class="gpa-num">3.4</span><div class="gpa-track"><div class="gpa-fill" style="width:85%"></div></div></div></td>
+            <td>
+              <div class="film-cell">
+                <div class="film-mini-thumb ft-d"></div>
+                <div><div class="film-cell-title">High Post Face-up</div><div class="film-mini-label">Elite · 0:10</div></div>
+              </div>
+            </td>
+            <td><span class="badge-sm badge-ok">✓ Verified</span></td>
+            <td><span class="tag tag-orange" style="font-size:10px">Discovery</span></td>
+          </tr>
+          <tr>
+            <td><div class="at-name">Riley Park</div><div class="at-sub"><span class="tag tag-orange" style="font-size:9px;margin-right:4px">SF</span>POR, OR</div><div class="at-org">Rose City AAU</div></td>
+            <td>5'11" / 158</td>
+            <td><span class="stars">★★★<span class="star-dim">★★</span></span></td>
+            <td><span class="table-num" style="color:var(--text3);opacity:0.55;font-weight:500">N/A</span></td>
+            <td><div class="gpa-inline"><span class="gpa-num">3.2</span><div class="gpa-track"><div class="gpa-fill" style="width:80%"></div></div></div></td>
+            <td>
+              <div class="film-cell">
+                <div class="film-mini-thumb ft-a"></div>
+                <div><div class="film-cell-title">Highlight Reel</div><div class="film-mini-label">Combo · 3:20</div></div>
+              </div>
+            </td>
+            <td><span class="badge-sm badge-flag">⚠ Flagged</span></td>
+            <td><span class="tag tag-rose" style="font-size:10px">Hold</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <a href="all-players.html" class="view-all-link">View All Prospects →</a>
+    </div>
+
+    <!-- ═══ 7. TEAM COMPOSITION ANALYTICS ═══ -->
+    <div class="analytics-grid">
+      <!-- Position Depth -->
+      <div class="card">
+        <div class="card-header"><span class="card-title">Position Depth</span></div>
+        <div style="padding:20px 24px">
+          <div class="pos-bar-group">
+            <div class="pos-bar-label"><span class="pos-bar-name">Point Guard</span><span class="pos-bar-val">2 / 3 needed</span></div>
+            <div class="pos-bar-track">
+              <div class="pos-bar-fill" style="width:45%;background:var(--accent)"></div>
+              <div class="pos-bar-need" style="width:22%"></div>
+            </div>
+          </div>
+          <div class="pos-bar-group">
+            <div class="pos-bar-label"><span class="pos-bar-name">Shooting Guard</span><span class="pos-bar-val">3 / 3 filled</span></div>
+            <div class="pos-bar-track">
+              <div class="pos-bar-fill" style="width:100%;background:var(--accent)"></div>
+            </div>
+          </div>
+          <div class="pos-bar-group">
+            <div class="pos-bar-label"><span class="pos-bar-name">Small Forward</span><span class="pos-bar-val">2 / 3 needed</span></div>
+            <div class="pos-bar-track">
+              <div class="pos-bar-fill" style="width:45%;background:var(--orange)"></div>
+              <div class="pos-bar-need" style="width:22%"></div>
+            </div>
+          </div>
+          <div class="pos-bar-group">
+            <div class="pos-bar-label"><span class="pos-bar-name">Power Forward</span><span class="pos-bar-val">3 / 3 filled</span></div>
+            <div class="pos-bar-track">
+              <div class="pos-bar-fill" style="width:100%;background:var(--accent)"></div>
+            </div>
+          </div>
+          <div class="pos-bar-group">
+            <div class="pos-bar-label"><span class="pos-bar-name">Center</span><span class="pos-bar-val">1 / 2 needed</span></div>
+            <div class="pos-bar-track">
+              <div class="pos-bar-fill" style="width:35%;background:var(--rose)"></div>
+              <div class="pos-bar-need" style="width:30%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Class Breakdown + Transfer Risk -->
+      <div class="card">
+        <div class="card-header"><span class="card-title">Class Breakdown</span></div>
+        <div class="class-breakdown">
+          <!-- Header row -->
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--card-border)">
+            <span style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1.2px;color:var(--text3);width:44px">Year</span>
+            <span style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1.2px;color:var(--text3);flex:1">Roster</span>
+            <span style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1.2px;color:var(--text3);width:24px;text-align:right">#</span>
+            <span style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1.2px;color:var(--text3);width:68px;text-align:right">Churn Risk</span>
+          </div>
+
+          <!-- 2026 -->
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+            <span class="class-year">2026</span>
+            <div class="class-bar-track"><div class="class-bar-fill" style="width:75%;background:var(--accent)"></div></div>
+            <span class="class-count" style="color:var(--accent)">9</span>
+            <span style="font-family:var(--mono);font-size:11px;font-weight:600;width:68px;text-align:right;padding:2px 8px;border-radius:4px;background:var(--rose-soft);color:var(--rose)">32%</span>
+          </div>
+          <!-- 2027 -->
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+            <span class="class-year">2027</span>
+            <div class="class-bar-track"><div class="class-bar-fill" style="width:50%;background:var(--blue)"></div></div>
+            <span class="class-count" style="color:var(--blue)">6</span>
+            <span style="font-family:var(--mono);font-size:11px;font-weight:600;width:68px;text-align:right;padding:2px 8px;border-radius:4px;background:var(--orange-soft);color:var(--orange)">18%</span>
+          </div>
+          <!-- 2028 -->
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+            <span class="class-year">2028</span>
+            <div class="class-bar-track"><div class="class-bar-fill" style="width:25%;background:var(--gold)"></div></div>
+            <span class="class-count" style="color:var(--gold)">3</span>
+            <span style="font-family:var(--mono);font-size:11px;font-weight:600;width:68px;text-align:right;padding:2px 8px;border-radius:4px;background:var(--mint-soft);color:var(--accent)">8%</span>
+          </div>
+          <!-- 2029 -->
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+            <span class="class-year">2029</span>
+            <div class="class-bar-track"><div class="class-bar-fill" style="width:8%;background:var(--text3)"></div></div>
+            <span class="class-count">1</span>
+            <span style="font-family:var(--mono);font-size:11px;font-weight:600;width:68px;text-align:right;padding:2px 8px;border-radius:4px;background:var(--mint-soft);color:var(--accent)">5%</span>
+          </div>
+
+          <!-- Transfer Summary -->
+          <div style="margin-top:8px;padding:12px;background:var(--card2);border:1px solid var(--card-border);border-radius:8px;display:flex;align-items:center;gap:12px">
+            <div style="flex:1">
+              <div style="font-size:12px;font-weight:600;color:var(--text-strong)">Projected Transfers</div>
+              <div style="font-size:11px;color:var(--text3);margin-top:2px">AI predicts 3–4 departures by end of season based on playing time, portal trends, and sentiment</div>
+            </div>
+            <div style="text-align:center;flex-shrink:0">
+              <div style="font-family:var(--mono);font-size:22px;font-weight:600;color:var(--rose)">~4</div>
+              <div style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--text3)">At Risk</div>
+            </div>
+          </div>
+
+          <!-- Scholarship -->
+          <div style="margin-top:16px; padding-top:14px; border-top:1px solid var(--card-border)">
+            <div class="rec-subtitle" style="margin-bottom:8px">Scholarship Allocation</div>
+            <div style="display:flex;justify-content:space-between;font-size:12px">
+              <span style="color:var(--text)">Used</span>
+              <span style="font-family:var(--mono);font-weight:600">11 / 13</span>
+            </div>
+            <div style="height:6px;background:var(--card-border);border-radius:3px;margin-top:6px">
+              <div style="height:100%;width:84.6%;background:var(--accent);border-radius:3px"></div>
+            </div>
+            <div style="font-size:11px;color:var(--orange);font-weight:600;margin-top:6px">2 scholarships remaining · potentially 6 with transfers</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Team Performance Snapshot -->
+      <div class="card">
+        <div class="card-header"><span class="card-title">Recruiting Performance</span></div>
+        <div class="perf-grid">
+          <div class="perf-stat">
+            <div class="perf-stat-val" style="color:var(--accent)">73%</div>
+            <div class="perf-stat-label">Offer Accept Rate</div>
+          </div>
+          <div class="perf-stat">
+            <div class="perf-stat-val" style="color:var(--gold)">4.2</div>
+            <div class="perf-stat-label">Avg Stars ★</div>
+          </div>
+          <div class="perf-stat">
+            <div class="perf-stat-val" style="color:var(--blue)">3.5</div>
+            <div class="perf-stat-label">Avg GPA</div>
+          </div>
+          <div class="perf-stat">
+            <div class="perf-stat-val" style="color:var(--accent)">98%</div>
+            <div class="perf-stat-label">Film Verified</div>
+          </div>
+        </div>
+        <div style="padding:0 24px 20px">
+          <div class="rec-subtitle" style="margin-bottom:8px">Top Recruiting Regions</div>
+          <div class="strength-row">
+            <span class="strength-label">Southeast</span>
+            <div class="strength-track"><div class="strength-fill" style="width:68%;background:var(--accent)"></div></div>
+            <span class="strength-val" style="color:var(--accent)">42</span>
+          </div>
+          <div class="strength-row">
+            <span class="strength-label">Northeast</span>
+            <div class="strength-track"><div class="strength-fill" style="width:45%;background:var(--blue)"></div></div>
+            <span class="strength-val" style="color:var(--blue)">28</span>
+          </div>
+          <div class="strength-row">
+            <span class="strength-label">Southwest</span>
+            <div class="strength-track"><div class="strength-fill" style="width:32%;background:var(--gold)"></div></div>
+            <span class="strength-val" style="color:var(--gold)">20</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<!-- ═══ FLOATING ADD CRITERIA BUTTON ═══ -->
+<div class="fab" onclick="showForm()">
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="10" y1="4" x2="10" y2="16"/><line x1="4" y1="10" x2="16" y2="10"/></svg>
+</div>
+<div class="fab-tooltip">Add Recruiting Criteria</div>
+
+<!-- ═══ CRITERIA PANEL ═══ -->
+<div class="criteria-overlay" id="criteriaOverlay" onclick="closePanel()"></div>
+<div class="criteria-panel" id="criteriaPanel">
+  <div class="cp-header">
+    <span class="cp-title">Recruiting Criteria</span>
+    <button class="cp-add-btn" id="cpAddBtn" onclick="showForm()">+ New Search</button>
+    <button class="cp-close" onclick="closePanel()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="3" y1="3" x2="11" y2="11"/><line x1="11" y1="3" x2="3" y2="11"/></svg>
+    </button>
+  </div>
+
+  <!-- ─── SAVED LIST VIEW ─── -->
+  <div class="cp-list" id="cpList">
+    <div class="saved-criteria active-search" data-criteria-key="floor-general">
+      <div class="sc-top">
+        <span class="sc-pos" style="background:var(--gold-soft);color:var(--gold);font-size:9px;letter-spacing:0.5px">BASKETBALL</span>
+        <span class="sc-pos" style="background:var(--blue-soft);color:var(--blue)">PG</span>
+        <span class="sc-title">Floor General</span>
+        <span class="sc-status sc-active">Active</span>
+      </div>
+      <div class="sc-details">
+        <span class="sc-detail">6'1"+ </span>
+        <span class="sc-detail">3.2+ GPA</span>
+        <span class="sc-detail">Southeast</span>
+        <span class="sc-detail">Ball Handling</span>
+        <span class="sc-detail">Leadership</span>
+      </div>
+      <div class="sc-player-tie">
+        <span class="sc-player-label">Linked player</span>
+        <span class="sc-player-name">Jalen Rivera</span>
+      </div>
+      <div class="sc-footer">
+        <span class="sc-matches">3 matches</span>
+        <span class="sc-time">Updated 2m ago</span>
+        <button type="button" class="sc-action" title="Edit" onclick="editCriteria(event, this)">
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M7 2l3 3-7 7H0V9z"/></svg>
+        </button>
+        <button type="button" class="sc-action" title="Pause" onclick="event.stopPropagation()">||</button>
+        <button type="button" class="sc-action" title="Delete" onclick="deleteCriteria(event,this)">
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M1.5 3h9M4.5 3V1.5h3V3M2.5 3v7.5a1 1 0 001 1h5a1 1 0 001-1V3"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="saved-criteria active-search" data-criteria-key="rim-protector">
+      <div class="sc-top">
+        <span class="sc-pos" style="background:var(--gold-soft);color:var(--gold);font-size:9px;letter-spacing:0.5px">BASKETBALL</span>
+        <span class="sc-pos" style="background:var(--mint-soft);color:var(--accent)">C</span>
+        <span class="sc-title">Rim Protector</span>
+        <span class="sc-status sc-active">Active</span>
+      </div>
+      <div class="sc-details">
+        <span class="sc-detail">6'9"+</span>
+        <span class="sc-detail">3.0+ GPA</span>
+        <span class="sc-detail">Any Region</span>
+        <span class="sc-detail">Shot Blocking</span>
+        <span class="sc-detail">Interior D</span>
+      </div>
+      <div class="sc-player-tie">
+        <span class="sc-player-label">Linked player</span>
+        <span class="sc-player-name">Samuel Powell</span>
+      </div>
+      <div class="sc-footer">
+        <span class="sc-matches">8 matches</span>
+        <span class="sc-time">Updated 1h ago</span>
+        <button type="button" class="sc-action" title="Edit" onclick="editCriteria(event, this)">
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M7 2l3 3-7 7H0V9z"/></svg>
+        </button>
+        <button type="button" class="sc-action" title="Pause" onclick="event.stopPropagation()">||</button>
+        <button type="button" class="sc-action" title="Delete" onclick="deleteCriteria(event,this)">
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M1.5 3h9M4.5 3V1.5h3V3M2.5 3v7.5a1 1 0 001 1h5a1 1 0 001-1V3"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="saved-criteria" data-criteria-key="two-way-wing">
+      <div class="sc-top">
+        <span class="sc-pos" style="background:var(--gold-soft);color:var(--gold);font-size:9px;letter-spacing:0.5px">BASKETBALL</span>
+        <span class="sc-pos" style="background:var(--orange-soft);color:var(--orange)">SF</span>
+        <span class="sc-title">Two-Way Wing</span>
+        <span class="sc-status sc-paused">Paused</span>
+      </div>
+      <div class="sc-details">
+        <span class="sc-detail">6'5"+</span>
+        <span class="sc-detail">3.0+ GPA</span>
+        <span class="sc-detail">Northeast</span>
+        <span class="sc-detail">Transition Speed</span>
+      </div>
+      <div class="sc-player-tie">
+        <span class="sc-player-label">Linked player</span>
+        <span class="sc-player-name">DeAndre Williams</span>
+      </div>
+      <div class="sc-footer">
+        <span class="sc-matches">5 matches</span>
+        <span class="sc-time">Paused Mar 20</span>
+        <button type="button" class="sc-action" title="Edit" onclick="editCriteria(event, this)">
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M7 2l3 3-7 7H0V9z"/></svg>
+        </button>
+        <button type="button" class="sc-action" title="Resume" style="color:var(--accent)" onclick="event.stopPropagation()">▶</button>
+        <button type="button" class="sc-action" title="Delete" onclick="deleteCriteria(event,this)">
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M1.5 3h9M4.5 3V1.5h3V3M2.5 3v7.5a1 1 0 001 1h5a1 1 0 001-1V3"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── FORM VIEW ─── -->
+  <div class="cp-form hidden" id="cpForm">
+    <button class="cp-back" type="button" onclick="cancelCriteriaForm()">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="8" y1="1" x2="3" y2="6"/><line x1="3" y1="6" x2="8" y2="11"/></svg>
+      Back to saved criteria
+    </button>
+
+    <!-- SPORT TYPE — always visible -->
+    <div class="cp-field">
+      <span class="cp-section-label">Sport</span>
+      <select class="cp-input" id="sportSelect" onchange="onSportChange()" style="width:100%;cursor:pointer;appearance:none;background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 12 12%22><path d=%22M3 4.5l3 3 3-3%22 fill=%22none%22 stroke=%22%238A9288%22 stroke-width=%221.5%22 stroke-linecap=%22round%22/></svg>');background-repeat:no-repeat;background-position:right 12px center;padding-right:32px">
+        <option value="">Select a sport...</option>
+        <option value="basketball">Basketball</option>
+        <option value="football">Football</option>
+        <option value="baseball">Baseball</option>
+        <option value="soccer">Soccer</option>
+        <option value="volleyball">Volleyball</option>
+        <option value="track">Track & Field</option>
+      </select>
+    </div>
+
+    <!-- SPORT-SPECIFIC CRITERIA — hidden until sport selected -->
+    <div id="sportCriteria" class="hidden" style="flex-direction:column;gap:18px">
+
+      <div class="cp-field">
+        <span class="cp-section-label">Gender</span>
+        <div class="cp-chips" id="genderChips">
+          <span class="cp-chip" onclick="singleSelect(this,'genderChips')">Male</span>
+          <span class="cp-chip" onclick="singleSelect(this,'genderChips')">Female</span>
+        </div>
+      </div>
+
+      <div class="cp-field">
+        <span class="cp-field-label">Search Name</span>
+        <input class="cp-input" type="text" id="cpSearchName" placeholder='e.g. "Floor General", "Stretch 4", "Pocket Passer"' />
+      </div>
+
+      <div class="cp-field">
+        <span class="cp-field-label">Linked player</span>
+        <input class="cp-input" type="text" id="criteriaPlayerLink" placeholder="e.g. Jalen Rivera — run this search in context of one athlete" />
+      </div>
+
+      <div class="cp-field">
+        <span class="cp-section-label">Position</span>
+        <span class="cp-field-hint">Select one position per search</span>
+        <div class="cp-chips" id="posChips"></div>
+      </div>
+
+      <div class="cp-field">
+        <span class="cp-section-label">Physical</span>
+        <span class="cp-field-label">Height Range</span>
+        <div class="cp-range">
+          <input class="cp-range-input" type="text" id="htMin" placeholder="6'1&quot;" />
+          <span class="cp-range-sep">to</span>
+          <input class="cp-range-input" type="text" id="htMax" placeholder="6'10&quot;" />
+        </div>
+      </div>
+
+      <div class="cp-field" id="weightField">
+        <span class="cp-field-label">Weight Range (lbs)</span>
+        <div class="cp-range">
+          <input class="cp-range-input" type="text" id="wtMin" placeholder="170" />
+          <span class="cp-range-sep">to</span>
+          <input class="cp-range-input" type="text" id="wtMax" placeholder="240" />
+        </div>
+      </div>
+
+      <div class="cp-field">
+        <span class="cp-section-label">Academics</span>
+        <span class="cp-field-label">Minimum GPA</span>
+        <input class="cp-input" type="text" id="cpGpaInput" placeholder="3.0" style="width:80px" />
+      </div>
+
+      <div class="cp-field">
+        <span class="cp-field-label">Class Year</span>
+        <div class="cp-chips" id="yearChips">
+          <span class="cp-chip" onclick="singleSelect(this,'yearChips')">2026</span>
+          <span class="cp-chip" onclick="singleSelect(this,'yearChips')">2027</span>
+          <span class="cp-chip" onclick="singleSelect(this,'yearChips')">2028</span>
+          <span class="cp-chip" onclick="singleSelect(this,'yearChips')">2029</span>
+        </div>
+      </div>
+
+      <div class="cp-field">
+        <span class="cp-section-label">Region</span>
+        <div class="cp-chips" id="regionChips">
+          <span class="cp-chip" onclick="this.classList.toggle('selected')">Southeast</span>
+          <span class="cp-chip" onclick="this.classList.toggle('selected')">Northeast</span>
+          <span class="cp-chip" onclick="this.classList.toggle('selected')">Midwest</span>
+          <span class="cp-chip" onclick="this.classList.toggle('selected')">Southwest</span>
+          <span class="cp-chip" onclick="this.classList.toggle('selected')">West Coast</span>
+          <span class="cp-chip" onclick="this.classList.toggle('selected')">International</span>
+          <span class="cp-chip" onclick="this.classList.toggle('selected')">Any Region</span>
+        </div>
+      </div>
+
+      <div class="cp-field">
+        <span class="cp-section-label">Key Skills</span>
+        <div class="cp-chips" id="skillChips"></div>
+      </div>
+
+      <div class="cp-field">
+        <span class="cp-section-label">Film</span>
+        <span class="cp-field-label">Minimum Stars</span>
+        <div class="cp-chips" id="starChips">
+          <span class="cp-chip" onclick="singleSelect(this,'starChips')">3+</span>
+          <span class="cp-chip" onclick="singleSelect(this,'starChips')">4+</span>
+          <span class="cp-chip" onclick="singleSelect(this,'starChips')">5 only</span>
+        </div>
+      </div>
+
+      <div class="cp-field">
+        <span class="cp-field-label">Notes</span>
+        <textarea class="cp-input" id="cpNotes" rows="2" placeholder="Anything else the AI should know..." style="resize:vertical;font-family:var(--font)"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="cp-footer hidden" id="cpFooter">
+    <button class="cp-save" id="cpSaveBtn" onclick="saveCriteria()">Save & Start Searching</button>
+    <button class="cp-reset" onclick="cancelCriteriaForm()">Cancel</button>
+  </div>
+</div>
+
+<script>
+// Sport-specific data
+let criteriaEditKey = null;
+
+const savedCriteriaPresets = {
+  'floor-general': {
+    sport: 'basketball',
+    searchName: 'Floor General',
+    player: 'Jalen Rivera',
+    gender: 'Female',
+    pos: 'PG',
+    htMin: "6'1\"",
+    htMax: '',
+    wtMin: '',
+    wtMax: '',
+    gpa: '3.2',
+    classYear: '2026',
+    regions: ['Southeast'],
+    skills: ['Ball Handling', 'Leadership'],
+    stars: '4+',
+    notes: ''
+  },
+  'rim-protector': {
+    sport: 'basketball',
+    searchName: 'Rim Protector',
+    player: 'Samuel Powell',
+    gender: 'Male',
+    pos: 'C',
+    htMin: "6'9\"",
+    htMax: '',
+    wtMin: '',
+    wtMax: '',
+    gpa: '3.0',
+    classYear: '2026',
+    regions: ['Any Region'],
+    skills: ['Shot Blocking', 'Interior D'],
+    stars: '4+',
+    notes: ''
+  },
+  'two-way-wing': {
+    sport: 'basketball',
+    searchName: 'Two-Way Wing',
+    player: 'DeAndre Williams',
+    gender: 'Male',
+    pos: 'SF',
+    htMin: "6'5\"",
+    htMax: '',
+    wtMin: '',
+    wtMax: '',
+    gpa: '3.0',
+    classYear: '2027',
+    regions: ['Northeast'],
+    skills: ['Transition Speed'],
+    stars: '3+',
+    notes: ''
+  }
+};
+
+function escapeCriteriaHtml(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+function posStyleForPos(pos) {
+  if (pos === 'PG' || pos === 'SG') return 'background:var(--blue-soft);color:var(--blue)';
+  if (pos === 'SF' || pos === 'PF') return 'background:var(--orange-soft);color:var(--orange)';
+  if (pos === 'C') return 'background:var(--mint-soft);color:var(--accent)';
+  return 'background:var(--gold-soft);color:var(--gold)';
+}
+
+function sportBadgeInlineStyle(sportVal) {
+  if (sportVal === 'basketball') return 'background:var(--gold-soft);color:var(--gold);font-size:9px;letter-spacing:0.5px';
+  return 'background:var(--gold-soft);color:var(--gold);font-size:9px;letter-spacing:0.5px';
+}
+
+function readCriteriaFormObject() {
+  const posChip = document.querySelector('#posChips .cp-chip.selected');
+  const gChip = document.querySelector('#genderChips .cp-chip.selected');
+  const yChip = document.querySelector('#yearChips .cp-chip.selected');
+  const stChip = document.querySelector('#starChips .cp-chip.selected');
+  return {
+    sport: document.getElementById('sportSelect').value,
+    searchName: document.getElementById('cpSearchName').value.trim(),
+    player: document.getElementById('criteriaPlayerLink').value.trim(),
+    gender: gChip ? gChip.textContent.trim() : '',
+    pos: posChip ? posChip.textContent.trim() : '',
+    htMin: document.getElementById('htMin').value.trim(),
+    htMax: document.getElementById('htMax').value.trim(),
+    wtMin: document.getElementById('wtMin').value.trim(),
+    wtMax: document.getElementById('wtMax').value.trim(),
+    gpa: document.getElementById('cpGpaInput').value.trim(),
+    classYear: yChip ? yChip.textContent.trim() : '',
+    regions: Array.from(document.querySelectorAll('#regionChips .cp-chip.selected')).map(function (c) { return c.textContent.trim(); }),
+    skills: Array.from(document.querySelectorAll('#skillChips .cp-chip.selected')).map(function (c) { return c.textContent.trim(); }),
+    stars: stChip ? stChip.textContent.trim() : '',
+    notes: document.getElementById('cpNotes').value.trim()
+  };
+}
+
+function buildDetailTagsFromData(d) {
+  const tags = [];
+  if (d.htMin && d.htMax) tags.push(d.htMin + ' – ' + d.htMax);
+  else if (d.htMin) tags.push(d.htMin + '+');
+  else if (d.htMax) tags.push('Up to ' + d.htMax);
+  if (d.gpa) tags.push(d.gpa + '+ GPA');
+  (d.regions || []).forEach(function (r) { tags.push(r); });
+  (d.skills || []).forEach(function (s) { tags.push(s); });
+  return tags.map(function (t) {
+    return '<span class="sc-detail">' + escapeCriteriaHtml(t) + '</span>';
+  }).join('');
+}
+
+function populateCriteriaForm(d) {
+  document.getElementById('sportSelect').value = d.sport;
+  onSportChange();
+  document.getElementById('cpSearchName').value = d.searchName || '';
+  document.getElementById('criteriaPlayerLink').value = d.player || '';
+  document.getElementById('htMin').value = d.htMin || '';
+  document.getElementById('htMax').value = d.htMax || '';
+  document.getElementById('wtMin').value = d.wtMin || '';
+  document.getElementById('wtMax').value = d.wtMax || '';
+  document.getElementById('cpGpaInput').value = d.gpa || '';
+  document.getElementById('cpNotes').value = d.notes || '';
+
+  document.querySelectorAll('#genderChips .cp-chip').forEach(function (c) {
+    c.classList.toggle('selected', c.textContent.trim() === d.gender);
+  });
+  document.querySelectorAll('#yearChips .cp-chip').forEach(function (c) {
+    c.classList.toggle('selected', c.textContent.trim() === d.classYear);
+  });
+  document.querySelectorAll('#posChips .cp-chip').forEach(function (c) {
+    c.classList.toggle('selected', c.textContent.trim() === d.pos);
+  });
+  document.querySelectorAll('#regionChips .cp-chip').forEach(function (c) {
+    c.classList.toggle('selected', (d.regions || []).indexOf(c.textContent.trim()) !== -1);
+  });
+  document.querySelectorAll('#skillChips .cp-chip').forEach(function (c) {
+    c.classList.toggle('selected', (d.skills || []).indexOf(c.textContent.trim()) !== -1);
+  });
+  document.querySelectorAll('#starChips .cp-chip').forEach(function (c) {
+    c.classList.toggle('selected', c.textContent.trim() === d.stars);
+  });
+}
+
+function applyCriteriaFormToCard(key) {
+  const card = document.querySelector('.saved-criteria[data-criteria-key="' + key + '"]');
+  if (!card) return;
+  const d = readCriteriaFormObject();
+  savedCriteriaPresets[key] = Object.assign({}, savedCriteriaPresets[key], d);
+
+  const titleEl = card.querySelector('.sc-title');
+  const playerEl = card.querySelector('.sc-player-name');
+  const detailsEl = card.querySelector('.sc-details');
+  const posSpans = card.querySelectorAll('.sc-top .sc-pos');
+  const sportSpan = posSpans[0];
+  const posSpan = posSpans[1];
+  const sportLabel = (function () {
+    const sel = document.getElementById('sportSelect');
+    const o = sel && sel.options[sel.selectedIndex];
+    return o ? o.textContent.trim().toUpperCase() : 'SPORT';
+  })();
+
+  titleEl.textContent = d.searchName || titleEl.textContent;
+  playerEl.textContent = d.player || '—';
+  if (sportSpan) {
+    sportSpan.textContent = sportLabel;
+    sportSpan.setAttribute('style', sportBadgeInlineStyle(d.sport));
+  }
+  if (posSpan) {
+    posSpan.textContent = d.pos || '—';
+    posSpan.setAttribute('style', posStyleForPos(d.pos));
+  }
+  detailsEl.innerHTML = buildDetailTagsFromData(d);
+
+  const timeEl = card.querySelector('.sc-time');
+  if (timeEl) timeEl.textContent = 'Updated just now';
+}
+
+function editCriteria(e, btn) {
+  e.stopPropagation();
+  const card = btn.closest('.saved-criteria');
+  const key = card.getAttribute('data-criteria-key');
+  if (!key || !savedCriteriaPresets[key]) return;
+  criteriaEditKey = key;
+  openPanel();
+  document.getElementById('cpList').classList.add('hidden');
+  document.getElementById('cpForm').classList.remove('hidden');
+  document.getElementById('cpAddBtn').classList.add('hidden');
+  populateCriteriaForm(savedCriteriaPresets[key]);
+  document.getElementById('cpFooter').classList.remove('hidden');
+  document.getElementById('cpSaveBtn').textContent = 'Save changes';
+}
+
+function cancelCriteriaForm() {
+  criteriaEditKey = null;
+  document.getElementById('cpSaveBtn').textContent = 'Save & Start Searching';
+  showList();
+}
+
+const sportData = {
+  basketball: {
+    positions: ['PG', 'SG', 'SF', 'PF', 'C'],
+    skills: ['Ball Handling', '3PT Shooting', 'Interior D', 'Rebounding', 'Court Vision', 'Leadership', 'Transition Speed', 'Shot Blocking', 'Free Throw %', 'Pick & Roll'],
+    htMin: "5'10\"", htMax: "7'0\"", wtMin: "160", wtMax: "260"
+  },
+  football: {
+    positions: ['QB', 'RB', 'WR', 'TE', 'OL', 'DL', 'LB', 'CB', 'S', 'K/P'],
+    skills: ['Arm Strength', 'Pocket Presence', 'Route Running', 'Blocking', 'Pass Rush', 'Coverage', 'Tackling', 'Field Vision', 'Speed/Agility', 'Leadership'],
+    htMin: "5'8\"", htMax: "6'8\"", wtMin: "170", wtMax: "330"
+  },
+  baseball: {
+    positions: ['P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF', 'DH'],
+    skills: ['Fastball Velo', 'Pitch Command', 'Bat Speed', 'Power Hitting', 'Contact Rate', 'Fielding Range', 'Arm Strength', 'Base Running', 'Pitch Recognition', 'Leadership'],
+    htMin: "5'9\"", htMax: "6'6\"", wtMin: "160", wtMax: "240"
+  },
+  soccer: {
+    positions: ['GK', 'CB', 'LB', 'RB', 'CDM', 'CM', 'CAM', 'LW', 'RW', 'ST'],
+    skills: ['First Touch', 'Passing Range', 'Crossing', 'Finishing', 'Tackling', 'Aerial Duels', 'Speed', 'Vision', 'Set Pieces', 'Leadership'],
+    htMin: "5'5\"", htMax: "6'5\"", wtMin: "130", wtMax: "210"
+  },
+  volleyball: {
+    positions: ['Setter', 'Outside Hitter', 'Middle Blocker', 'Opposite', 'Libero', 'DS'],
+    skills: ['Setting Accuracy', 'Kill %', 'Block Rate', 'Serve Receive', 'Serve Aces', 'Dig Rate', 'Vertical Jump', 'Court Awareness', 'Transition Attack', 'Leadership'],
+    htMin: "5'6\"", htMax: "6'10\"", wtMin: "130", wtMax: "230"
+  },
+  track: {
+    positions: ['Sprints', 'Mid Distance', 'Distance', 'Hurdles', 'Jumps', 'Throws', 'Multi-Event'],
+    skills: ['Speed', 'Endurance', 'Explosiveness', 'Technique', 'Race IQ', 'Mental Toughness', 'Coachability', 'Leadership'],
+    htMin: "5'0\"", htMax: "6'8\"", wtMin: "100", wtMax: "280"
+  }
+};
+
+function onSportChange() {
+  const sport = document.getElementById('sportSelect').value;
+  const criteriaDiv = document.getElementById('sportCriteria');
+  const footer = document.getElementById('cpFooter');
+
+  if (!sport) {
+    criteriaDiv.classList.add('hidden');
+    footer.classList.add('hidden');
+    return;
+  }
+
+  const data = sportData[sport];
+  criteriaDiv.classList.remove('hidden');
+  criteriaDiv.style.display = 'flex';
+  footer.classList.remove('hidden');
+
+  // Populate positions
+  const posEl = document.getElementById('posChips');
+  posEl.innerHTML = data.positions.map(p =>
+    `<span class="cp-chip" onclick="singleSelect(this,'posChips')">${p}</span>`
+  ).join('');
+
+  // Populate skills
+  const skillEl = document.getElementById('skillChips');
+  skillEl.innerHTML = data.skills.map(s =>
+    `<span class="cp-chip" onclick="this.classList.toggle('selected')">${s}</span>`
+  ).join('');
+
+  // Update placeholders
+  document.getElementById('htMin').placeholder = data.htMin;
+  document.getElementById('htMax').placeholder = data.htMax;
+  document.getElementById('wtMin').placeholder = data.wtMin;
+  document.getElementById('wtMax').placeholder = data.wtMax;
+}
+
+// Panel open/close
+function openPanel() {
+  document.getElementById('criteriaPanel').classList.add('open');
+  document.getElementById('criteriaOverlay').classList.add('open');
+}
+function closePanel() {
+  criteriaEditKey = null;
+  document.getElementById('cpSaveBtn').textContent = 'Save & Start Searching';
+  showList();
+  document.getElementById('criteriaPanel').classList.remove('open');
+  document.getElementById('criteriaOverlay').classList.remove('open');
+}
+function toggleCriteria() {
+  const p = document.getElementById('criteriaPanel');
+  if (p.classList.contains('open')) { closePanel(); } else { showList(); openPanel(); }
+}
+
+// Views
+function showList() {
+  document.getElementById('cpList').classList.remove('hidden');
+  document.getElementById('cpForm').classList.add('hidden');
+  document.getElementById('cpFooter').classList.add('hidden');
+  document.getElementById('cpAddBtn').classList.remove('hidden');
+}
+function showForm() {
+  criteriaEditKey = null;
+  document.getElementById('cpSaveBtn').textContent = 'Save & Start Searching';
+  openPanel();
+  document.getElementById('cpList').classList.add('hidden');
+  document.getElementById('cpForm').classList.remove('hidden');
+  document.getElementById('cpAddBtn').classList.add('hidden');
+  document.getElementById('sportSelect').value = '';
+  document.getElementById('sportCriteria').classList.add('hidden');
+  document.getElementById('sportCriteria').style.display = '';
+  document.getElementById('cpFooter').classList.add('hidden');
+  document.getElementById('cpSearchName').value = '';
+  document.getElementById('criteriaPlayerLink').value = '';
+  document.getElementById('htMin').value = '';
+  document.getElementById('htMax').value = '';
+  document.getElementById('wtMin').value = '';
+  document.getElementById('wtMax').value = '';
+  document.getElementById('cpGpaInput').value = '';
+  document.getElementById('cpNotes').value = '';
+  document.querySelectorAll('#cpForm .cp-chip.selected').forEach(function (c) {
+    c.classList.remove('selected');
+  });
+}
+function saveCriteria() {
+  if (criteriaEditKey && savedCriteriaPresets[criteriaEditKey]) {
+    applyCriteriaFormToCard(criteriaEditKey);
+  }
+  criteriaEditKey = null;
+  document.getElementById('cpSaveBtn').textContent = 'Save & Start Searching';
+  showList();
+}
+
+// Team tabs — default Woman's Basketball; swap AI assist + Top Prospects when toggling M/W
+let dashboardBasketballGender = 'W';
+let cachedTopProspectsW = '';
+let cachedAiProspectsW = '';
+let cachedAiDescW = '';
+
+const AI_DESC_M = 'Point Guard, 6\'1"+, 3.2+ GPA, Southeast Region. All film verified with outreach templates ready.';
+const AI_PROSPECTS_HTML_M = `
+          <a href="all-players.html" class="ai-prospect">
+            <div class="ai-prospect-av" style="background:var(--gold-soft);color:var(--gold)">JR</div>
+            <div class="ai-prospect-info">
+              <div class="ai-prospect-name">J. Rivera</div>
+              <div class="ai-prospect-meta">PG · 6'1" · ATL · 3.8 GPA</div>
+            </div>
+            <div class="ai-prospect-score" style="color:var(--gold)">91</div>
+          </a>
+          <a href="all-players.html" class="ai-prospect">
+            <div class="ai-prospect-av" style="background:var(--blue-soft);color:var(--blue)">KM</div>
+            <div class="ai-prospect-info">
+              <div class="ai-prospect-name">K. Mitchell</div>
+              <div class="ai-prospect-meta">SG · 6'3" · CHI · 3.4 GPA</div>
+            </div>
+            <div class="ai-prospect-score" style="color:var(--blue)">84</div>
+          </a>
+          <a href="all-players.html" class="ai-prospect">
+            <div class="ai-prospect-av" style="background:var(--mint-soft);color:var(--accent)">TW</div>
+            <div class="ai-prospect-info">
+              <div class="ai-prospect-name">T. Washington</div>
+              <div class="ai-prospect-meta">C · 6'9" · NYC · 3.2 GPA</div>
+            </div>
+            <div class="ai-prospect-score" style="color:var(--accent)">79</div>
+          </a>`;
+
+const TOP_PROSPECTS_HTML_M = `
+          <tr>
+            <td><div class="at-name">Jalen Rivera</div><div class="at-sub"><span class="tag tag-blue" style="font-size:9px;margin-right:4px">PG</span>ATL, GA</div><div class="at-org">Nike EYBL</div></td>
+            <td>6'1" / 175</td>
+            <td><span class="stars">★★★★<span class="star-dim">★</span></span></td>
+            <td><span class="table-num" style="color:var(--gold)">91</span></td>
+            <td><div class="gpa-inline"><span class="gpa-num">3.8</span><div class="gpa-track"><div class="gpa-fill" style="width:95%"></div></div></div></td>
+            <td>
+              <div class="film-cell">
+                <div class="film-mini-thumb ft-a"></div>
+                <div><div class="film-cell-title">Crossover + Pull-up J</div><div class="film-mini-label">EYBL · 0:09</div></div>
+              </div>
+            </td>
+            <td><span class="badge-sm badge-ok">✓ Verified</span></td>
+            <td><span class="tag tag-orange" style="font-size:10px">Discovery</span></td>
+          </tr>
+          <tr>
+            <td><div class="at-name">Rashad Collins</div><div class="at-sub"><span class="tag tag-blue" style="font-size:9px;margin-right:4px">PG</span>MIA, FL</div><div class="at-org">Peach Jam</div></td>
+            <td>6'2" / 180</td>
+            <td><span class="stars">★★★★★</span></td>
+            <td><span class="table-num" style="color:var(--gold)">94</span></td>
+            <td><div class="gpa-inline"><span class="gpa-num">3.5</span><div class="gpa-track"><div class="gpa-fill" style="width:88%"></div></div></div></td>
+            <td>
+              <div class="film-cell">
+                <div class="film-mini-thumb ft-b"></div>
+                <div><div class="film-cell-title">Euro Step + Finish</div><div class="film-mini-label">Peach Jam · 0:07</div></div>
+              </div>
+            </td>
+            <td><span class="badge-sm badge-ok">✓ Verified</span></td>
+            <td><span class="tag tag-gold" style="font-size:10px">Visit</span></td>
+          </tr>
+          <tr>
+            <td><div class="at-name">Marcus Davis</div><div class="at-sub"><span class="tag tag-blue" style="font-size:9px;margin-right:4px">SG</span>LAS, NV</div><div class="at-org">Unknown</div></td>
+            <td>6'2" / 180</td>
+            <td><span class="stars">★★★<span class="star-dim">★★</span></span></td>
+            <td><span class="table-num" style="color:var(--text3);opacity:0.55;font-weight:500">N/A</span></td>
+            <td><div class="gpa-inline"><span class="gpa-num">3.1</span><div class="gpa-track"><div class="gpa-fill" style="width:78%"></div></div></div></td>
+            <td>
+              <div class="film-cell">
+                <div class="film-mini-thumb ft-c"></div>
+                <div><div class="film-cell-title">Highlight Reel</div><div class="film-mini-label">Unknown · 4:12</div></div>
+              </div>
+            </td>
+            <td><span class="badge-sm badge-flag">⚠ Flagged</span></td>
+            <td><span class="tag tag-rose" style="font-size:10px">Hold</span></td>
+          </tr>
+          <tr>
+            <td><div class="at-name">Elijah Lewis</div><div class="at-sub"><span class="tag tag-orange" style="font-size:9px;margin-right:4px">PF</span>HOU, TX</div><div class="at-org">UAA Circuit</div></td>
+            <td>6'7" / 220</td>
+            <td><span class="stars">★★★★<span class="star-dim">★</span></span></td>
+            <td><span class="table-num" style="color:var(--blue)">86</span></td>
+            <td><div class="gpa-inline"><span class="gpa-num">3.3</span><div class="gpa-track"><div class="gpa-fill" style="width:83%"></div></div></div></td>
+            <td>
+              <div class="film-cell">
+                <div class="film-mini-thumb ft-d"></div>
+                <div><div class="film-cell-title">P&R Ball Handler</div><div class="film-mini-label">UAA · 0:11</div></div>
+              </div>
+            </td>
+            <td><span class="badge-sm badge-ok">✓ Verified</span></td>
+            <td><span class="tag tag-blue" style="font-size:10px">Review</span></td>
+          </tr>
+          <tr>
+            <td><div class="at-name">Samuel Powell</div><div class="at-sub"><span class="tag tag-mint" style="font-size:9px;margin-right:4px">C</span>PHX, AZ</div><div class="at-org">Adidas 3SSB</div></td>
+            <td>6'10" / 245</td>
+            <td><span class="stars">★★★★★</span></td>
+            <td><span class="table-num" style="color:var(--accent)">92</span></td>
+            <td><div class="gpa-inline"><span class="gpa-num">3.6</span><div class="gpa-track"><div class="gpa-fill" style="width:90%"></div></div></div></td>
+            <td>
+              <div class="film-cell">
+                <div class="film-mini-thumb ft-a"></div>
+                <div><div class="film-cell-title">Post Moves + Block</div><div class="film-mini-label">3SSB · 0:14</div></div>
+              </div>
+            </td>
+            <td><span class="badge-sm badge-ok">✓ Verified</span></td>
+            <td><span class="tag tag-mint" style="font-size:10px">Offered</span></td>
+          </tr>`;
+
+function applyDashboardAthleteContext() {
+  const aiHost = document.getElementById('aiProspectsHost');
+  const desc = document.getElementById('aiNotifDesc');
+  const tbody = document.getElementById('topProspectsBody');
+  if (dashboardBasketballGender === 'W') {
+    if (aiHost && cachedAiProspectsW) aiHost.innerHTML = cachedAiProspectsW;
+    if (desc && cachedAiDescW) desc.textContent = cachedAiDescW;
+    if (tbody && cachedTopProspectsW) tbody.innerHTML = cachedTopProspectsW;
+  } else if (dashboardBasketballGender === 'M') {
+    if (aiHost) aiHost.innerHTML = AI_PROSPECTS_HTML_M;
+    if (desc) desc.textContent = AI_DESC_M;
+    if (tbody) tbody.innerHTML = TOP_PROSPECTS_HTML_M;
+  }
+}
+
+function switchDashboardTeam(el) {
+  el.parentElement.querySelectorAll('.team-tab').forEach(t => {
+    t.classList.remove('active');
+  });
+  el.classList.add('active');
+  const label = el.textContent.replace(/\s+/g, ' ').trim();
+  const top = document.querySelector('.topbar-title');
+  if (label.includes('Basketball')) {
+    dashboardBasketballGender = el.querySelector('.gender-w') ? 'W' : 'M';
+    top.textContent = (dashboardBasketballGender === 'W' ? "Woman's" : "Man's") + ' Basketball Dashboard';
+    applyDashboardAthleteContext();
+  } else {
+    const sportPart = label.replace(/[MW]\s*$/,'').trim();
+    top.textContent = sportPart + ' Dashboard';
+  }
+}
+
+function cacheDashboardWomenTemplates() {
+  const aiHost = document.getElementById('aiProspectsHost');
+  const desc = document.getElementById('aiNotifDesc');
+  const tbody = document.getElementById('topProspectsBody');
+  if (aiHost) cachedAiProspectsW = aiHost.innerHTML;
+  if (desc) cachedAiDescW = desc.textContent;
+  if (tbody) cachedTopProspectsW = tbody.innerHTML;
+}
+
+// Delete a criteria card with confirmation and animation
+function deleteCriteria(e, btn) {
+  e.stopPropagation();
+  const card = btn.closest('.saved-criteria');
+  const name = card.querySelector('.sc-title').textContent;
+  if (!confirm('Delete "' + name + '" search criteria?')) return;
+  card.style.transition = 'opacity 0.25s, transform 0.25s, max-height 0.3s, margin 0.3s, padding 0.3s';
+  card.style.opacity = '0';
+  card.style.transform = 'translateX(20px)';
+  card.style.maxHeight = card.offsetHeight + 'px';
+  requestAnimationFrame(() => {
+    card.style.maxHeight = '0';
+    card.style.marginBottom = '0';
+    card.style.paddingTop = '0';
+    card.style.paddingBottom = '0';
+    card.style.borderWidth = '0';
+  });
+  setTimeout(() => card.remove(), 350);
+}
+
+// Single-select
+function singleSelect(el, groupId) {
+  document.querySelectorAll('#' + groupId + ' .cp-chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+// AI notification dismiss
+document.getElementById('aiDismiss').addEventListener('click', function() {
+  const notif = document.getElementById('aiNotif');
+  const badge = document.getElementById('msgBadge');
+  const nav = document.getElementById('navMessages');
+  notif.classList.add('dismissed');
+  badge.textContent = '6';
+  nav.style.background = 'rgba(255,255,255,0.15)';
+  badge.style.background = 'var(--mint)';
+  setTimeout(() => { nav.style.background = ''; badge.style.background = ''; }, 1500);
+});
+
+window.addEventListener('DOMContentLoaded', function() {
+  cacheDashboardWomenTemplates();
+  if (location.hash === '#criteria') {
+    showList();
+    openPanel();
+  }
+});
+</script>
+<script src="add-sport-tab.js"></script>
+</body>
+</html>
