@@ -1,0 +1,9 @@
+{
+  "name": "recruitiq",
+  "private": true,
+  "description": "Static site — run from repo root (where index.html lives)",
+  "scripts": {
+    "start": "python3 -m http.server 8080",
+    "serve": "python3 -m http.server 8080"
+  }
+}
