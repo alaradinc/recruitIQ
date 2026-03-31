@@ -1,7 +1,7 @@
 {
   "name": "recruitiq",
   "private": true,
-  "description": "Static site — run from repo root (where index.html lives)",
+  "description": "Static site. Always run npm start from recruitIQ folder (parent of index.html), never from a subfolder.",
   "scripts": {
     "start": "python3 -m http.server 8080",
     "serve": "python3 -m http.server 8080"
