@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Always serve files from this script's directory (the recruitIQ project root),
+Always serve files from this script's directory (ThePipeline / project root),
 so you get 200 + index.html even if your terminal cwd is somewhere else.
 """
 from __future__ import annotations
@@ -26,7 +26,7 @@ HOST = "127.0.0.1"
 def main() -> None:
     try:
         with socketserver.TCPServer((HOST, PORT), http.server.SimpleHTTPRequestHandler) as httpd:
-            print("RecruitIQ — local static server")
+            print("ThePipeline — local static server")
             print(f"  Serving: {ROOT}")
             print(f"  URL:     http://{HOST}:{PORT}/")
             print("  Stop: Ctrl+C\n")

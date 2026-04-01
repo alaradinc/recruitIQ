@@ -1,7 +1,7 @@
 {
-  "name": "recruitiq",
+  "name": "thepipeline-site",
   "private": true,
-  "description": "Static site. Always run npm start from recruitIQ folder (parent of index.html), never from a subfolder.",
+  "description": "Static site (ThePipeline). Run npm start from this project folder (parent of index.html).",
   "scripts": {
     "start": "python3 serve.py",
     "serve": "python3 serve.py"
