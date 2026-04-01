@@ -421,6 +421,8 @@
     transition: all 0.15s; margin-bottom: 8px;
   }
   .pc:hover { border-color: var(--accent); }
+  .pc:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .pc:focus:not(:focus-visible) { outline: none; }
   .pc.flagged { border-color: var(--rose); border-style: dashed; }
   .pc.hot { border-left: 3px solid var(--gold); }
 
@@ -986,7 +988,7 @@
       <div class="pipeline-board">
         <div>
           <div class="col-head">Discovery <span class="col-count">5</span></div>
-          <div class="pc hot">
+          <div class="pc hot" role="button" tabindex="0" data-profile-key="jalen" onclick="openPlayer('jalen')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openPlayer('jalen');}" title="Open profile">
             <div class="pc-row">
               <div class="pc-init" style="background:var(--gold-soft);color:var(--gold)">JR</div>
               <div><div class="pc-name">J. Rivera</div><div class="pc-pos">PG · 6'1" / 175</div><div class="pc-org">Nike EYBL</div></div>
@@ -994,7 +996,7 @@
             </div>
             <div class="pc-tags"><span class="pc-tag">ATL</span><span class="pc-tag">AAU</span><span class="pc-tag">3.8</span></div>
           </div>
-          <div class="pc">
+          <div class="pc" role="button" tabindex="0" data-profile-key="mitchell" onclick="openPlayer('mitchell')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openPlayer('mitchell');}" title="Open profile">
             <div class="pc-row">
               <div class="pc-init" style="background:var(--blue-soft);color:var(--blue)">KM</div>
               <div><div class="pc-name">K. Mitchell</div><div class="pc-pos">SG · 6'3" / 185</div><div class="pc-org">Nike EYBL</div></div>
@@ -1005,7 +1007,7 @@
         </div>
         <div>
           <div class="col-head">Contacted <span class="col-count">3</span></div>
-          <div class="pc">
+          <div class="pc" role="button" tabindex="0" data-profile-key="djackson" onclick="openPlayer('djackson')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openPlayer('djackson');}" title="Open profile">
             <div class="pc-row">
               <div class="pc-init" style="background:var(--orange-soft);color:var(--orange)">DJ</div>
               <div><div class="pc-name">D. Jackson</div><div class="pc-pos">SF · 6'6" / 210</div><div class="pc-org">Nike EYBL</div></div>
@@ -1013,7 +1015,7 @@
             </div>
             <div class="pc-tags"><span class="pc-tag">MIA</span><span class="pc-tag">3.5</span></div>
           </div>
-          <div class="pc">
+          <div class="pc" role="button" tabindex="0" data-profile-key="brooks" onclick="openPlayer('brooks')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openPlayer('brooks');}" title="Open profile">
             <div class="pc-row">
               <div class="pc-init" style="background:var(--gold-soft);color:var(--gold)">AB</div>
               <div><div class="pc-name">A. Brooks</div><div class="pc-pos">PG · 6'0" / 168</div><div class="pc-org">UAA</div></div>
@@ -1024,7 +1026,7 @@
         </div>
         <div>
           <div class="col-head">Film Review <span class="col-count">4</span></div>
-          <div class="pc flagged">
+          <div class="pc flagged" role="button" tabindex="0" data-profile-key="marcus" onclick="openPlayer('marcus')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openPlayer('marcus');}" title="Open profile">
             <div class="pc-row">
               <div class="pc-init" style="background:var(--rose-soft);color:var(--rose)">MD</div>
               <div><div class="pc-name">M. Davis</div><div class="pc-pos">SG · 6'2" / 180</div><div class="pc-org">Unknown</div></div>
@@ -1032,7 +1034,7 @@
             </div>
             <div class="pc-tags"><span class="pc-tag">LAS</span><span class="badge-sm badge-flag">⚠ Flagged</span></div>
           </div>
-          <div class="pc">
+          <div class="pc" role="button" tabindex="0" data-profile-key="elijah" onclick="openPlayer('elijah')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openPlayer('elijah');}" title="Open profile">
             <div class="pc-row">
               <div class="pc-init" style="background:var(--blue-soft);color:var(--blue)">EL</div>
               <div><div class="pc-name">E. Lewis</div><div class="pc-pos">PF · 6'7" / 220</div><div class="pc-org">UAA Circuit</div></div>
@@ -1043,7 +1045,7 @@
         </div>
         <div>
           <div class="col-head">Official Visit <span class="col-count">2</span></div>
-          <div class="pc hot">
+          <div class="pc hot" role="button" tabindex="0" data-profile-key="rashad" onclick="openPlayer('rashad')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openPlayer('rashad');}" title="Open profile">
             <div class="pc-row">
               <div class="pc-init" style="background:var(--gold-soft);color:var(--gold)">RC</div>
               <div><div class="pc-name">R. Collins</div><div class="pc-pos">PG · 6'2" / 180</div><div class="pc-org">Peach Jam</div></div>
@@ -1054,7 +1056,7 @@
         </div>
         <div>
           <div class="col-head">Offered <span class="col-count">2</span></div>
-          <div class="pc" style="border-left:3px solid var(--accent)">
+          <div class="pc" style="border-left:3px solid var(--accent)" role="button" tabindex="0" data-profile-key="samuel" onclick="openPlayer('samuel')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openPlayer('samuel');}" title="Open profile">
             <div class="pc-row">
               <div class="pc-init" style="background:var(--mint-soft);color:var(--accent)">SP</div>
               <div><div class="pc-name">S. Powell</div><div class="pc-pos">C · 6'10" / 245</div><div class="pc-org">Adidas 3SSB</div></div>
@@ -1062,7 +1064,7 @@
             </div>
             <div class="pc-tags"><span class="tag tag-mint" style="font-size:9px">Offer Sent</span></div>
           </div>
-          <div class="pc" style="border-left:3px solid var(--accent)">
+          <div class="pc" style="border-left:3px solid var(--accent)" role="button" tabindex="0" data-profile-key="foster" onclick="openPlayer('foster')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openPlayer('foster');}" title="Open profile">
             <div class="pc-row">
               <div class="pc-init" style="background:var(--mint-soft);color:var(--accent)">NF</div>
               <div><div class="pc-name">N. Foster</div><div class="pc-pos">SF · 6'5" / 205</div><div class="pc-org">UAA Circuit</div></div>
