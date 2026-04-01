@@ -21,6 +21,7 @@
     var gbtns = wrap.querySelectorAll('.add-sport-gbtn');
     var addBtn = wrap.querySelector('.add-sport-add');
     var handlerName = (wrap.getAttribute('data-tab-handler') || '').trim();
+    var tabTemplate = (wrap.getAttribute('data-tab-template') || '').trim();
     var gender = 'M';
 
     if (!trigger || !panel || !select || !addBtn || gbtns.length === 0) return;
@@ -61,8 +62,16 @@
       tab.setAttribute('data-program', slug + '-' + (gender === 'W' ? 'w' : 'm'));
       tab.setAttribute('data-gender', gender);
       tab.setAttribute('data-sport', sport);
-      var prefix = gender === 'W' ? "Woman's" : "Men's";
-      tab.textContent = prefix + ' ' + sport;
+      if (tabTemplate === 'sport-dash-badge') {
+        tab.appendChild(document.createTextNode(sport + ' - '));
+        var badge = document.createElement('span');
+        badge.className = 'gender-badge ' + (gender === 'W' ? 'gender-w' : 'gender-m');
+        badge.textContent = gender === 'W' ? 'W' : 'M';
+        tab.appendChild(badge);
+      } else {
+        var prefix = gender === 'W' ? "Woman's" : "Men's";
+        tab.textContent = prefix + ' ' + sport;
+      }
 
       if (handlerName && typeof window[handlerName] === 'function') {
         tab.setAttribute('onclick', handlerName + '(this)');

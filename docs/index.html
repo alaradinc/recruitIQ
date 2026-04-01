@@ -682,12 +682,12 @@
     border-bottom-color: var(--mint);
   }
   .gender-badge {
-    font-size:9px; font-weight:700; padding:1px 5px;
-    border-radius:4px; margin-left:3px; letter-spacing:0.3px;
-    vertical-align:middle;
+    font-size:9px; font-weight:700; padding:1px 6px;
+    border-radius:4px; margin-left:4px; letter-spacing:0.3px;
+    vertical-align:middle; display:inline-block;
   }
-  .gender-m { background:rgba(130,170,220,0.2); color:rgba(150,185,230,0.9); }
-  .gender-w { background:rgba(220,150,170,0.2); color:rgba(230,160,180,0.9); }
+  .gender-m { background:rgba(130,170,220,0.28); color:rgba(175,205,245,0.95); border:1px solid rgba(130,170,220,0.35); }
+  .gender-w { background:rgba(220,150,170,0.28); color:rgba(240,185,200,0.95); border:1px solid rgba(220,150,170,0.4); }
 
   .add-sport-wrap { position: relative; display: flex; align-items: stretch; margin-left: 2px; }
   .add-sport-trigger {
@@ -843,7 +843,7 @@
 <!-- ═══ MAIN ═══ -->
 <div class="main">
   <header class="topbar">
-    <div class="topbar-title">Woman's Basketball Dashboard</div>
+    <div class="topbar-title">Woman's Basketball</div>
     <div class="topbar-search">
       <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"/><line x1="10.5" y1="10.5" x2="14" y2="14"/></svg>
       <input type="text" placeholder="Search players by move, play, or skill..." />
@@ -857,13 +857,13 @@
 
   <!-- ═══ TEAM TABS ═══ -->
     <div class="team-tabs">
-    <div class="team-tab" onclick="switchDashboardTeam(this)" data-gender="M" data-sport="Basketball">Men's Basketball</div>
-    <div class="team-tab active" onclick="switchDashboardTeam(this)" data-gender="W" data-sport="Basketball">Woman's Basketball</div>
-    <div class="team-tab" onclick="switchDashboardTeam(this)" data-gender="M" data-sport="Swimming">Men's Swimming</div>
-    <div class="team-tab" onclick="switchDashboardTeam(this)" data-gender="M" data-sport="Ice Hockey">Men's Ice Hockey</div>
-    <div class="team-tab" onclick="switchDashboardTeam(this)" data-gender="W" data-sport="Track & Field">Woman's Track &amp; Field</div>
-    <div class="team-tab" onclick="switchDashboardTeam(this)" data-gender="W" data-sport="Soccer">Woman's Soccer</div>
-    <div class="add-sport-wrap" data-tab-handler="switchDashboardTeam">
+    <div class="team-tab" onclick="switchDashboardTeam(this)" data-gender="M" data-sport="Basketball">Basketball - <span class="gender-badge gender-m">M</span></div>
+    <div class="team-tab active" onclick="switchDashboardTeam(this)" data-gender="W" data-sport="Basketball">Basketball - <span class="gender-badge gender-w">W</span></div>
+    <div class="team-tab" onclick="switchDashboardTeam(this)" data-gender="M" data-sport="Swimming">Swimming - <span class="gender-badge gender-m">M</span></div>
+    <div class="team-tab" onclick="switchDashboardTeam(this)" data-gender="M" data-sport="Ice Hockey">Ice Hockey - <span class="gender-badge gender-m">M</span></div>
+    <div class="team-tab" onclick="switchDashboardTeam(this)" data-gender="W" data-sport="Track & Field">Track &amp; Field - <span class="gender-badge gender-w">W</span></div>
+    <div class="team-tab" onclick="switchDashboardTeam(this)" data-gender="W" data-sport="Soccer">Soccer - <span class="gender-badge gender-w">W</span></div>
+    <div class="add-sport-wrap" data-tab-handler="switchDashboardTeam" data-tab-template="sport-dash-badge">
       <button type="button" class="add-sport-trigger" aria-expanded="false" aria-haspopup="true">
         <span>Add sport</span>
         <svg class="add-sport-chev" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 4.5l3 3 3-3"/></svg>
@@ -2102,7 +2102,7 @@ function switchDashboardTeam(el) {
     }
   }
   const prefix = gender === 'W' ? "Woman's" : "Men's";
-  top.textContent = prefix + ' ' + sport + ' Dashboard';
+  if (top) top.textContent = prefix + ' ' + sport;
   if (sport === 'Basketball') {
     dashboardBasketballGender = gender;
     applyDashboardAthleteContext();
