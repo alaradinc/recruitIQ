@@ -358,12 +358,12 @@
   </header>
 
     <div class="team-tabs">
-    <div class="team-tab active" data-program="basketball-m" onclick="switchFilmProgram(this)">Basketball <span class="gender-badge gender-m">M</span></div>
-    <div class="team-tab" data-program="basketball-w" onclick="switchFilmProgram(this)">Basketball <span class="gender-badge gender-w">W</span></div>
-    <div class="team-tab" data-program="swimming-m" onclick="switchFilmProgram(this)">Swimming <span class="gender-badge gender-m">M</span></div>
-    <div class="team-tab" data-program="ice-hockey-m" onclick="switchFilmProgram(this)">Ice Hockey <span class="gender-badge gender-m">M</span></div>
-    <div class="team-tab" data-program="track-field-w" onclick="switchFilmProgram(this)">Track & Field <span class="gender-badge gender-w">W</span></div>
-    <div class="team-tab" data-program="soccer-w" onclick="switchFilmProgram(this)">Soccer <span class="gender-badge gender-w">W</span></div>
+    <div class="team-tab active" data-program="basketball-m" onclick="switchFilmProgram(this)">Men's Basketball</div>
+    <div class="team-tab" data-program="basketball-w" onclick="switchFilmProgram(this)">Woman's Basketball</div>
+    <div class="team-tab" data-program="swimming-m" onclick="switchFilmProgram(this)">Men's Swimming</div>
+    <div class="team-tab" data-program="ice-hockey-m" onclick="switchFilmProgram(this)">Men's Ice Hockey</div>
+    <div class="team-tab" data-program="track-field-w" onclick="switchFilmProgram(this)">Woman's Track &amp; Field</div>
+    <div class="team-tab" data-program="soccer-w" onclick="switchFilmProgram(this)">Woman's Soccer</div>
     <div class="add-sport-wrap" data-tab-handler="switchFilmProgram">
       <button type="button" class="add-sport-trigger" aria-expanded="false" aria-haspopup="true">
         <span>Add sport</span>
@@ -393,7 +393,7 @@
         <div>
           <div class="add-sport-label">Gender</div>
           <div class="add-sport-genders">
-            <button type="button" class="add-sport-gbtn active" data-gender="M">Man's</button>
+            <button type="button" class="add-sport-gbtn active" data-gender="M">Men's</button>
             <button type="button" class="add-sport-gbtn" data-gender="W">Woman's</button>
           </div>
         </div>
@@ -406,7 +406,7 @@
 
     <div class="page-header">
       <div class="page-title">Film Search</div>
-      <div class="page-count" id="filmPageSub">Man's basketball · indexed film library</div>
+      <div class="page-count" id="filmPageSub">Men's basketball · indexed film library</div>
     </div>
 
     <!-- Search Box -->
@@ -473,7 +473,7 @@ let currentFilmProgram = 'basketball-m';
 
 const PROGRAM_CONFIG = {
   'basketball-m': {
-    label: "Man's basketball",
+    label: "Men's basketball",
     placeholder: "Search plays… e.g. crossover, 3-pointer, dunk, pick and roll",
     quickTags: ['3-Pointer','Crossover','Dunk','Pick & Roll','Euro Step','Fast Break','Block','Steal','Post Move','Alley-Oop','Free Throw','Full Game'],
     emptyLead: 'Search for plays and skills',
@@ -487,14 +487,14 @@ const PROGRAM_CONFIG = {
     emptyHint: 'Indexed WBB clips from EYBL Girls, Nike Nationals, and HS film.',
   },
   'swimming-m': {
-    label: "Man's swimming",
+    label: "Men's swimming",
     placeholder: "Search… e.g. freestyle, flip turn, relay, underwater",
     quickTags: ['Freestyle','Backstroke','Breaststroke','Flip Turn','Relay','Underwater','Sprint Finish'],
     emptyLead: 'Swimming technique library',
     emptyHint: 'Race footage and skills from conference and invite meets.',
   },
   'ice-hockey-m': {
-    label: "Man's ice hockey",
+    label: "Men's ice hockey",
     placeholder: "Search… e.g. wrist shot, breakout, penalty kill, save",
     quickTags: ['Wrist Shot','One-Timer','Breakaway','Board Battle','Faceoff Win','Power Play'],
     emptyLead: 'Hockey shift & skills film',
@@ -531,12 +531,25 @@ function getProgramConfig(key) {
 function programKeyFromTab(el) {
   if (el && el.dataset && el.dataset.program) return el.dataset.program;
   const text = (el && el.textContent ? el.textContent : '').replace(/\s+/g, ' ').trim();
-  const m = text.match(/^(.+?)\s+([MW])\s*$/i);
-  if (m) {
-    const slug = m[1].toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-    return slug + '-' + m[2].toLowerCase();
+  let sportPart;
+  let genderChar;
+  if (/^Men's\s+/i.test(text)) {
+    genderChar = 'm';
+    sportPart = text.replace(/^Men's\s+/i, '').trim();
+  } else if (/^Woman's\s+/i.test(text)) {
+    genderChar = 'w';
+    sportPart = text.replace(/^Woman's\s+/i, '').trim();
+  } else {
+    const m = text.match(/^(.+?)\s+([MW])\s*$/i);
+    if (m) {
+      sportPart = m[1].trim();
+      genderChar = m[2].toLowerCase();
+    } else {
+      return 'basketball-m';
+    }
   }
-  return 'basketball-m';
+  const slug = sportPart.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  return slug + '-' + genderChar;
 }
 
 function clipsForProgram(program) {

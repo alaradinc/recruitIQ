@@ -5,6 +5,6 @@
   "scripts": {
     "start": "python3 scripts/serve.py",
     "serve": "python3 scripts/serve.py",
-    "sync-docs": "mkdir -p docs/assets/js && cp assets/js/add-sport-tab.js docs/assets/js/ && cp index.html all-players.html team.html film-search.html pipeline.html messages.html docs/ && rm -f docs/add-sport-tab.js"
+    "sync-docs": "mkdir -p docs/assets/js && cp assets/js/add-sport-tab.js assets/js/player-profiles-core.js docs/assets/js/ && cp index.html all-players.html team.html film-search.html pipeline.html messages.html docs/ && rm -f docs/add-sport-tab.js"
   }
 }

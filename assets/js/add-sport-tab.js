@@ -59,11 +59,10 @@
       tab.className = 'team-tab';
       var slug = sport.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
       tab.setAttribute('data-program', slug + '-' + (gender === 'W' ? 'w' : 'm'));
-      tab.appendChild(document.createTextNode(sport + ' '));
-      var badge = document.createElement('span');
-      badge.className = 'gender-badge ' + (gender === 'W' ? 'gender-w' : 'gender-m');
-      badge.textContent = gender === 'W' ? 'W' : 'M';
-      tab.appendChild(badge);
+      tab.setAttribute('data-gender', gender);
+      tab.setAttribute('data-sport', sport);
+      var prefix = gender === 'W' ? "Woman's" : "Men's";
+      tab.textContent = prefix + ' ' + sport;
 
       if (handlerName && typeof window[handlerName] === 'function') {
         tab.setAttribute('onclick', handlerName + '(this)');
