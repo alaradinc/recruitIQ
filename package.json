@@ -1,9 +1,10 @@
 {
   "name": "thepipeline-site",
   "private": true,
-  "description": "Static site (ThePipeline). Run npm start from this project folder (parent of index.html).",
+  "description": "ThePipeline static site. Repo root holds pages; assets/js shared scripts; scripts/ for dev.",
   "scripts": {
-    "start": "python3 serve.py",
-    "serve": "python3 serve.py"
+    "start": "python3 scripts/serve.py",
+    "serve": "python3 scripts/serve.py",
+    "sync-docs": "mkdir -p docs/assets/js && cp assets/js/add-sport-tab.js docs/assets/js/ && cp index.html all-players.html team.html film-search.html pipeline.html messages.html docs/ && rm -f docs/add-sport-tab.js"
   }
 }

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Always serve files from this script's directory (ThePipeline / project root),
-so you get 200 + index.html even if your terminal cwd is somewhere else.
+Serve the ThePipeline static site from the *repository root* (parent of scripts/),
+so you get index.html at / even when your shell cwd is elsewhere.
 """
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ import os
 import socketserver
 import sys
 
-ROOT = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 INDEX = os.path.join(ROOT, "index.html")
 
 if not os.path.isfile(INDEX):
@@ -36,7 +36,7 @@ def main() -> None:
             print(
                 f"ERROR: Port {PORT} is already in use.\n"
                 f"  Stop the other process (e.g. another http.server), or run:\n"
-                f"  PORT=8090 python3 serve.py",
+                f"  PORT=8090 python3 scripts/serve.py",
                 file=sys.stderr,
             )
         raise SystemExit(1) from e
